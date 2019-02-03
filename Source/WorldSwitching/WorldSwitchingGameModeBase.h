@@ -4,20 +4,32 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "Camera/CameraActor.h"
+#include "Camera/CameraComponent.h"
+#include "Components/InputComponent.h"
 #include "WorldSwitchingGameModeBase.generated.h"
 
 /**
  * 
  */
 
+class UCameraComponent;
+
 UCLASS()
 class WORLDSWITCHING_API AWorldSwitchingGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
-		virtual void BeginPlay() override;
 
+		AWorldSwitchingGameModeBase();
+
+		virtual void BeginPlay() override;
+		
+public:
+
+	void ChangeWorlds();
+
+	bool bIsSpiritWorld;
 	
-	ACameraActor* PawnCamera;
+	UCameraComponent* CameraComponent = nullptr;
+
+	APlayerController* PlayerController = nullptr;
 };
