@@ -29,7 +29,17 @@ public:
 
 	bool bIsSpiritWorld;
 	
+	
 	UCameraComponent* CameraComponent = nullptr;
 
 	APlayerController* PlayerController = nullptr;
+
+	UFUNCTION(BlueprintCallable)
+		UCameraComponent* GetCameraComponent()
+	{
+		return CameraComponent;
+	}
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void WorldTransitionEffects();
 };

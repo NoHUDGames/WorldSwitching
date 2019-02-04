@@ -36,6 +36,8 @@ void AWorldSwitchingGameModeBase::ChangeWorlds()
 {
 	bIsSpiritWorld = !bIsSpiritWorld;
 
+	WorldTransitionEffects();
+
 	if (bIsSpiritWorld)
 	{
 		CameraComponent->PostProcessSettings.VignetteIntensity = 0.8f;
