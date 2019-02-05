@@ -43,13 +43,14 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 
 void AWorldSwitchingGameModeBase::ChangeWorlds()
 {
-	bIsSpiritWorld = !bIsSpiritWorld;
-
 	WorldTransitionEffects();
+
+	bIsSpiritWorld = !bIsSpiritWorld;
+	
 
 	if (bIsSpiritWorld)
 	{
-		CameraComponent->PostProcessSettings.VignetteIntensity = 0.8f;
+		CameraComponent->PostProcessSettings.VignetteIntensity = 1.0f;
 	}
 
 	else
@@ -60,5 +61,5 @@ void AWorldSwitchingGameModeBase::ChangeWorlds()
 			CameraComponent->PostProcessSettings.VignetteIntensity = 0.0f;
 		}
 	}
-
+	UE_LOG(LogTemp, Warning, TEXT("Etter Vignette;"))
 }
