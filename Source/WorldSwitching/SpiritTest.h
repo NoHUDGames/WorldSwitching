@@ -4,18 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "BP_Character.generated.h"
+#include "SpiritTest.generated.h"
 
 UCLASS()
-class WORLDSWITCHING_API ABP_Character : public ACharacter
+class WORLDSWITCHING_API ASpiritTest : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this character's properties
-	ABP_Character();
-
-
+	ASpiritTest();
 
 protected:
 	// Called when the game starts or when spawned
@@ -28,8 +26,4 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	void MoveUp(float AxisValue);
-	void MoveDown(float AxisValue);
-	void MoveLeft(float AxisValue);
-	void MoveRight(float AxisValue);
 };

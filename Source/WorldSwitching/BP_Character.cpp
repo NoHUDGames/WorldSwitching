@@ -37,19 +37,19 @@ void ABP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 }
 
 void ABP_Character::MoveUp(float AxisValue)
-{
-	AddMovementInput(FVector(0.f, -50.f, 0.f), AxisValue);
+{//50.f, 0.f, 0.f
+	AddMovementInput(FVector(50.f, 0.f, 0.f), AxisValue);
 }
 
 void ABP_Character::MoveDown(float AxisValue)
-{
-	AddMovementInput(FVector(0.f, 50.f, 0.f), AxisValue);
-}
-void ABP_Character::MoveLeft(float AxisValue)
-{
+{//-50.f, 0.f, 0.f
 	AddMovementInput(FVector(-50.f, 0.f, 0.f), AxisValue);
 }
+void ABP_Character::MoveLeft(float AxisValue)
+{//0.f, -50.f, 0.f
+	AddMovementInput(FVector(0.f, -50.f, 0.f), AxisValue);
+}
 void ABP_Character::MoveRight(float AxisValue)
-{
-	AddMovementInput(FVector(50.f, 0.f, 0.f), AxisValue);
+{//0.f, 50.f, 0.f
+	AddMovementInput(FVector(0.f, 50.f, 0.f), AxisValue);
 }
