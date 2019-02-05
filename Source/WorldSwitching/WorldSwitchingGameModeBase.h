@@ -22,6 +22,8 @@ class WORLDSWITCHING_API AWorldSwitchingGameModeBase : public AGameModeBase
 		AWorldSwitchingGameModeBase();
 
 		virtual void BeginPlay() override;
+
+		virtual void Tick(float DeltaTime) override;
 		
 public:
 
@@ -35,7 +37,7 @@ public:
 	APlayerController* PlayerController = nullptr;
 
 	UFUNCTION(BlueprintCallable)
-		UCameraComponent* GetCameraComponent()
+		UCameraComponent* GetPawnCameraComponent()
 	{
 		return CameraComponent;
 	}

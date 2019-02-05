@@ -7,12 +7,21 @@
 
 AWorldSwitchingGameModeBase::AWorldSwitchingGameModeBase()
 {
+	PrimaryActorTick.bCanEverTick = true;
 	bIsSpiritWorld = false;
+
+	
+}
+
+void AWorldSwitchingGameModeBase::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 }
 
 
 void AWorldSwitchingGameModeBase::BeginPlay()
 {
+	Super::BeginPlay();
 
 	EAutoReceiveInput::Player0;
 	CameraComponent = Cast<UCameraComponent>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetComponentByClass(UCameraComponent::StaticClass()));
