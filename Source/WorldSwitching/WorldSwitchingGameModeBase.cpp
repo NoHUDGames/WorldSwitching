@@ -1,11 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "WorldSwitchingGameModeBase.h"
-#include "Components/SkeletalMeshComponent.h"
-#include "GameplayTagContainer.h"
 #include "Kismet/GameplayStatics.h"
 
 class ASpiritTest;
+class APWorldActor;
 
 AWorldSwitchingGameModeBase::AWorldSwitchingGameModeBase()
 {
@@ -54,74 +53,95 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 		
 		SpiritItr->SetActorEnableCollision(false);
 		SpiritItr->SetActorHiddenInGame(true);
-
 	}
 
-	//Alle Spiritmesh starter som ikke-synlig og ikke-collision
-	for (TActorIterator<AActor> SpiritMeshItr(GetWorld()); SpiritMeshItr; ++SpiritMeshItr)
-	{
-		// Same as with the Object Iterator, access the subclass instance with the * or -> operators.
-		AActor *SpiritTest = *SpiritMeshItr;
-		if (SpiritMeshItr->ActorHasTag("VisibleInSpirit"))
-		{
-			UE_LOG(LogTemp,Warning, TEXT("Tag found"))
-			SpiritMeshItr->SetActorEnableCollision(false);
-			SpiritMeshItr->SetActorHiddenInGame(true);
-		}
-	}
 }
 
 
 void AWorldSwitchingGameModeBase::ChangeWorlds()
 {
 	WorldTransitionEffects();
-
 	bIsSpiritWorld = !bIsSpiritWorld;
 	
-
 	if (bIsSpiritWorld)
 	{
-		CameraComponent->PostProcessSettings.VignetteIntensity = 1.0f;
-
-		//Finne fienden
-		for (TActorIterator<ASpiritTest> SpiritItr(GetWorld()); SpiritItr; ++SpiritItr)
+		if (CameraComponent)
 		{
-			// Same as with the Object Iterator, access the subclass instance with the * or -> operators.
-			ASpiritTest *SpiritTest = *SpiritItr;
-			SpiritItr->SetActorEnableCollision(true);
-			SpiritItr->SetActorHiddenInGame(false);
+			CameraComponent->PostProcessSettings.VignetteIntensity = 1.0f;
 		}
 
-		//Finne alle meshes som kun er aktiv i SpiritWorld
-		for (TActorIterator<AActor> SpiritMeshItr(GetWorld()); SpiritMeshItr; ++SpiritMeshItr)
-		{
-			// Same as with the Object Iterator, access the subclass instance with the * or -> operators.
-			AActor *SpiritTest = *SpiritMeshItr;
-			if (SpiritMeshItr->ActorHasTag("VisibleInSpirit"))
-			{
-				SpiritMeshItr->SetActorEnableCollision(true);
-				SpiritMeshItr->SetActorHiddenInGame(false);
-			}
-		}
+		TogglePWorldActors();
+		ToggleSpiritCharacters();
+		//For at kollisjonene ikke skal overlappe i samme tick
+		//GetWorldTimerManager().SetTimer(SwitchLag, this,
+			//&AWorldSwitchingGameModeBase::ToggleSpiritCharacters, 0.1f, false);
+
 	}
 
 	else
-
 	{
 		if (CameraComponent)
 		{
 			CameraComponent->PostProcessSettings.VignetteIntensity = 0.0f;
 		}
 
+		//Først fjern spirits
+		ToggleSpiritCharacters();
+		TogglePWorldActors();
+		//Deretter skru på fysiske omgivelser
+		//GetWorldTimerManager().SetTimer(SwitchLag, this,
+			//&AWorldSwitchingGameModeBase::TogglePWorldActors, 0.1f, false);
+	}
+}
+
+void AWorldSwitchingGameModeBase::TogglePWorldActors()
+{
+	if (bIsSpiritWorld)
+	{
+		//Alle PWorldActor settes som usynlig uten collision
+		for (TActorIterator<APWorldActor> PActorItr(GetWorld()); PActorItr; ++PActorItr)
+		{
+			APWorldActor *PWorldActor = *PActorItr;
+
+			PActorItr->SetActorEnableCollision(false);
+			PActorItr->SetActorHiddenInGame(true);
+			
+		}
+	}
+
+	else
+	{
+		//Alle PWorldActor settes som synlig m/collision
+		for (TActorIterator<APWorldActor> PActorItr(GetWorld()); PActorItr; ++PActorItr)
+		{
+			APWorldActor *PWorldActor = *PActorItr;
+
+			PActorItr->SetActorEnableCollision(true);
+			PActorItr->SetActorHiddenInGame(false);
+		}
+	}
+}
+
+void AWorldSwitchingGameModeBase::ToggleSpiritCharacters()
+{
+	if (bIsSpiritWorld)
+	{
+		//Gjøre EnemySpirits synlig m/collision
 		for (TActorIterator<ASpiritTest> SpiritItr(GetWorld()); SpiritItr; ++SpiritItr)
 		{
-			// Same as with the Object Iterator, access the subclass instance with the * or -> operators.
+			ASpiritTest *SpiritTest = *SpiritItr;
+			SpiritItr->SetActorEnableCollision(true);
+			SpiritItr->SetActorHiddenInGame(false);
+		}
+	}
+	else
+	{
+		//Spirit enemy settes som usynlig u/collision
+		for (TActorIterator<ASpiritTest> SpiritItr(GetWorld()); SpiritItr; ++SpiritItr)
+		{
 			ASpiritTest *SpiritTest = *SpiritItr;
 			SpiritItr->SetActorEnableCollision(false);
 			SpiritItr->SetActorHiddenInGame(true);
 		}
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Etter Vignette;"))
-
-		
 }

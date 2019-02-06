@@ -7,7 +7,9 @@
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
 #include "SpiritTest.h"
+#include "PWorldActor.h"
 #include "EngineUtils.h"
+#include "TimerManager.h"
 #include "WorldSwitchingGameModeBase.generated.h"
 
 /**
@@ -39,7 +41,9 @@ public:
 
 	APlayerController* PlayerController = nullptr;
 
-	TArray<ASpiritTest*> EnemySpirits;
+	//Trenger en liten lag for at spirits ikke skal kollidere med fysiske omgivelser
+	//ved skifte av verden
+	FTimerHandle SwitchLag;
 
 	UFUNCTION(BlueprintCallable)
 		UCameraComponent* GetPawnCameraComponent()
@@ -48,5 +52,10 @@ public:
 	}
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void WorldTransitionEffects();
+	void WorldTransitionEffects();
+
+	void TogglePWorldActors();
+	void ToggleSpiritCharacters();
 };
+
+
