@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Components/BoxComponent.h"
 #include "BP_Character.generated.h"
 
 UCLASS()
@@ -36,6 +38,15 @@ public:
 	void Kicking();
 	void StopKicking();
 
-	UPROPERTY(VisibleAnywhere)
-		USceneComponent* KickingRotation;
+	void SetupKickingRotation();
+
+	void SetupKickingLeg();
+
+	void SetupKickingCollision();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		USceneComponent* KickingRotation {nullptr};
+
+	
+
 };

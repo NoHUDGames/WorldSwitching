@@ -9,6 +9,11 @@ ABP_Character::ABP_Character()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Root component for kicking
+	KickingRotation = CreateDefaultSubobject<USceneComponent>(TEXT("KickingRotation"));
+	KickingRotation->Mobility = EComponentMobility::Static;
+	KickingRotation->bVisualizeComponent = true;
+
 }
 
 // Called when the game starts or when spawned
@@ -60,3 +65,7 @@ void ABP_Character::StopKicking()
 	FRotator NewRotation{ 0.f,0.f ,0.f };
 	KickingRotation->AddLocalRotation(NewRotation);
 }
+
+
+
+
