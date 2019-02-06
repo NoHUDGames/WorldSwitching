@@ -29,7 +29,13 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void MoveUp(float AxisValue);
-	void MoveDown(float AxisValue);
-	void MoveLeft(float AxisValue);
+	///void MoveDown(float AxisValue);
+	///void MoveLeft(float AxisValue);
 	void MoveRight(float AxisValue);
+
+	void Kicking();
+	void StopKicking();
+
+	UPROPERTY(VisibleAnywhere)
+		USceneComponent* KickingRotation;
 };
