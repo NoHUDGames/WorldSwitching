@@ -10,8 +10,6 @@ AWorldSwitchingGameModeBase::AWorldSwitchingGameModeBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bIsSpiritWorld = false;
-
-	
 }
 
 void AWorldSwitchingGameModeBase::Tick(float DeltaTime)
@@ -27,8 +25,8 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 	EAutoReceiveInput::Player0;
 	CameraComponent = Cast<UCameraComponent>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetComponentByClass(UCameraComponent::StaticClass()));
 	PlayerController = GetWorld()->GetFirstPlayerController();
-
-	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpiritTest::StaticClass(), EnemySpirits);
+	
+	
 	
 
 	if (CameraComponent)
@@ -54,7 +52,6 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 		SpiritItr->SetActorEnableCollision(false);
 		SpiritItr->SetActorHiddenInGame(true);
 	}
-
 }
 
 
@@ -73,8 +70,10 @@ void AWorldSwitchingGameModeBase::ChangeWorlds()
 		TogglePWorldActors();
 		ToggleSpiritCharacters();
 		//For at kollisjonene ikke skal overlappe i samme tick
+
+
 		//GetWorldTimerManager().SetTimer(SwitchLag, this,
-			//&AWorldSwitchingGameModeBase::ToggleSpiritCharacters, 0.1f, false);
+		//&AWorldSwitchingGameModeBase::ToggleSpiritCharacters, 1.f, false);
 
 	}
 
@@ -88,9 +87,10 @@ void AWorldSwitchingGameModeBase::ChangeWorlds()
 		//Først fjern spirits
 		ToggleSpiritCharacters();
 		TogglePWorldActors();
+		
 		//Deretter skru på fysiske omgivelser
 		//GetWorldTimerManager().SetTimer(SwitchLag, this,
-			//&AWorldSwitchingGameModeBase::TogglePWorldActors, 0.1f, false);
+		//&AWorldSwitchingGameModeBase::TogglePWorldActors, 1.f, false);
 	}
 }
 

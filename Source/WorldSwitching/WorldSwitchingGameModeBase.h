@@ -43,6 +43,7 @@ public:
 
 	//Trenger en liten lag for at spirits ikke skal kollidere med fysiske omgivelser
 	//ved skifte av verden
+
 	FTimerHandle SwitchLag;
 
 	UFUNCTION(BlueprintCallable)
@@ -56,6 +57,7 @@ public:
 
 	void TogglePWorldActors();
 	void ToggleSpiritCharacters();
+	
 };
 
 
