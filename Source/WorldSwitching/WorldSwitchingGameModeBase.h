@@ -6,8 +6,6 @@
 #include "GameFramework/GameModeBase.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
-#include "SpiritTest.h"
-#include "PWorldActor.h"
 #include "EngineUtils.h"
 #include "TimerManager.h"
 #include "WorldSwitchingGameModeBase.generated.h"
@@ -56,7 +54,9 @@ public:
 	void WorldTransitionEffects();
 
 	void TogglePWorldActors();
+	void ToggleSWorldActors();
 	void ToggleSpiritCharacters();
+	void ToggleParticleEffects();
 	
 };
 

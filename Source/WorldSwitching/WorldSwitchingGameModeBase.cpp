@@ -1,10 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "WorldSwitchingGameModeBase.h"
+#include "PWorldActor.h"
+#include "SWorldActor.h"
+#include "SpiritTest.h"
+#include "ParticleEffectActor.h"
 #include "Kismet/GameplayStatics.h"
 
-class ASpiritTest;
-class APWorldActor;
+//class ASpiritTest;
+//class APWorldActor;
 
 AWorldSwitchingGameModeBase::AWorldSwitchingGameModeBase()
 {
@@ -42,16 +46,8 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 	}
 
 	
-	//https://wiki.unrealengine.com/Iterators:_Object_%26_Actor_Iterators,_Optional_Class_Scope_For_Faster_Search
-	for (TActorIterator<ASpiritTest> SpiritItr(GetWorld()); SpiritItr; ++SpiritItr)
-	{
-		// Same as with the Object Iterator, access the subclass instance with the * or -> operators.
-		ASpiritTest *SpiritTest = *SpiritItr;
-		UE_LOG(LogTemp, Warning, TEXT("Found Spirit!"))
-		
-		SpiritItr->SetActorEnableCollision(false);
-		SpiritItr->SetActorHiddenInGame(true);
-	}
+	ToggleSpiritCharacters();
+	ToggleSWorldActors();
 }
 
 
@@ -68,12 +64,9 @@ void AWorldSwitchingGameModeBase::ChangeWorlds()
 		}
 
 		TogglePWorldActors();
+		ToggleSWorldActors();
 		ToggleSpiritCharacters();
-		//For at kollisjonene ikke skal overlappe i samme tick
-
-
-		//GetWorldTimerManager().SetTimer(SwitchLag, this,
-		//&AWorldSwitchingGameModeBase::ToggleSpiritCharacters, 1.f, false);
+		ToggleParticleEffects();
 
 	}
 
@@ -84,13 +77,12 @@ void AWorldSwitchingGameModeBase::ChangeWorlds()
 			CameraComponent->PostProcessSettings.VignetteIntensity = 0.0f;
 		}
 
-		//Først fjern spirits
+
 		ToggleSpiritCharacters();
 		TogglePWorldActors();
+		ToggleSWorldActors();
+		ToggleParticleEffects();
 		
-		//Deretter skru på fysiske omgivelser
-		//GetWorldTimerManager().SetTimer(SwitchLag, this,
-		//&AWorldSwitchingGameModeBase::TogglePWorldActors, 1.f, false);
 	}
 }
 
@@ -122,6 +114,34 @@ void AWorldSwitchingGameModeBase::TogglePWorldActors()
 	}
 }
 
+void AWorldSwitchingGameModeBase::ToggleSWorldActors()
+{
+	if (bIsSpiritWorld)
+	{
+		//Alle PWorldActor settes som usynlig uten collision
+		for (TActorIterator<ASWorldActor> SActorItr(GetWorld()); SActorItr; ++SActorItr)
+		{
+			ASWorldActor *SWorldActor = *SActorItr;
+
+			SActorItr->SetActorEnableCollision(true);
+			SActorItr->SetActorHiddenInGame(false);
+
+		}
+	}
+
+	else
+	{
+		//Alle PWorldActor settes som usynlig uten collision
+		for (TActorIterator<ASWorldActor> SActorItr(GetWorld()); SActorItr; ++SActorItr)
+		{
+			ASWorldActor *SWorldActor = *SActorItr;
+
+			SActorItr->SetActorEnableCollision(false);
+			SActorItr->SetActorHiddenInGame(true);
+		}
+	}
+}
+
 void AWorldSwitchingGameModeBase::ToggleSpiritCharacters()
 {
 	if (bIsSpiritWorld)
@@ -145,3 +165,30 @@ void AWorldSwitchingGameModeBase::ToggleSpiritCharacters()
 		}
 	}
 }
+
+void AWorldSwitchingGameModeBase::ToggleParticleEffects()
+{
+	if (bIsSpiritWorld)
+	{
+		for (TActorIterator<AParticleEffectActor> ParticleItr(GetWorld()); ParticleItr; ++ParticleItr)
+		{
+			AParticleEffectActor *SpiritTest = *ParticleItr;
+			UE_LOG(LogTemp, Warning, TEXT("Found Spirit!"))
+
+			ParticleItr->PhysicalWorldParticles->Deactivate();
+			ParticleItr->SpiritWorldParticles->Activate();
+		}
+	}
+	else
+	{
+		for (TActorIterator<AParticleEffectActor> ParticleItr(GetWorld()); ParticleItr; ++ParticleItr)
+		{
+			AParticleEffectActor *SpiritTest = *ParticleItr;
+			
+
+			ParticleItr->PhysicalWorldParticles->Activate();
+			ParticleItr->SpiritWorldParticles->Deactivate();
+		}
+	}
+}
+
