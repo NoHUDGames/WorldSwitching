@@ -67,7 +67,6 @@ void AWorldSwitchingGameModeBase::ChangeWorlds()
 		ToggleSWorldActors();
 		ToggleSpiritCharacters();
 		ToggleParticleEffects();
-
 	}
 
 	else
@@ -76,13 +75,10 @@ void AWorldSwitchingGameModeBase::ChangeWorlds()
 		{
 			CameraComponent->PostProcessSettings.VignetteIntensity = 0.0f;
 		}
-
-
 		ToggleSpiritCharacters();
 		TogglePWorldActors();
 		ToggleSWorldActors();
 		ToggleParticleEffects();
-		
 	}
 }
 
