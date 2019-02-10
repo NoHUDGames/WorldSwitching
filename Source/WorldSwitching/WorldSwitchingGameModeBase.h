@@ -39,6 +39,12 @@ public:
 
 	APlayerController* PlayerController = nullptr;
 
+	UPROPERTY(EditAnywhere)
+		USoundBase* SoundToSpiritWorld = nullptr;
+
+	UPROPERTY(EditAnywhere)
+		USoundBase* SoundFromSpiritWorld = nullptr;
+
 	//Trenger en liten lag for at spirits ikke skal kollidere med fysiske omgivelser
 	//ved skifte av verden
 
@@ -53,11 +59,12 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void WorldTransitionEffects();
 
-	void TogglePWorldActors();
-	void ToggleSWorldActors();
-	void ToggleSpiritCharacters();
+	void TogglePhysicalWorldActors();
+	void ToggleSpiritWorldActors();
+	void ToggleLastingCameraEffects();
+
+	//For ParticleEffects that have a spiritworld and physicalworld component
 	void ToggleParticleEffects();
-	
 };
 
 

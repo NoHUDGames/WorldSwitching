@@ -45,9 +45,7 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 			PlayerController->InputComponent->BindAction("ChangeWorlds", IE_Pressed, this, &AWorldSwitchingGameModeBase::ChangeWorlds);
 	}
 
-	
-	ToggleSpiritCharacters();
-	ToggleSWorldActors();
+	ToggleSpiritWorldActors();
 }
 
 
@@ -55,34 +53,14 @@ void AWorldSwitchingGameModeBase::ChangeWorlds()
 {
 	WorldTransitionEffects();
 	bIsSpiritWorld = !bIsSpiritWorld;
-	
-	if (bIsSpiritWorld)
-	{
-		if (CameraComponent)
-		{
-			CameraComponent->PostProcessSettings.VignetteIntensity = 1.0f;
-		}
 
-		TogglePWorldActors();
-		ToggleSWorldActors();
-		ToggleSpiritCharacters();
-		ToggleParticleEffects();
-	}
-
-	else
-	{
-		if (CameraComponent)
-		{
-			CameraComponent->PostProcessSettings.VignetteIntensity = 0.0f;
-		}
-		ToggleSpiritCharacters();
-		TogglePWorldActors();
-		ToggleSWorldActors();
-		ToggleParticleEffects();
-	}
+	TogglePhysicalWorldActors();
+	ToggleSpiritWorldActors();
+	ToggleParticleEffects();
+	ToggleLastingCameraEffects();
 }
 
-void AWorldSwitchingGameModeBase::TogglePWorldActors()
+void AWorldSwitchingGameModeBase::TogglePhysicalWorldActors()
 {
 	if (bIsSpiritWorld)
 	{
@@ -110,11 +88,11 @@ void AWorldSwitchingGameModeBase::TogglePWorldActors()
 	}
 }
 
-void AWorldSwitchingGameModeBase::ToggleSWorldActors()
+void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
 {
 	if (bIsSpiritWorld)
 	{
-		//Alle PWorldActor settes som usynlig uten collision
+		//SWorldActors synlig m/collision
 		for (TActorIterator<ASWorldActor> SActorItr(GetWorld()); SActorItr; ++SActorItr)
 		{
 			ASWorldActor *SWorldActor = *SActorItr;
@@ -123,6 +101,15 @@ void AWorldSwitchingGameModeBase::ToggleSWorldActors()
 			SActorItr->SetActorHiddenInGame(false);
 
 		}
+
+		//EnemySpirits synlig m/collision
+		for (TActorIterator<ASpiritTest> SpiritItr(GetWorld()); SpiritItr; ++SpiritItr)
+		{
+			ASpiritTest *SpiritTest = *SpiritItr;
+			SpiritItr->SetActorEnableCollision(true);
+			SpiritItr->SetActorHiddenInGame(false);
+		}
+
 	}
 
 	else
@@ -135,24 +122,8 @@ void AWorldSwitchingGameModeBase::ToggleSWorldActors()
 			SActorItr->SetActorEnableCollision(false);
 			SActorItr->SetActorHiddenInGame(true);
 		}
-	}
-}
 
-void AWorldSwitchingGameModeBase::ToggleSpiritCharacters()
-{
-	if (bIsSpiritWorld)
-	{
-		//Gjøre EnemySpirits synlig m/collision
-		for (TActorIterator<ASpiritTest> SpiritItr(GetWorld()); SpiritItr; ++SpiritItr)
-		{
-			ASpiritTest *SpiritTest = *SpiritItr;
-			SpiritItr->SetActorEnableCollision(true);
-			SpiritItr->SetActorHiddenInGame(false);
-		}
-	}
-	else
-	{
-		//Spirit enemy settes som usynlig u/collision
+		//EnemySpirit settes som usynlig u/collision
 		for (TActorIterator<ASpiritTest> SpiritItr(GetWorld()); SpiritItr; ++SpiritItr)
 		{
 			ASpiritTest *SpiritTest = *SpiritItr;
@@ -161,6 +132,7 @@ void AWorldSwitchingGameModeBase::ToggleSpiritCharacters()
 		}
 	}
 }
+
 
 void AWorldSwitchingGameModeBase::ToggleParticleEffects()
 {
@@ -188,3 +160,16 @@ void AWorldSwitchingGameModeBase::ToggleParticleEffects()
 	}
 }
 
+void AWorldSwitchingGameModeBase::ToggleLastingCameraEffects()
+{
+	if (bIsSpiritWorld && CameraComponent)
+	{
+		CameraComponent->PostProcessSettings.VignetteIntensity = 1.0f;
+	}
+
+	else if (!bIsSpiritWorld && CameraComponent)
+	{
+		CameraComponent->PostProcessSettings.VignetteIntensity = 0.0f;
+	}
+
+}
