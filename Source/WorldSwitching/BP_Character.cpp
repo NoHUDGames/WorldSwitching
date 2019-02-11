@@ -14,6 +14,18 @@ ABP_Character::ABP_Character()
 	KickingRotation->Mobility = EComponentMobility::Static;
 	KickingRotation->bVisualizeComponent = true;
 
+	// Create and position a mesh component so we can see where our sphere is
+	SphereVisual = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FakeLeg"));
+	SphereVisual->SetupAttachment(KickingRotation);
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereVisualAsset(TEXT("/Engine/BasicShapes/Cube.Cube"));
+	if (SphereVisualAsset.Succeeded())
+	{
+		SphereVisual->bVisualizeComponent = true;
+		SphereVisual->SetStaticMesh(SphereVisualAsset.Object);
+		SphereVisual->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
+		SphereVisual->SetWorldScale3D(FVector(0.8f));
+	}
+
 }
 
 // Called when the game starts or when spawned
