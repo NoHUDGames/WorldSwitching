@@ -2,6 +2,8 @@
 
 #include "BP_Character.h"
 #include "Components/SceneComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values
 ABP_Character::ABP_Character()
@@ -11,20 +13,25 @@ ABP_Character::ABP_Character()
 
 	// Root component for kicking
 	KickingRotation = CreateDefaultSubobject<USceneComponent>(TEXT("KickingRotation"));
-	KickingRotation->Mobility = EComponentMobility::Static;
+	KickingRotation->SetupAttachment(RootComponent);
+	KickingRotation->Mobility = EComponentMobility::Movable;
 	KickingRotation->bVisualizeComponent = true;
 
 	// Create and position a mesh component so we can see where our sphere is
 	SphereVisual = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FakeLeg"));
-	SphereVisual->SetupAttachment(KickingRotation);
+	SphereVisual->SetupAttachment(RootComponent);
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereVisualAsset(TEXT("/Engine/BasicShapes/Cube.Cube"));
 	if (SphereVisualAsset.Succeeded())
 	{
 		SphereVisual->bVisualizeComponent = true;
 		SphereVisual->SetStaticMesh(SphereVisualAsset.Object);
-		SphereVisual->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
-		SphereVisual->SetWorldScale3D(FVector(0.8f));
+		SphereVisual->SetRelativeLocation(FVector(0.0f, 0.0f, 50.0f));
+		SphereVisual->Mobility = EComponentMobility::Movable;
+		SphereVisual->SetWorldScale3D(FVector(0.2f));
 	}
+
+	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("FootCollider"));
+	BoxCollider->SetupAttachment(SphereVisual);
 
 }
 
@@ -50,7 +57,7 @@ void ABP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("MoveUp", this, &ABP_Character::MoveUp);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABP_Character::MoveRight);
 	PlayerInputComponent->BindAction("Kicking", IE_Pressed, this, &ABP_Character::Kicking);
-	PlayerInputComponent->BindAction("Kicking", IE_Released, this, &ABP_Character::StopKicking);
+	///PlayerInputComponent->BindAction("Kicking", IE_Released, this, &ABP_Character::StopKicking);
 
 
 
@@ -68,14 +75,14 @@ void ABP_Character::MoveRight(float AxisValue)
 
 void ABP_Character::Kicking()
 {
-	FRotator NewRotation{0.f,0.f ,90.f };
-	KickingRotation->AddLocalRotation(NewRotation);
+	FRotator NewRotation{90.f, 0.f ,0.f };
+	SphereVisual->AddLocalRotation(NewRotation);
 }
 
 void ABP_Character::StopKicking()
 {
 	FRotator NewRotation{ 0.f,0.f ,0.f };
-	KickingRotation->AddLocalRotation(NewRotation);
+	SphereVisual->AddLocalRotation(NewRotation);
 }
 
 

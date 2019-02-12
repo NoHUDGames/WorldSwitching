@@ -45,11 +45,15 @@ public:
 	void SetupKickingCollision();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UBoxComponent* BoxCollider {nullptr};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		USceneComponent* KickingRotation {nullptr};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UStaticMeshComponent* SphereVisual{ nullptr };
 
+	
 	
 
 };
