@@ -4,6 +4,7 @@
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "SpiritTest.h"
 
 // Sets default values
 ABP_Character::ABP_Character()
@@ -40,6 +41,8 @@ ABP_Character::ABP_Character()
 void ABP_Character::BeginPlay()
 {
 	Super::BeginPlay();
+
+	BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &ABP_Character::HittingEnemy);
 	
 }
 
@@ -79,14 +82,15 @@ void ABP_Character::Kicking()
 		CurrentlyKicking = true;
 
 		/// Turns on overlapping with other pawns for the kick box collider
-		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-		
+		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel13, ECollisionResponse::ECR_Overlap);
 		/// Rotates the scene component, so the kick kan hit something
 		FRotator NewRotation{ 90.f, 0.f ,0.f };
 		KickingRotation->AddLocalRotation(NewRotation);
 
 		/// Resets the kick after 0.3 seconds
 		GetWorldTimerManager().SetTimer(Timer, this, &ABP_Character::StopKicking, 0.3f, false);
+
+		
 		
 	}
 	
@@ -96,10 +100,24 @@ void ABP_Character::StopKicking()
 {
 	/// Resets all values set in the function Kicking
 	FRotator NewRotation{ -90.f,0.f ,0.f };
-	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel13, ECollisionResponse::ECR_Ignore);
 	KickingRotation->AddLocalRotation(NewRotation);
 	CurrentlyKicking = false;
+	BoxCollider->GetCollisionEnabled();
 }
+
+void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, 
+	UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+{
+	UE_LOG(LogTemp, Warning, TEXT("You are hitting a Spirit Enemy"))
+	/// UE_LOG(LogTemp, Warning, TEXT("You are hitting a Spirit Enemy"))
+	if (OtherActor->IsA(ASpiritTest::StaticClass()))
+	{
+		
+	};
+}
+
+
 
 
 

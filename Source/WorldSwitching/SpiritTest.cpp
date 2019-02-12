@@ -22,6 +22,8 @@ void ASpiritTest::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	KillingEnemy();
+
 }
 
 // Called to bind functionality to input
@@ -29,5 +31,13 @@ void ASpiritTest::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void ASpiritTest::KillingEnemy()
+{
+	if (lives <= 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Enemy is dying!"))
+	}
 }
 
