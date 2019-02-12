@@ -17,9 +17,10 @@ ABP_Character::ABP_Character()
 	KickingRotation->Mobility = EComponentMobility::Movable;
 	KickingRotation->bVisualizeComponent = true;
 
-	// Create and position a mesh component so we can see where our sphere is
+	// Create and position a mesh component so we can see where our sphere is 
+	// DUMMY mesh, only for prototype. Will exchange when we have animation for kicking
 	SphereVisual = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FakeLeg"));
-	SphereVisual->SetupAttachment(RootComponent);
+	SphereVisual->SetupAttachment(KickingRotation);
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereVisualAsset(TEXT("/Engine/BasicShapes/Cube.Cube"));
 	if (SphereVisualAsset.Succeeded())
 	{
@@ -57,9 +58,6 @@ void ABP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("MoveUp", this, &ABP_Character::MoveUp);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABP_Character::MoveRight);
 	PlayerInputComponent->BindAction("Kicking", IE_Pressed, this, &ABP_Character::Kicking);
-	///PlayerInputComponent->BindAction("Kicking", IE_Released, this, &ABP_Character::StopKicking);
-
-
 
 }
 
@@ -75,14 +73,32 @@ void ABP_Character::MoveRight(float AxisValue)
 
 void ABP_Character::Kicking()
 {
-	FRotator NewRotation{90.f, 0.f ,0.f };
-	SphereVisual->AddLocalRotation(NewRotation);
+	if (!CurrentlyKicking)
+	{
+		/// Makes it impossible for the player to kick while it's already kicking
+		CurrentlyKicking = true;
+
+		/// Turns on overlapping with other pawns for the kick box collider
+		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+		
+		/// Rotates the scene component, so the kick kan hit something
+		FRotator NewRotation{ 90.f, 0.f ,0.f };
+		KickingRotation->AddLocalRotation(NewRotation);
+
+		/// Resets the kick after 0.3 seconds
+		GetWorldTimerManager().SetTimer(Timer, this, &ABP_Character::StopKicking, 0.3f, false);
+		
+	}
+	
 }
 
 void ABP_Character::StopKicking()
 {
-	FRotator NewRotation{ 0.f,0.f ,0.f };
-	SphereVisual->AddLocalRotation(NewRotation);
+	/// Resets all values set in the function Kicking
+	FRotator NewRotation{ -90.f,0.f ,0.f };
+	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	KickingRotation->AddLocalRotation(NewRotation);
+	CurrentlyKicking = false;
 }
 
 
