@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SpiritTest.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 ASpiritTest::ASpiritTest()
@@ -14,6 +15,8 @@ ASpiritTest::ASpiritTest()
 void ASpiritTest::BeginPlay()
 {
 	Super::BeginPlay();
+
+	
 	
 }
 
@@ -33,11 +36,25 @@ void ASpiritTest::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 }
 
+
+
 void ASpiritTest::KillingEnemy()
 {
-	if (lives <= 0)
+	if (Lives <= 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Enemy is dying!"))
+			Destroy();
 	}
+}
+
+void ASpiritTest::DecrementingLives()
+{
+	if (Lives >= 0)
+	{
+		--Lives;
+		UE_LOG(LogTemp, Warning, TEXT("Enemy has %i lives left"), Lives)
+		
+	}
+	
 }
 

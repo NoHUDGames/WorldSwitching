@@ -26,8 +26,11 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	int lives{ 3 };
+	int Lives{ 3 };
 
 	void KillingEnemy();
+
+	void DecrementingLives();
+
 
 };
