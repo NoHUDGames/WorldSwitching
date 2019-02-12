@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Components/BoxComponent.h"
+#include "TimerManager.h"
 #include "BP_Character.generated.h"
 
 UCLASS()
@@ -17,6 +18,7 @@ public:
 	// Sets default values for this character's properties
 	ABP_Character();
 
+	
 
 
 protected:
@@ -38,11 +40,10 @@ public:
 	void Kicking();
 	void StopKicking();
 
-	void SetupKickingRotation();
+	bool CurrentlyKicking{ false };
 
-	void SetupKickingLeg();
+	FTimerHandle Timer;
 
-	void SetupKickingCollision();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UBoxComponent* BoxCollider {nullptr};
