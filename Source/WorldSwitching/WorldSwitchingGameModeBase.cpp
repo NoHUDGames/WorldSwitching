@@ -3,6 +3,7 @@
 #include "WorldSwitchingGameModeBase.h"
 #include "PWorldActor.h"
 #include "SWorldActor.h"
+#include "PSWorldActor.h"
 #include "SpiritTest.h"
 #include "ParticleEffectActor.h"
 #include "Kismet/GameplayStatics.h"
@@ -58,6 +59,7 @@ void AWorldSwitchingGameModeBase::ChangeWorlds()
 	ToggleSpiritWorldActors();
 	ToggleParticleEffects();
 	ToggleLastingCameraEffects();
+	TogglePhysicalSpiritMaterialProperties();
 }
 
 void AWorldSwitchingGameModeBase::TogglePhysicalWorldActors()
@@ -141,7 +143,6 @@ void AWorldSwitchingGameModeBase::ToggleParticleEffects()
 		for (TActorIterator<AParticleEffectActor> ParticleItr(GetWorld()); ParticleItr; ++ParticleItr)
 		{
 			AParticleEffectActor *SpiritTest = *ParticleItr;
-			UE_LOG(LogTemp, Warning, TEXT("Found Spirit!"))
 
 			ParticleItr->PhysicalWorldParticles->Deactivate();
 			ParticleItr->SpiritWorldParticles->Activate();
@@ -153,7 +154,6 @@ void AWorldSwitchingGameModeBase::ToggleParticleEffects()
 		{
 			AParticleEffectActor *SpiritTest = *ParticleItr;
 			
-
 			ParticleItr->PhysicalWorldParticles->Activate();
 			ParticleItr->SpiritWorldParticles->Deactivate();
 		}
@@ -172,4 +172,26 @@ void AWorldSwitchingGameModeBase::ToggleLastingCameraEffects()
 		CameraComponent->PostProcessSettings.VignetteIntensity = 0.0f;
 	}
 
+}
+
+void AWorldSwitchingGameModeBase::TogglePhysicalSpiritMaterialProperties()
+{
+	UE_LOG(LogTemp,Warning, TEXT("InsideTogglePhysicalSpiritMaterialProperties"))
+
+	for (TActorIterator<APSWorldActor> PSActorItr(GetWorld()); PSActorItr; ++PSActorItr)
+	{
+		APSWorldActor *PSActor = *PSActorItr;
+
+		if (!PSActor->bCanChangeMaterial) continue;
+
+		else if (bIsSpiritWorld)
+		{
+			PSActor->ActivateSpiritMaterialProperties();
+		}
+
+		else if (!bIsSpiritWorld)
+		{
+			PSActor->ActivatePhysicalMaterialProperties();
+		}
+	}
 }
