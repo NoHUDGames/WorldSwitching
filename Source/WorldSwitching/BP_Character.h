@@ -39,6 +39,7 @@ public:
 
 	void Kicking();
 	void StopKicking();
+	void ResetKickingCombo();
 
 	UFUNCTION()
 	void HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
@@ -46,7 +47,10 @@ public:
 
 	bool CurrentlyKicking{ false };
 
-	FTimerHandle Timer;
+	FTimerHandle KickingDurationTimer;
+	FTimerHandle ComboDurationTimer;
+
+	int NumberOfKicks{ 0 };
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

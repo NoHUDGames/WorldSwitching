@@ -81,16 +81,29 @@ void ABP_Character::Kicking()
 		/// Makes it impossible for the player to kick while it's already kicking
 		CurrentlyKicking = true;
 
+		if (NumberOfKicks <= 2)
+		{
+			++NumberOfKicks;
+			UE_LOG(LogTemp, Warning, TEXT("Number of kicks: %i"), NumberOfKicks)
+			/// Resets the kick after 0.3 seconds
+			GetWorldTimerManager().SetTimer(ComboDurationTimer, this, &ABP_Character::ResetKickingCombo, 1.5f, false);
+		}
+		else
+		{
+			ResetKickingCombo();
+		}
+
 		/// Turns on overlapping with other pawns for the kick box collider
 		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
+		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Overlap);
+		
 		/// Rotates the scene component, so the kick kan hit something
 		FRotator NewRotation{ 90.f, 0.f ,0.f };
 		KickingRotation->AddLocalRotation(NewRotation);
 
 		/// Resets the kick after 0.3 seconds
-		GetWorldTimerManager().SetTimer(Timer, this, &ABP_Character::StopKicking, 0.3f, false);
+		GetWorldTimerManager().SetTimer(KickingDurationTimer, this, &ABP_Character::StopKicking, 0.3f, false);
 
-		
 		
 	}
 	
@@ -105,6 +118,12 @@ void ABP_Character::StopKicking()
 	CurrentlyKicking = false;
 }
 
+void ABP_Character::ResetKickingCombo()
+{
+		UE_LOG(LogTemp, Warning, TEXT("Resetting kicking combo."))
+		NumberOfKicks = 0;
+}
+
 void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, 
 	UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
@@ -115,7 +134,19 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 
 		ASpiritTest* Spirit = Cast<ASpiritTest>(OtherActor);
 
-		Spirit->DecrementingLives();
+		if (NumberOfKicks <= 2)
+		{
+			Spirit->DecrementingLives();
+		}
+		else
+		{
+			for (int i{ 0 }; i < 2; ++i)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Double damage"))
+				Spirit->DecrementingLives();
+			};
+		};
+		
 
 		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 
