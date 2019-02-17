@@ -33,13 +33,15 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void MoveUp(float AxisValue);
-	///void MoveDown(float AxisValue);
-	///void MoveLeft(float AxisValue);
 	void MoveRight(float AxisValue);
 
 	void Kicking();
 	void StopKicking();
 	void ResetKickingCombo();
+
+	UFUNCTION()
+	void PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
+		UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
 	UFUNCTION()
 	void HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
@@ -51,6 +53,8 @@ public:
 	FTimerHandle ComboDurationTimer;
 
 	int NumberOfKicks{ 0 };
+
+	int NumberOfHoldingArtifacts{ 0 };
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

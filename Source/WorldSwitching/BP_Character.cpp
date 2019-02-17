@@ -5,6 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "SpiritTest.h"
+#include "Artifacts.h"
 
 // Sets default values
 ABP_Character::ABP_Character()
@@ -43,6 +44,10 @@ void ABP_Character::BeginPlay()
 	Super::BeginPlay();
 
 	BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &ABP_Character::HittingEnemy);
+
+	/// Right now it's the kicking collider that picks up the artifact. 
+	/// Need to change this to the root component, but that doesn't work
+	BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &ABP_Character::PickingUpArtifacts);
 	
 }
 
@@ -120,8 +125,26 @@ void ABP_Character::StopKicking()
 
 void ABP_Character::ResetKickingCombo()
 {
+	if (NumberOfKicks != 0)
+	{
 		UE_LOG(LogTemp, Warning, TEXT("Resetting kicking combo."))
 		NumberOfKicks = 0;
+	}
+		
+}
+
+void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
+	UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+{
+	if (OtherActor->IsA(AArtifacts::StaticClass()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("You're colliding with an artifact."))
+		
+		++NumberOfHoldingArtifacts;
+		AArtifacts* CollidingArtifact = Cast<AArtifacts>(OtherActor);
+
+		CollidingArtifact->Destroy();
+	}
 }
 
 void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, 
