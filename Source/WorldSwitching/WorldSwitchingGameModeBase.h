@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "EngineUtils.h"
 #include "TimerManager.h"
 #include "WorldSwitchingGameModeBase.generated.h"
@@ -38,6 +39,10 @@ public:
 	UCameraComponent* CameraComponent = nullptr;
 
 	APlayerController* PlayerController = nullptr;
+
+	UCapsuleComponent* PlayerCapsuleCollision = nullptr;
+
+	APawn* PlayerPawn = nullptr;
 
 	UPROPERTY(EditAnywhere)
 		USoundBase* SoundToSpiritWorld = nullptr;

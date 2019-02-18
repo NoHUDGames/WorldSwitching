@@ -29,11 +29,21 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 
 	EAutoReceiveInput::Player0;
 	CameraComponent = Cast<UCameraComponent>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetComponentByClass(UCameraComponent::StaticClass()));
+	PlayerCapsuleCollision = Cast<UCapsuleComponent>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetComponentByClass(UCapsuleComponent::StaticClass()));
 	PlayerController = GetWorld()->GetFirstPlayerController();
-	
-	
-	
+	PlayerPawn = Cast<APawn>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 
+	if (PlayerPawn)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Got Player Pawn"))
+	}
+	
+	
+	if (PlayerCapsuleCollision)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Got a Player Capsule Collision"))
+	}
+	
 	if (CameraComponent)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Got a CameraComponent"))
@@ -52,6 +62,9 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 
 void AWorldSwitchingGameModeBase::ChangeWorlds()
 {
+	//AActor* OverlappingActor = PlayerCapsuleCollision->Overlap
+	//PlayerCapsuleCollision->GetOverlapsWithActor()
+
 	WorldTransitionEffects();
 	bIsSpiritWorld = !bIsSpiritWorld;
 
@@ -64,30 +77,23 @@ void AWorldSwitchingGameModeBase::ChangeWorlds()
 
 void AWorldSwitchingGameModeBase::TogglePhysicalWorldActors()
 {
-	if (bIsSpiritWorld)
-	{
 		//Alle PWorldActor settes som usynlig uten collision
 		for (TActorIterator<APWorldActor> PActorItr(GetWorld()); PActorItr; ++PActorItr)
 		{
+
 			APWorldActor *PWorldActor = *PActorItr;
 
-			PActorItr->SetActorEnableCollision(false);
-			PActorItr->SetActorHiddenInGame(true);
-			
+			if (bIsSpiritWorld)
+			{
+				PActorItr->SetActorEnableCollision(false);
+				PActorItr->SetActorHiddenInGame(true);
+			}
+			else
+			{
+				PActorItr->SetActorEnableCollision(true);
+				PActorItr->SetActorHiddenInGame(false);
+			}
 		}
-	}
-
-	else
-	{
-		//Alle PWorldActor settes som synlig m/collision
-		for (TActorIterator<APWorldActor> PActorItr(GetWorld()); PActorItr; ++PActorItr)
-		{
-			APWorldActor *PWorldActor = *PActorItr;
-
-			PActorItr->SetActorEnableCollision(true);
-			PActorItr->SetActorHiddenInGame(false);
-		}
-	}
 }
 
 void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
