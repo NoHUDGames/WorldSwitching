@@ -9,6 +9,7 @@
 #include "Components/CapsuleComponent.h"
 #include "EngineUtils.h"
 #include "TimerManager.h"
+#include "BP_Character.h"
 #include "WorldSwitchingGameModeBase.generated.h"
 
 /**
@@ -42,7 +43,7 @@ public:
 
 	UCapsuleComponent* PlayerCapsuleCollision = nullptr;
 
-	APawn* PlayerPawn = nullptr;
+	ABP_Character* PlayerPawn = nullptr;
 
 	UPROPERTY(EditAnywhere)
 		USoundBase* SoundToSpiritWorld = nullptr;

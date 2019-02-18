@@ -40,6 +40,9 @@ public:
 	void StopKicking();
 	void ResetKickingCombo();
 
+	AActor* OtherActorForPhysicalTest = nullptr;
+	AActor* GetOtherActorForPhysicalTest();
+
 	UFUNCTION()
 	void PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
 		UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);

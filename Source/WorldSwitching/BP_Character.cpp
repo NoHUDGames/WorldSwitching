@@ -138,6 +138,8 @@ void ABP_Character::ResetKickingCombo()
 void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
 	UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
+	OtherActorForPhysicalTest = OtherActor;
+
 	if (OtherActor->IsA(AArtifacts::StaticClass()))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("You're colliding with an artifact."))
@@ -179,7 +181,9 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 }
 
 
-
-
+AActor* ABP_Character::GetOtherActorForPhysicalTest()
+{
+	return OtherActorForPhysicalTest;
+}
 
 

@@ -43,7 +43,6 @@ void APSWorldActor::Tick(float DeltaTime)
 
 void APSWorldActor::ActivatePhysicalMaterialProperties()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Inside ActivatePhysicalMaterialProperties()"))
 	DynamicMaterial->SetVectorParameterValue("BaseColor", PhysicalColor);
 	DynamicMaterial->SetScalarParameterValue("Glow", PhysicalGlow);
 	DynamicMaterial->SetScalarParameterValue("Opacity", PhysicalOpacity);
@@ -51,8 +50,6 @@ void APSWorldActor::ActivatePhysicalMaterialProperties()
 
 void APSWorldActor::ActivateSpiritMaterialProperties()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Inside ActivateSpiritMaterialProperties()"))
-
 	DynamicMaterial->SetVectorParameterValue("BaseColor", SpiritColor);
 	DynamicMaterial->SetScalarParameterValue("Glow", SpiritGlow);
 	DynamicMaterial->SetScalarParameterValue("Opacity", SpiritOpacity);

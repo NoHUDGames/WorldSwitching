@@ -31,27 +31,27 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 	CameraComponent = Cast<UCameraComponent>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetComponentByClass(UCameraComponent::StaticClass()));
 	PlayerCapsuleCollision = Cast<UCapsuleComponent>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetComponentByClass(UCapsuleComponent::StaticClass()));
 	PlayerController = GetWorld()->GetFirstPlayerController();
-	PlayerPawn = Cast<APawn>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	PlayerPawn = Cast<ABP_Character>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 
 	if (PlayerPawn)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Got Player Pawn"))
+		UE_LOG(LogTemp, Warning, TEXT("GAME MODE: Got Player Pawn"))
 	}
 	
 	
 	if (PlayerCapsuleCollision)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Got a Player Capsule Collision"))
+		UE_LOG(LogTemp, Warning, TEXT("GAME MODE: Got a Player Capsule Collision"))
 	}
 	
 	if (CameraComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Got a CameraComponent"))
+		UE_LOG(LogTemp, Warning, TEXT("GAME MODE: Got a CameraComponent"))
 	}
 
 	if (PlayerController)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Got first PlayerController"))
+		UE_LOG(LogTemp, Warning, TEXT("GAME MODE: Got first PlayerController"))
 
 			PlayerController->InputComponent->BindAction("ChangeWorlds", IE_Pressed, this, &AWorldSwitchingGameModeBase::ChangeWorlds);
 	}
@@ -62,11 +62,33 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 
 void AWorldSwitchingGameModeBase::ChangeWorlds()
 {
-	//AActor* OverlappingActor = PlayerCapsuleCollision->Overlap
-	//PlayerCapsuleCollision->GetOverlapsWithActor()
+	bIsSpiritWorld = !bIsSpiritWorld;
+	
+	if (!bIsSpiritWorld)
+	{
+		PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Overlap);
+
+		TogglePhysicalWorldActors();
+
+
+
+		if (PlayerPawn->GetOtherActorForPhysicalTest())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Overlapped with PhysicalActor %s"), *PlayerPawn->GetOtherActorForPhysicalTest()->GetActorLabel())
+
+			
+		}
+
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Did NOT Overlap with PhysicalActor"));
+		}
+
+		PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
+	}
 
 	WorldTransitionEffects();
-	bIsSpiritWorld = !bIsSpiritWorld;
+	
 
 	TogglePhysicalWorldActors();
 	ToggleSpiritWorldActors();
