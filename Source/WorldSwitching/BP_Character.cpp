@@ -4,6 +4,7 @@
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "SpiritTest.h"
 #include "Artifacts.h"
 
@@ -33,6 +34,7 @@ ABP_Character::ABP_Character()
 		SphereVisual->SetWorldScale3D(FVector(0.2f));
 	}
 
+	/// kicking collider, the collision sphere that damages the enemies when kicking
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("FootCollider"));
 	BoxCollider->SetupAttachment(SphereVisual);
 
@@ -47,7 +49,7 @@ void ABP_Character::BeginPlay()
 
 	/// Right now it's the kicking collider that picks up the artifact. 
 	/// Need to change this to the root component, but that doesn't work
-	BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &ABP_Character::PickingUpArtifacts);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ABP_Character::PickingUpArtifacts);
 	
 }
 

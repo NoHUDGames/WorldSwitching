@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "TimerManager.h"
 #include "BP_Character.generated.h"
 
@@ -65,8 +66,5 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UStaticMeshComponent* SphereVisual{ nullptr };
-
-	
-	
 
 };
