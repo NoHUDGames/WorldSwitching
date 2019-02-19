@@ -65,10 +65,13 @@ void AWorldSwitchingGameModeBase::ChangeWorlds()
 {
 	bIsSpiritWorld = !bIsSpiritWorld;
 	
+	
 	if (!bIsSpiritWorld)
 	{
 		if (TestPhysicalCollision()) return;
 	}
+
+	PlayerPawn->bIsSpiritWorld = bIsSpiritWorld;
 
 	WorldTransitionEffects();
 	TogglePhysicalWorldActors();
@@ -99,6 +102,7 @@ bool AWorldSwitchingGameModeBase::TestPhysicalCollision()
 
 				//Stuck in Spirit World
 				bIsSpiritWorld = true;
+
 				TogglePhysicalWorldActors();
 
 				PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
