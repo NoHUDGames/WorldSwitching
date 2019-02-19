@@ -34,6 +34,9 @@ public:
 
 	void ChangeWorlds();
 
+	//Returns true if collision occurred
+	bool TestPhysicalCollision();
+
 	bool bIsSpiritWorld;
 	
 	
@@ -45,16 +48,10 @@ public:
 
 	ABP_Character* PlayerPawn = nullptr;
 
-	UPROPERTY(EditAnywhere)
-		USoundBase* SoundToSpiritWorld = nullptr;
+	AActor* OtherActorPhysicalTest = nullptr;
 
-	UPROPERTY(EditAnywhere)
-		USoundBase* SoundFromSpiritWorld = nullptr;
-
-	//Trenger en liten lag for at spirits ikke skal kollidere med fysiske omgivelser
-	//ved skifte av verden
-
-	FTimerHandle SwitchLag;
+	UPROPERTY(EditAnywhere, Category ="Error Sound")
+	USoundBase* CannotReturnToPhysical = nullptr;
 
 	UFUNCTION(BlueprintCallable)
 		UCameraComponent* GetPawnCameraComponent()

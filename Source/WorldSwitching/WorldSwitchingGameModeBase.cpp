@@ -6,6 +6,7 @@
 #include "PSWorldActor.h"
 #include "SpiritTest.h"
 #include "ParticleEffectActor.h"
+#include "Artifacts.h"
 #include "Kismet/GameplayStatics.h"
 
 //class ASpiritTest;
@@ -66,35 +67,56 @@ void AWorldSwitchingGameModeBase::ChangeWorlds()
 	
 	if (!bIsSpiritWorld)
 	{
-		PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Overlap);
-
-		TogglePhysicalWorldActors();
-
-
-
-		if (PlayerPawn->GetOtherActorForPhysicalTest())
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Overlapped with PhysicalActor %s"), *PlayerPawn->GetOtherActorForPhysicalTest()->GetActorLabel())
-
-			
-		}
-
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Did NOT Overlap with PhysicalActor"));
-		}
-
-		PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
+		if (TestPhysicalCollision()) return;
 	}
 
 	WorldTransitionEffects();
-	
-
 	TogglePhysicalWorldActors();
 	ToggleSpiritWorldActors();
 	ToggleParticleEffects();
 	ToggleLastingCameraEffects();
 	TogglePhysicalSpiritMaterialProperties();
+}
+
+bool AWorldSwitchingGameModeBase::TestPhysicalCollision()
+{
+
+	if (!bIsSpiritWorld)
+	{
+
+		
+		//Momentarily test for overlap with PhysicalActors
+		PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Overlap);
+
+		PlayerCapsuleCollision->UpdateOverlaps();
+		TogglePhysicalWorldActors();
+
+		OtherActorPhysicalTest = PlayerPawn->GetOtherActorForPhysicalTest();
+
+		if (OtherActorPhysicalTest)
+		{
+			if (OtherActorPhysicalTest->IsA(APWorldActor::StaticClass()) && !OtherActorPhysicalTest->IsA(AArtifacts::StaticClass()))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Overlapped with PhysicalActor %s"), *OtherActorPhysicalTest->GetActorLabel())
+
+
+				UGameplayStatics::PlaySound2D(GetWorld(), CannotReturnToPhysical);
+
+				//Stuck in Spirit World
+				bIsSpiritWorld = true;
+				TogglePhysicalWorldActors();
+
+				
+				PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
+				return true;
+			}
+		}
+
+		
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Did NOT Overlap with PhysicalActor"));
+	PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
+	return false;
 }
 
 void AWorldSwitchingGameModeBase::TogglePhysicalWorldActors()
@@ -204,7 +226,7 @@ void AWorldSwitchingGameModeBase::ToggleLastingCameraEffects()
 
 void AWorldSwitchingGameModeBase::TogglePhysicalSpiritMaterialProperties()
 {
-	UE_LOG(LogTemp,Warning, TEXT("InsideTogglePhysicalSpiritMaterialProperties"))
+
 
 	for (TActorIterator<APSWorldActor> PSActorItr(GetWorld()); PSActorItr; ++PSActorItr)
 	{

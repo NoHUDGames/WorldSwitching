@@ -183,7 +183,11 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 
 AActor* ABP_Character::GetOtherActorForPhysicalTest()
 {
-	return OtherActorForPhysicalTest;
+	AActor* temp = OtherActorForPhysicalTest;
+
+	OtherActorForPhysicalTest = nullptr;
+
+	return temp;
 }
 
 
