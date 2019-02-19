@@ -59,6 +59,13 @@ public:
 		return CameraComponent;
 	}
 
+	//Gir ut actoren man kolliderte med når 
+	UFUNCTION(BlueprintCallable)
+		AActor* GetOtherActorPhysicalTest();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void LightUpCollidingActor();
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void WorldTransitionEffects();
 

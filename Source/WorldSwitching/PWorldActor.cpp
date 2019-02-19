@@ -15,6 +15,7 @@ void APWorldActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	
 }
 
 // Called every frame

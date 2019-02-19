@@ -56,7 +56,6 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 
 			PlayerController->InputComponent->BindAction("ChangeWorlds", IE_Pressed, this, &AWorldSwitchingGameModeBase::ChangeWorlds);
 	}
-
 	ToggleSpiritWorldActors();
 }
 
@@ -71,6 +70,7 @@ void AWorldSwitchingGameModeBase::ChangeWorlds()
 		if (TestPhysicalCollision()) return;
 	}
 
+	
 	PlayerPawn->bIsSpiritWorld = bIsSpiritWorld;
 
 	WorldTransitionEffects();
@@ -102,10 +102,10 @@ bool AWorldSwitchingGameModeBase::TestPhysicalCollision()
 
 				//Stuck in Spirit World
 				bIsSpiritWorld = true;
-
 				TogglePhysicalWorldActors();
-
+				LightUpCollidingActor();
 				PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
+				
 				return true;
 			}
 		}
@@ -113,6 +113,11 @@ bool AWorldSwitchingGameModeBase::TestPhysicalCollision()
 	UE_LOG(LogTemp, Warning, TEXT("Did NOT Overlap with PhysicalActor"));
 	PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
 	return false;
+}
+
+AActor* AWorldSwitchingGameModeBase::GetOtherActorPhysicalTest()
+{
+	return OtherActorPhysicalTest;
 }
 
 void AWorldSwitchingGameModeBase::TogglePhysicalWorldActors()
