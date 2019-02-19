@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "PWorldActor.h"
+#include "OurEnums.h"
 #include "Artifacts.generated.h"
 
 /**
@@ -20,6 +21,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void PickupFeedback();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Enum)
+		EPickupTypes PickupTypes;
 	
 	virtual void Tick(float DeltaTime) override;
 };

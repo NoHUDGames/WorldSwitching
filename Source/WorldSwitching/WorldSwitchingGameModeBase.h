@@ -62,6 +62,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void WorldTransitionEffects();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void DeniedPhysicalReentryEffects();
+
 	void TogglePhysicalWorldActors();
 	void ToggleSpiritWorldActors();
 	void ToggleLastingCameraEffects();
