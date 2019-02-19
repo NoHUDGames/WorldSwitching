@@ -8,3 +8,11 @@ AArtifacts::AArtifacts()
 	PrimaryActorTick.bCanEverTick = true;
 
 }
+
+void AArtifacts::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	AddActorLocalRotation(FRotator(0.f, 50.f, 0.f)*DeltaTime);
+
+}

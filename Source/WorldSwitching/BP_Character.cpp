@@ -147,7 +147,7 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 		++NumberOfHoldingArtifacts;
 		AArtifacts* CollidingArtifact = Cast<AArtifacts>(OtherActor);
 
-		CollidingArtifact->Destroy();
+		CollidingArtifact->PickupFeedback();
 	}
 }
 

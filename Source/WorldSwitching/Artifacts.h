@@ -17,5 +17,9 @@ class WORLDSWITCHING_API AArtifacts : public APWorldActor
 public:
 	// Sets default values for this character's properties
 	AArtifacts();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void PickupFeedback();
 	
+	virtual void Tick(float DeltaTime) override;
 };
