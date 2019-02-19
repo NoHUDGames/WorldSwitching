@@ -6,6 +6,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "SpiritTest.h"
+#include "Altar.h"
 #include "Artifacts.h"
 
 // Sets default values
@@ -47,9 +48,10 @@ void ABP_Character::BeginPlay()
 
 	BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &ABP_Character::HittingEnemy);
 
-	/// Right now it's the kicking collider that picks up the artifact. 
-	/// Need to change this to the root component, but that doesn't work
+	/// Tests if the player overlaps with an artifact
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ABP_Character::PickingUpArtifacts);
+
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ABP_Character::DeliveringArtifacts);
 	
 }
 
@@ -68,6 +70,8 @@ void ABP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("MoveUp", this, &ABP_Character::MoveUp);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABP_Character::MoveRight);
 	PlayerInputComponent->BindAction("Kicking", IE_Pressed, this, &ABP_Character::Kicking);
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ABP_Character::Interact);
+	PlayerInputComponent->BindAction("Interact", IE_Released, this, &ABP_Character::StopInteracting);
 
 }
 
@@ -135,6 +139,19 @@ void ABP_Character::ResetKickingCombo()
 		
 }
 
+void ABP_Character::Interact()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Trying to interact with something"))
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel4, ECollisionResponse::ECR_Overlap);
+}
+
+void ABP_Character::StopInteracting()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Stops trying to interact with something"))
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel4, ECollisionResponse::ECR_Ignore);
+}
+
 void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
 	UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
@@ -178,6 +195,21 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 
 	};
+}
+
+void ABP_Character::DeliveringArtifacts(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, 
+	UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+{
+	if (OtherActor->IsA(AAltar::StaticClass()) && NumberOfHoldingArtifacts > 0 && bIsSpiritWorld == true)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Colliding with the altar"))
+
+		AAltar* Altar = Cast<AAltar>(OtherActor);
+
+		Altar->ReceivingArtifacts(NumberOfHoldingArtifacts);
+
+		NumberOfHoldingArtifacts = 0;
+	}
 }
 
 
