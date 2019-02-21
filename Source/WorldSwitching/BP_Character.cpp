@@ -157,7 +157,9 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 {
 	OtherActorForPhysicalTest = OtherActor;
 
-	if (OtherActor->IsA(AArtifacts::StaticClass()))
+	AArtifacts* PickedUpActor = Cast<AArtifacts>(OtherActor);
+
+	if (OtherActor->IsA(AArtifacts::StaticClass()) && PickedUpActor->PickupTypes == EPickupTypes::Artifact)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("You're colliding with an artifact."))
 		
@@ -165,6 +167,12 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 		AArtifacts* CollidingArtifact = Cast<AArtifacts>(OtherActor);
 
 		CollidingArtifact->PickupFeedback();
+	}
+
+	else if (OtherActor->IsA(AArtifacts::StaticClass()) && PickedUpActor->PickupTypes == EPickupTypes::Shield)
+	{
+		OtherActor->Destroy();
+		UE_LOG(LogTemp, Warning, TEXT("You're picking up a SHIELD!"))
 	}
 }
 
