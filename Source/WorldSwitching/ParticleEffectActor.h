@@ -26,6 +26,16 @@ public:
 	UPROPERTY(EditAnywhere)
 	UParticleSystemComponent* SpiritWorldParticles = nullptr;
 
+	UPROPERTY(EditAnywhere)
+	UParticleSystemComponent* DynamicBothWorlds = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = DynamicFire)
+		//Set true to run dynamic change to DynamicBothWorlds component
+		bool bIsDynamicFire;
+
+	FVector PhysicalFireColor;
+	FVector SpiritFireColor;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

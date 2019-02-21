@@ -193,20 +193,36 @@ void AWorldSwitchingGameModeBase::ToggleParticleEffects()
 	{
 		for (TActorIterator<AParticleEffectActor> ParticleItr(GetWorld()); ParticleItr; ++ParticleItr)
 		{
-			AParticleEffectActor *SpiritTest = *ParticleItr;
+			AParticleEffectActor *Particle = *ParticleItr;
 
-			ParticleItr->PhysicalWorldParticles->Deactivate();
-			ParticleItr->SpiritWorldParticles->Activate();
+			if (ParticleItr->bIsDynamicFire)
+			{
+				ParticleItr->DynamicBothWorlds->SetVectorParameter("Color", ParticleItr->SpiritFireColor);
+			}
+
+			else
+			{
+				ParticleItr->PhysicalWorldParticles->Deactivate();
+				ParticleItr->SpiritWorldParticles->Activate();
+			}
 		}
 	}
 	else
 	{
 		for (TActorIterator<AParticleEffectActor> ParticleItr(GetWorld()); ParticleItr; ++ParticleItr)
 		{
-			AParticleEffectActor *SpiritTest = *ParticleItr;
+			AParticleEffectActor *Particle = *ParticleItr;
 			
-			ParticleItr->PhysicalWorldParticles->Activate();
-			ParticleItr->SpiritWorldParticles->Deactivate();
+			if (ParticleItr->bIsDynamicFire)
+			{
+				ParticleItr->DynamicBothWorlds->SetVectorParameter("Color", ParticleItr->PhysicalFireColor);
+			}
+
+			else
+			{
+				ParticleItr->PhysicalWorldParticles->Activate();
+				ParticleItr->SpiritWorldParticles->Deactivate();
+			}
 		}
 	}
 }

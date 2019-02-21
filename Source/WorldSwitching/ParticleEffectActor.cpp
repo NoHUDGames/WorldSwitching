@@ -10,11 +10,17 @@ AParticleEffectActor::AParticleEffectActor()
 	ParticleRoot = CreateDefaultSubobject<USceneComponent>(TEXT("ParticleRoot"));
 	PhysicalWorldParticles = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PhysicalWorldParticles"));
 	SpiritWorldParticles = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("SpiritWorldParticles"));
+	DynamicBothWorlds = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("DynamicBothWorlds"));
 
 	RootComponent = ParticleRoot;
 
 	SpiritWorldParticles->SetupAttachment(RootComponent);
 	PhysicalWorldParticles->SetupAttachment(RootComponent);
+	DynamicBothWorlds->SetupAttachment(RootComponent);
+
+	PhysicalFireColor = { 1.f, 0.376471, 0.f };
+	SpiritFireColor = { 0.f, 0.536935f, 1.f };
+
 }
 
 // Called when the game starts or when spawned
