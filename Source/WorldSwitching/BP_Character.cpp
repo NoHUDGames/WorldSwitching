@@ -156,21 +156,19 @@ void ABP_Character::StopInteracting()
 void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
 	UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
+	//Sent to GameMode for testing before physical reentry
 	OtherActorForPhysicalTest = OtherActor;
-
-	AActor* PickedUpActor = nullptr;
 
 	if (Cast<AArtifacts>(OtherActor))
 	{
 		AArtifacts* PickedUpActor = Cast<AArtifacts>(OtherActor);
 		
-
 		UE_LOG(LogTemp, Warning, TEXT("You're colliding with an artifact."))
 
 			++NumberOfHoldingArtifacts;
 		PickedUpActor->PickupFeedback();
-
 	}
+
 	else if (Cast<AS_PickupShield>(OtherActor))
 	{
 		AS_PickupShield* PickedUpActor = Cast<AS_PickupShield>(OtherActor);
@@ -178,8 +176,7 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 		PickedUpActor->PickupFeedback();
 		UE_LOG(LogTemp, Warning, TEXT("You're picking up a SHIELD!"))
 	}
-	else UE_LOG(LogTemp, Warning, TEXT("ALL CASTS FAILED"))
-
+	else UE_LOG(LogTemp, Warning, TEXT("ALL CASTS FAILED / NOT PICKUP ACTOR"))
 }
 
 void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, 
