@@ -15,6 +15,9 @@ public:
 	// Sets default values for this actor's properties
 	ASWorldActor();
 
+	UPROPERTY(EditAnywhere, Category=WorldChange)
+	bool bOptOutOfWorldChange;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

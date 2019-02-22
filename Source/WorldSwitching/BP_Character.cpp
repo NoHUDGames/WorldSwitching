@@ -8,6 +8,7 @@
 #include "SpiritTest.h"
 #include "Altar.h"
 #include "Artifacts.h"
+#include "S_PickupShield.h"
 
 // Sets default values
 ABP_Character::ABP_Character()
@@ -157,23 +158,28 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 {
 	OtherActorForPhysicalTest = OtherActor;
 
-	AArtifacts* PickedUpActor = Cast<AArtifacts>(OtherActor);
+	AActor* PickedUpActor = nullptr;
 
-	if (OtherActor->IsA(AArtifacts::StaticClass()) && PickedUpActor->PickupTypes == EPickupTypes::Artifact)
+	if (Cast<AArtifacts>(OtherActor))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("You're colliding with an artifact."))
+		AArtifacts* PickedUpActor = Cast<AArtifacts>(OtherActor);
 		
-		++NumberOfHoldingArtifacts;
-		AArtifacts* CollidingArtifact = Cast<AArtifacts>(OtherActor);
 
-		CollidingArtifact->PickupFeedback();
+		UE_LOG(LogTemp, Warning, TEXT("You're colliding with an artifact."))
+
+			++NumberOfHoldingArtifacts;
+		PickedUpActor->PickupFeedback();
+
 	}
-
-	else if (OtherActor->IsA(AArtifacts::StaticClass()) && PickedUpActor->PickupTypes == EPickupTypes::Shield)
+	else if (Cast<AS_PickupShield>(OtherActor))
 	{
-		OtherActor->Destroy();
+		AS_PickupShield* PickedUpActor = Cast<AS_PickupShield>(OtherActor);
+
+		PickedUpActor->PickupFeedback();
 		UE_LOG(LogTemp, Warning, TEXT("You're picking up a SHIELD!"))
 	}
+	else UE_LOG(LogTemp, Warning, TEXT("ALL CASTS FAILED"))
+
 }
 
 void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, 

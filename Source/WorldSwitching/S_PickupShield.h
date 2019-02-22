@@ -3,27 +3,24 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PWorldActor.h"
+#include "SWorldActor.h"
 #include "OurEnums.h"
-#include "Artifacts.generated.h"
+#include "S_PickupShield.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class WORLDSWITCHING_API AArtifacts : public APWorldActor
+class WORLDSWITCHING_API AS_PickupShield : public ASWorldActor
 {
 	GENERATED_BODY()
 
+		virtual void Tick(float DeltaTime) override;
 public:
-	// Sets default values for this character's properties
-	AArtifacts();
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void PickupFeedback();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PickupType)
 		EPickupTypes PickupType;
-	
-	virtual void Tick(float DeltaTime) override;
 };

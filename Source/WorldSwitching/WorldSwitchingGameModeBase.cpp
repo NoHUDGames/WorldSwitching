@@ -150,8 +150,11 @@ void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
 		{
 			ASWorldActor *SWorldActor = *SActorItr;
 
-			SActorItr->SetActorEnableCollision(true);
-			SActorItr->SetActorHiddenInGame(false);
+			if (!SActorItr->bOptOutOfWorldChange)
+			{
+				SActorItr->SetActorEnableCollision(true);
+				SActorItr->SetActorHiddenInGame(false);
+			}
 
 		}
 
@@ -171,9 +174,11 @@ void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
 		for (TActorIterator<ASWorldActor> SActorItr(GetWorld()); SActorItr; ++SActorItr)
 		{
 			ASWorldActor *SWorldActor = *SActorItr;
-
-			SActorItr->SetActorEnableCollision(false);
-			SActorItr->SetActorHiddenInGame(true);
+			if (!SActorItr->bOptOutOfWorldChange)
+			{
+				SActorItr->SetActorEnableCollision(false);
+				SActorItr->SetActorHiddenInGame(true);
+			}
 		}
 
 		//EnemySpirit settes som usynlig u/collision
