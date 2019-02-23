@@ -152,7 +152,7 @@ void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
 
 			if (!SActorItr->bOptOutOfWorldChange)
 			{
-				SActorItr->SetActorEnableCollision(true);
+				//SActorItr->SetActorEnableCollision(true);
 				SActorItr->SetActorHiddenInGame(false);
 			}
 
@@ -176,7 +176,7 @@ void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
 			ASWorldActor *SWorldActor = *SActorItr;
 			if (!SActorItr->bOptOutOfWorldChange)
 			{
-				SActorItr->SetActorEnableCollision(false);
+				//SActorItr->SetActorEnableCollision(false);
 				SActorItr->SetActorHiddenInGame(true);
 			}
 		}

@@ -20,13 +20,13 @@ public:
 	
 	USceneComponent* ParticleRoot = nullptr;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UParticleSystemComponent* PhysicalWorldParticles = nullptr;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UParticleSystemComponent* SpiritWorldParticles = nullptr;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UParticleSystemComponent* DynamicBothWorlds = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = DynamicFire)
