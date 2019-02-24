@@ -96,8 +96,10 @@ public:
 	int NumberOfHoldingArtifacts{ 0 };
 	/// End of function and variables dealing with artifact picking
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsSpiritWorld{ false };
 	
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Lives{ 3 };
 
 };
