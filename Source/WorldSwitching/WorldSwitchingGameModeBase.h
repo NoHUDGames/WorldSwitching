@@ -32,6 +32,7 @@ class WORLDSWITCHING_API AWorldSwitchingGameModeBase : public AGameModeBase
 		
 public:
 
+	UFUNCTION(BlueprintCallable)
 	void ChangeWorlds();
 
 	//Returns true if collision occurred

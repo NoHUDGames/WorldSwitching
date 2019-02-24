@@ -16,7 +16,7 @@ public:
 	ASWorldActor();
 
 	
-	UPROPERTY(EditAnywhere, Category = WorldChange)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WorldChange)
 		bool bOptOutOfCollisionChange;
 
 protected:
