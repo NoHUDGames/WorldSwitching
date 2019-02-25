@@ -5,6 +5,7 @@
 #include "SWorldActor.h"
 #include "PSWorldActor.h"
 #include "SpiritTest.h"
+#include "PWorldCharacter.h"
 #include "ParticleEffectActor.h"
 #include "Artifacts.h"
 #include "Kismet/GameplayStatics.h"
@@ -122,23 +123,43 @@ AActor* AWorldSwitchingGameModeBase::GetOtherActorPhysicalTest()
 
 void AWorldSwitchingGameModeBase::TogglePhysicalWorldActors()
 {
+	if (bIsSpiritWorld)
+	{
 		//Alle PWorldActor settes som usynlig uten collision
 		for (TActorIterator<APWorldActor> PActorItr(GetWorld()); PActorItr; ++PActorItr)
 		{
 
 			APWorldActor *PWorldActor = *PActorItr;
-
-			if (bIsSpiritWorld)
-			{
-				PActorItr->SetActorEnableCollision(false);
-				PActorItr->SetActorHiddenInGame(true);
-			}
-			else
-			{
-				PActorItr->SetActorEnableCollision(true);
-				PActorItr->SetActorHiddenInGame(false);
-			}
+			PActorItr->SetActorEnableCollision(false);
+			PActorItr->SetActorHiddenInGame(true);
 		}
+
+		// Samme for PWorldCharacters
+
+		for (TActorIterator<APWorldCharacter> PCharItr(GetWorld()); PCharItr; ++PCharItr)
+		{
+			APWorldCharacter* PWorldChar = *PCharItr;
+			PCharItr->SetActorEnableCollision(false);
+			PCharItr->SetActorHiddenInGame(true);
+		}
+	}
+	else
+	{
+		for (TActorIterator<APWorldActor> PActorItr(GetWorld()); PActorItr; ++PActorItr)
+		{
+
+			APWorldActor *PWorldActor = *PActorItr;
+			PActorItr->SetActorEnableCollision(true);
+			PActorItr->SetActorHiddenInGame(false);
+		}
+
+		for (TActorIterator<APWorldCharacter> PCharItr(GetWorld()); PCharItr; ++PCharItr)
+		{
+			APWorldCharacter* PWorldChar = *PCharItr;
+			PCharItr->SetActorEnableCollision(true);
+			PCharItr->SetActorHiddenInGame(false);
+		}
+	}
 }
 
 void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
