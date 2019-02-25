@@ -40,6 +40,7 @@ ABP_Character::ABP_Character()
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("FootCollider"));
 	BoxCollider->SetupAttachment(SphereVisual);
 
+	RespawnLocation = { 0.f, 0.f, 0.f };
 }
 
 // Called when the game starts or when spawned
@@ -54,6 +55,7 @@ void ABP_Character::BeginPlay()
 
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ABP_Character::DeliveringArtifacts);
 	
+	RespawnLocation = GetActorLocation();
 }
 
 // Called every frame
@@ -233,4 +235,13 @@ AActor* ABP_Character::GetOtherActorForPhysicalTest()
 	return temp;
 }
 
+void ABP_Character::SetRespawnLocation(FVector NewSaveLocation)
+{
+	RespawnLocation = NewSaveLocation;
 
+}
+
+FVector ABP_Character::GetRespawnLocation()
+{
+	return RespawnLocation;
+}

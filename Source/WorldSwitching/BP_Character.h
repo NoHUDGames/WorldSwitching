@@ -102,4 +102,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Lives{ 3 };
 
+	void SetRespawnLocation(FVector NewSaveLocation);
+
+	FVector GetRespawnLocation();
+
+
+	//Is set from PS_SavePoint
+	FVector RespawnLocation;
+
 };
