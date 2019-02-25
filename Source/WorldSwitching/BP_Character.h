@@ -83,8 +83,10 @@ public:
 	void StopInteracting();
 	/// end of functions for interacting
 
-	void DecrementLives();
+	UFUNCTION(BlueprintCallable)
 	void DeathSequence();
+
+
 	void RespawnSequence();
 
 

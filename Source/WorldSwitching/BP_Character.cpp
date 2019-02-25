@@ -216,14 +216,6 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 	};
 }
 
-void ABP_Character::DecrementLives()
-{
-	
-		--Lives;
-		UE_LOG(LogTemp, Warning, TEXT("We have %i lives left"), Lives)
-
-	if (Lives < 1) DeathSequence();
-}
 
 void ABP_Character::DeathSequence()
 {
