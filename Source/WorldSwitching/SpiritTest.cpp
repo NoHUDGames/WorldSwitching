@@ -73,7 +73,7 @@ void ASpiritTest::KillingEnemy()
 
 void ASpiritTest::DecrementingLives()
 {
-	if (Lives >= 0)
+	if (Lives > 0)
 	{
 		--Lives;
 		UE_LOG(LogTemp, Warning, TEXT("Enemy has %i lives left"), Lives)
