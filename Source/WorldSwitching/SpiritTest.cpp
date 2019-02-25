@@ -4,6 +4,7 @@
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "BP_Character.h"
 #include "Components/CapsuleComponent.h"
 
 // Sets default values
@@ -33,6 +34,8 @@ ASpiritTest::ASpiritTest()
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponCollider"));
 	BoxCollider->SetupAttachment(WeaponVisual);
 
+
+
 }
 
 // Called when the game starts or when spawned
@@ -40,7 +43,7 @@ void ASpiritTest::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
+	BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &ASpiritTest::HitPlayer);
 	
 }
 
@@ -80,5 +83,15 @@ void ASpiritTest::DecrementingLives()
 		
 	}
 	
+}
+
+
+void ASpiritTest::HitPlayer(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
+	UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+{
+	if(OtherActor->IsA(ABP_Character::StaticClass()))
+	UE_LOG(LogTemp,Warning, TEXT("SPIRIT HIT PLAYER"))
+
+	Cast<ABP_Character>(OtherActor)->DecrementLives();
 }
 

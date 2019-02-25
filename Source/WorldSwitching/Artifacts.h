@@ -26,4 +26,6 @@ public:
 		EPickupTypes PickupType;
 	
 	virtual void Tick(float DeltaTime) override;
+
+	
 };

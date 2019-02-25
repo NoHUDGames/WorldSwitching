@@ -10,7 +10,7 @@
 #include "TimerManager.h"
 #include "BP_Character.generated.h"
 
-
+class AArtifacts;
 
 
 UCLASS()
@@ -49,6 +49,7 @@ public:
 
 	FTimerHandle KickingDurationTimer;
 	FTimerHandle ComboDurationTimer;
+	FTimerHandle DeathSequenceTimer;
 
 	bool CurrentlyKicking{ false };
 
@@ -72,12 +73,19 @@ public:
 	};
 	/// end of functions and variables for kicking
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UParticleSystem* DeathExplosion = nullptr;
+
 
 	/// These functions turns on and off the collision with objects that have the Interaction collision channel on them
 	/// This is how we will test if it's possible for the player to interact with something
 	void Interact();
 	void StopInteracting();
 	/// end of functions for interacting
+
+	void DecrementLives();
+	void DeathSequence();
+	void RespawnSequence();
 
 
 	AActor* OtherActorForPhysicalTest = nullptr;
@@ -93,7 +101,8 @@ public:
 		void DeliveringArtifacts(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
 			UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
-	int NumberOfHoldingArtifacts{ 0 };
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int NumberOfHoldingArtifacts;
 	/// End of function and variables dealing with artifact picking
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -101,6 +110,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Lives{ 3 };
+
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<AArtifacts> ArtifactsToSpawn;
 
 	void SetRespawnLocation(FVector NewSaveLocation);
 

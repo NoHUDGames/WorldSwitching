@@ -9,6 +9,8 @@
 #include "Altar.h"
 #include "Artifacts.h"
 #include "S_PickupShield.h"
+#include "Kismet/GameplayStatics.h"
+#include "Math/UnrealMathUtility.h"
 
 // Sets default values
 ABP_Character::ABP_Character()
@@ -41,6 +43,7 @@ ABP_Character::ABP_Character()
 	BoxCollider->SetupAttachment(SphereVisual);
 
 	RespawnLocation = { 0.f, 0.f, 0.f };
+	NumberOfHoldingArtifacts = 0;
 }
 
 // Called when the game starts or when spawned
@@ -163,12 +166,15 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 
 	if (Cast<AArtifacts>(OtherActor))
 	{
+		OtherActor->SetActorEnableCollision(false);
 		AArtifacts* PickedUpActor = Cast<AArtifacts>(OtherActor);
 		
 		UE_LOG(LogTemp, Warning, TEXT("You're colliding with an artifact."))
 
 			++NumberOfHoldingArtifacts;
 		PickedUpActor->PickupFeedback();
+
+		UE_LOG(LogTemp,Warning, TEXT("We have %i artifacts"), NumberOfHoldingArtifacts)
 	}
 
 	else if (Cast<AS_PickupShield>(OtherActor))
@@ -209,6 +215,51 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 
 	};
 }
+
+void ABP_Character::DecrementLives()
+{
+	
+		--Lives;
+		UE_LOG(LogTemp, Warning, TEXT("We have %i lives left"), Lives)
+
+	if (Lives < 1) DeathSequence();
+}
+
+void ABP_Character::DeathSequence()
+{
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
+
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DeathExplosion, GetTransform());
+
+	UWorld* World = GetWorld();
+
+	FVector ArtifactSpawnArea = GetActorLocation();
+
+	for (int i = 0; i < NumberOfHoldingArtifacts; ++i)
+	{
+		ArtifactSpawnArea.X += FMath::RandRange(-200.f, 200.f);
+		ArtifactSpawnArea.Y += FMath::RandRange(-200.f, 200.f);
+
+		//if (World)
+		World->SpawnActor<AArtifacts>(ArtifactsToSpawn, ArtifactSpawnArea, FRotator(0.f, 0.f, 0.f));
+	}
+
+	NumberOfHoldingArtifacts = 0;
+
+	GetWorldTimerManager().SetTimer(DeathSequenceTimer, this, &ABP_Character::RespawnSequence, 3.f, false);
+}
+
+void ABP_Character::RespawnSequence()
+{
+	Lives = 3;
+	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
+	SetActorLocation(RespawnLocation);
+
+}
+
+
 
 void ABP_Character::DeliveringArtifacts(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, 
 	UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
