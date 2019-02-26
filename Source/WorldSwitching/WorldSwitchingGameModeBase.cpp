@@ -97,7 +97,7 @@ bool AWorldSwitchingGameModeBase::TestPhysicalCollision()
 		{
 			if (OtherActorPhysicalTest->IsA(APWorldActor::StaticClass()) && !OtherActorPhysicalTest->IsA(AArtifacts::StaticClass()))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Overlapped with PhysicalActor %s"), *OtherActorPhysicalTest->GetActorLabel())
+				/// UE_LOG(LogTemp, Warning, TEXT("Overlapped with PhysicalActor %s"), *OtherActorPhysicalTest->GetActorLabel())
 				UGameplayStatics::PlaySound2D(GetWorld(), CannotReturnToPhysical);
 				DeniedPhysicalReentryEffects();
 
