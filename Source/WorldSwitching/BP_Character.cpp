@@ -6,6 +6,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "SpiritTest.h"
+#include "PShamanEnemy.h"
 #include "Altar.h"
 #include "Artifacts.h"
 #include "S_PickupShield.h"
@@ -207,13 +208,31 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Double damage"))
 				Spirit->DecrementingLives();
-			};
-		};
-		
+			}
+		}
+	
+	}
 
-		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
+	else if (OtherActor->IsA(APShamanEnemy::StaticClass()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("You are hitting a Shaman Enemy"))
 
-	};
+			APShamanEnemy* Shaman = Cast<APShamanEnemy>(OtherActor);
+		if (NumberOfKicks <= 2)
+		{
+			Shaman->DecrementingLives();
+		}
+		else
+		{
+			for (int i{ 0 }; i < 2; ++i)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Double damage"))
+				Shaman->DecrementingLives();
+			}
+		}
+	}
+
+	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 }
 
 
@@ -258,7 +277,7 @@ void ABP_Character::DeliveringArtifacts(UPrimitiveComponent * OverlappedComp, AA
 {
 	if (OtherActor->IsA(AAltar::StaticClass()) && NumberOfHoldingArtifacts > 0 && bIsSpiritWorld == true)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Colliding with the altar"))
+		UE_LOG(LogTemp, Warning, TEXT("ARTIFACTS DELIVERED"))
 
 		AAltar* Altar = Cast<AAltar>(OtherActor);
 

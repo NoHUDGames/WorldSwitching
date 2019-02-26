@@ -52,6 +52,7 @@ void APShamanEnemy::DecrementingLives()
 		UE_LOG(LogTemp, Warning, TEXT("Enemy has %i lives left"), Lives)
 
 	}
+	KillingEnemy();
 }
 
 void APShamanEnemy::KillingEnemy()

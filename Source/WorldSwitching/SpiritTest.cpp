@@ -50,7 +50,7 @@ void ASpiritTest::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	KillingEnemy();
+	
 
 }
 
@@ -80,6 +80,7 @@ void ASpiritTest::DecrementingLives()
 		UE_LOG(LogTemp, Warning, TEXT("Enemy has %i lives left"), Lives)
 		
 	}
+	KillingEnemy();
 	
 }
 
