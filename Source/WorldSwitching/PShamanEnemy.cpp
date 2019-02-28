@@ -10,14 +10,14 @@ APShamanEnemy::APShamanEnemy()
 	WeaponRotation = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponRotation"));
 	WeaponRotation->SetupAttachment(RootComponent);
 	WeaponRotation->Mobility = EComponentMobility::Movable;
-	WeaponRotation->bVisualizeComponent = true;
+
 
 	WeaponVisual = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TempWeapon"));
 	WeaponVisual->SetupAttachment(WeaponRotation);
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> WeaponVisualAsset(TEXT("/Engine/BasicShapes/Cube.Cube"));
 	if (WeaponVisualAsset.Succeeded())
 	{
-		WeaponVisual->bVisualizeComponent = true;
+		/// WeaponVisual->bVisualizeComponent = true;
 		WeaponVisual->SetStaticMesh(WeaponVisualAsset.Object);
 		WeaponVisual->SetRelativeLocation(FVector(0.0f, 0.0f, 50.0f));
 		WeaponVisual->Mobility = EComponentMobility::Movable;

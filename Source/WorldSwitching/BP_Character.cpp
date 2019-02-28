@@ -23,7 +23,7 @@ ABP_Character::ABP_Character()
 	KickingRotation = CreateDefaultSubobject<USceneComponent>(TEXT("KickingRotation"));
 	KickingRotation->SetupAttachment(RootComponent);
 	KickingRotation->Mobility = EComponentMobility::Movable;
-	KickingRotation->bVisualizeComponent = true;
+
 
 	// Create and position a mesh component so we can see where our sphere is 
 	// DUMMY mesh, only for prototype. Will exchange when we have animation for kicking
@@ -32,7 +32,7 @@ ABP_Character::ABP_Character()
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereVisualAsset(TEXT("/Engine/BasicShapes/Cube.Cube"));
 	if (SphereVisualAsset.Succeeded())
 	{
-		SphereVisual->bVisualizeComponent = true;
+		/// SphereVisual->bVisualizeComponent = true;
 		SphereVisual->SetStaticMesh(SphereVisualAsset.Object);
 		SphereVisual->SetRelativeLocation(FVector(0.0f, 0.0f, 50.0f));
 		SphereVisual->Mobility = EComponentMobility::Movable;
