@@ -66,11 +66,13 @@ void AWorldSwitchingGameModeBase::ChangeWorlds()
 	bIsSpiritWorld = !bIsSpiritWorld;
 	
 	
-	if (!bIsSpiritWorld)
-	{
-		if (TestPhysicalCollision()) return;
-	}
+	if (!bIsSpiritWorld && TestPhysicalOverlaps()) return;
 
+	else if (bIsSpiritWorld)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("Inside IF for TestSpiritOverlaps"))
+		TestSpiritOverlaps();
+	}
 	
 	PlayerPawn->bIsSpiritWorld = bIsSpiritWorld;
 
@@ -82,13 +84,11 @@ void AWorldSwitchingGameModeBase::ChangeWorlds()
 	TogglePhysicalSpiritMaterialProperties();
 }
 
-bool AWorldSwitchingGameModeBase::TestPhysicalCollision()
+bool AWorldSwitchingGameModeBase::TestPhysicalOverlaps()
 {
-	if (!bIsSpiritWorld)
-	{
-		//Momentarily test for overlap with PhysicalActors
-		PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Overlap);
+		//Momentarily test for overlap with Actors
 
+		PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Overlap);
 		TogglePhysicalWorldActors();
 
 		OtherActorPhysicalTest = PlayerPawn->GetOtherActorForPhysicalTest();
@@ -109,11 +109,23 @@ bool AWorldSwitchingGameModeBase::TestPhysicalCollision()
 				
 				return true;
 			}
-		}
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Did NOT Overlap with PhysicalActor"));
 	PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
 	return false;
+}
+
+void AWorldSwitchingGameModeBase::TestSpiritOverlaps()
+{
+	PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
+	ToggleSpiritWorldActors();
+	OtherActorPhysicalTest = PlayerPawn->GetOtherActorForPhysicalTest();
+
+	if (!OtherActorPhysicalTest)
+	{
+		//Will be set to block again OnComponentEndOverlap from blueprint 
+		PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
+	}
 }
 
 AActor* AWorldSwitchingGameModeBase::GetOtherActorPhysicalTest()
