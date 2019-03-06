@@ -35,6 +35,10 @@ public:
 	void KillingEnemy();
 
 	void DecrementingLives();
+
+	UFUNCTION()
+		void HittingPlayer(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
+			UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 	/// End of variables and functions that BP_Character uses to kill the enemy
 
 	/// Start of variables and functions for the enemy attack

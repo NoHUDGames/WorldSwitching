@@ -115,7 +115,7 @@ void ABP_Character::Kicking()
 		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
 		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Overlap);
 		
-		/// Rotates the scene component, so the kick kan hit something
+		/// Rotates the scene component, so the kick can hit something
 		FRotator NewRotation{ 90.f, 0.f ,0.f };
 		KickingRotation->AddLocalRotation(NewRotation);
 
@@ -132,6 +132,7 @@ void ABP_Character::StopKicking()
 	/// Resets all values set in the function Kicking
 	FRotator NewRotation{ -90.f,0.f ,0.f };
 	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
+	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Ignore);
 	KickingRotation->AddLocalRotation(NewRotation);
 	CurrentlyKicking = false;
 }
@@ -157,6 +158,14 @@ void ABP_Character::StopInteracting()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Stops trying to interact with something"))
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel4, ECollisionResponse::ECR_Ignore);
+}
+
+void ABP_Character::DecrementingLives()
+{
+	if (Lives > 0)
+	{
+		--Lives;
+	}
 }
 
 void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
@@ -233,6 +242,7 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 	}
 
 	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
+	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Ignore);
 }
 
 

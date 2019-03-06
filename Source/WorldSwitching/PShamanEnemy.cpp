@@ -4,6 +4,7 @@
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "BP_Character.h"
 
 APShamanEnemy::APShamanEnemy()
 {
@@ -32,6 +33,8 @@ APShamanEnemy::APShamanEnemy()
 void APShamanEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+	BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &APShamanEnemy::HittingPlayer);
 }
 
 void APShamanEnemy::Tick(float DeltaTime)
@@ -63,3 +66,28 @@ void APShamanEnemy::KillingEnemy()
 			Destroy();
 	}
 }
+
+void APShamanEnemy::HittingPlayer(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, 
+	UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+{
+	if (OtherActor->IsA(ABP_Character::StaticClass()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("The enemy are hitting you"))
+
+		ABP_Character* PlayerCharacter = Cast<ABP_Character>(OtherActor);
+
+		PlayerCharacter->DecrementingLives();
+
+		BoxCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		if (PlayerCharacter->Lives <= 0)
+		{
+			PlayerCharacter->DeathSequence();
+		}
+	}
+
+
+}
+
+
+	
