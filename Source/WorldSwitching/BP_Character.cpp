@@ -12,6 +12,7 @@
 #include "S_PickupShield.h"
 #include "Kismet/GameplayStatics.h"
 #include "Math/UnrealMathUtility.h"
+#include "Components/TimelineComponent.h"
 
 // Sets default values
 ABP_Character::ABP_Character()
@@ -45,6 +46,16 @@ ABP_Character::ABP_Character()
 
 	RespawnLocation = { 0.f, 0.f, 0.f };
 	NumberOfHoldingArtifacts = 0;
+
+	/// Sets up the timeline that determines the players ability to kick
+	KickingTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineForKicking"));
+
+	InterpFunction.BindUFunction(this, FName("KickingTimelineFloatReturn"));
+	TimelineFinished.BindUFunction(this, FName("OnKickingTimelineFinished"));
+
+	PitchOffset = 70.f;
+	/// Finished setting up the timeline for kicking movement
+
 }
 
 // Called when the game starts or when spawned
@@ -60,6 +71,25 @@ void ABP_Character::BeginPlay()
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ABP_Character::DeliveringArtifacts);
 	
 	RespawnLocation = GetActorLocation();
+
+	/// Sets up the BeginPlay values for the kicking timeline
+	if (fKickingCurve)
+	{
+		/// Add the float curve to the timeline and connect it to the interpfunctions delegate
+		KickingTimeline->AddInterpFloat(fKickingCurve, InterpFunction, FName("Alpha"));
+		//Add our timeline finished function
+		KickingTimeline->SetTimelineFinishedFunc(TimelineFinished);
+
+		/// Setting vectors
+		StartRotationOfKicking = KickingRotation->GetComponentRotation();
+		EndRotationOfKicking = FRotator(StartRotationOfKicking.Pitch + PitchOffset, StartRotationOfKicking.Yaw, StartRotationOfKicking.Roll);
+
+		/// Setting our timeline settings before we start it
+		KickingTimeline->SetLooping(false);
+		KickingTimeline->SetIgnoreTimeDilation(true);
+		
+	}
+	/// Done setting up the BeginPlay values for the kicking timeline
 }
 
 // Called every frame
@@ -116,13 +146,15 @@ void ABP_Character::Kicking()
 		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Overlap);
 		
 		/// Rotates the scene component, so the kick can hit something
-		FRotator NewRotation{ 90.f, 0.f ,0.f };
-		KickingRotation->AddLocalRotation(NewRotation);
+		// FRotator NewRotation{ 90.f, 0.f ,0.f };
+		// KickingRotation->AddLocalRotation(NewRotation);
+
+		/// Starts the timeline
+		KickingTimeline->Play();
 
 		/// Resets the kick after 0.3 seconds
-		GetWorldTimerManager().SetTimer(KickingDurationTimer, this, &ABP_Character::StopKicking, 0.3f, false);
+		/// GetWorldTimerManager().SetTimer(KickingDurationTimer, this, &ABP_Character::StopKicking, 0.3f, false);
 
-		
 	}
 	
 }
@@ -145,6 +177,27 @@ void ABP_Character::ResetKickingCombo()
 		NumberOfKicks = 0;
 	}
 		
+}
+
+void ABP_Character::KickingTimelineFloatReturn(float value)
+{
+	KickingRotation->SetRelativeRotation(FMath::Lerp(StartRotationOfKicking, EndRotationOfKicking, value));
+
+}
+
+void ABP_Character::OnKickingTimelineFinished()
+{
+	
+	if (KickingTimeline->GetPlaybackPosition() != 0.0f)
+	{
+		GLog->Log("REVERSE");
+		KickingTimeline->Reverse();
+	}
+	else
+	{
+		CurrentlyKicking = false;
+	}
+	
 }
 
 void ABP_Character::Interact()

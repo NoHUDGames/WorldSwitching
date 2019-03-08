@@ -8,6 +8,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "TimerManager.h"
+#include "Components/TimelineComponent.h"
 #include "BP_Character.generated.h"
 
 class AArtifacts;
@@ -17,6 +18,8 @@ UCLASS()
 class WORLDSWITCHING_API ABP_Character : public ACharacter
 {
 	GENERATED_BODY()
+
+		class UTimelineComponent* KickingTimeline;
 
 public:
 	// Sets default values for this character's properties
@@ -57,20 +60,46 @@ public:
 		void HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
 			UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kicking")
 		UBoxComponent* BoxCollider {
 		nullptr
 	};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kicking")
 		USceneComponent* KickingRotation {
 		nullptr
 	};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kicking")
 		UStaticMeshComponent* SphereVisual {
 		nullptr
 	};
+
+
+	UPROPERTY(EditAnywhere, Category = "Kicking")
+		class UCurveFloat* fKickingCurve;
+
+	UPROPERTY()
+		FRotator StartRotationOfKicking;
+
+	UPROPERTY()
+		FRotator EndRotationOfKicking;
+
+	UPROPERTY(EditAnywhere, Category = "Kicking")
+		float PitchOffset;
+	
+	/// declare our delegate function to be binded with TimelineFloatReturn()
+	FOnTimelineFloat InterpFunction{};
+
+	/// Declare our delegate function to be binded with OnTimelineFinished()
+	FOnTimelineEvent TimelineFinished{};
+
+	UFUNCTION()
+		void KickingTimelineFloatReturn(float value);
+
+	UFUNCTION()
+		void OnKickingTimelineFinished();
+
 	/// end of functions and variables for kicking
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
