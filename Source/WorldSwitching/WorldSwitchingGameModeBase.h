@@ -84,6 +84,8 @@ public:
 	void ToggleParticleEffects();
 
 	void TogglePhysicalSpiritMaterialProperties();
+
+	void TurnOfPickedUpArtifacts();
 };
 
 

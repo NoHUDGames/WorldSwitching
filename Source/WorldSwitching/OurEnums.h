@@ -17,6 +17,28 @@ enum class EPickupTypes : uint8
 	Shield		UMETA(DisplayName="Shield")
 };
 
+UENUM(BlueprintType)
+enum class EArtifactBelongsToLevel : uint8
+{	
+	Level_1		UMETA(DisplayName ="Level 1"),
+	Level_2		UMETA(DisplayName ="Level 2")
+};
+
+enum class ECurrentLevelLoaded : uint8
+{
+	Level_1,
+	Level_2,
+	Hub
+};
+
+UENUM(BlueprintType)
+enum class EDestinationLevel : uint8
+{
+	Level_1,
+	Level_2,
+	Hub
+};
+
 UCLASS()
 class WORLDSWITCHING_API UOurEnums : public UUserDefinedEnum
 {

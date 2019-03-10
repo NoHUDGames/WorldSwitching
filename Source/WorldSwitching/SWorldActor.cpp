@@ -9,6 +9,7 @@ ASWorldActor::ASWorldActor()
 	PrimaryActorTick.bCanEverTick = true;
 
 	bOptOutOfCollisionChange = false;
+	bOptOutOfVisibilityChange = false;
 }
 
 // Called when the game starts or when spawned

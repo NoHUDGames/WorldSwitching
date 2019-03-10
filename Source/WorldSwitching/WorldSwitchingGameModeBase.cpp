@@ -9,6 +9,7 @@
 #include "ParticleEffectActor.h"
 #include "Artifacts.h"
 #include "Kismet/GameplayStatics.h"
+#include "WorldSwitchingGameInstance.h"
 
 //class ASpiritTest;
 //class APWorldActor;
@@ -34,6 +35,10 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 	PlayerCapsuleCollision = Cast<UCapsuleComponent>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetComponentByClass(UCapsuleComponent::StaticClass()));
 	PlayerController = GetWorld()->GetFirstPlayerController();
 	PlayerPawn = Cast<ABP_Character>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+
+	Cast<UWorldSwitchingGameInstance>(GetWorld()->GetGameInstance())->ManageLevelArtifactsState();
+
+
 
 	if (PlayerPawn)
 	{
@@ -142,7 +147,11 @@ void AWorldSwitchingGameModeBase::TogglePhysicalWorldActors()
 		{
 
 			APWorldActor *PWorldActor = *PActorItr;
+
+			if (!PActorItr->bOptOutOfCollisionChange)
 			PActorItr->SetActorEnableCollision(false);
+
+			if (!PActorItr->bOptOutOfVisibilityChange)
 			PActorItr->SetActorHiddenInGame(true);
 		}
 
@@ -161,7 +170,11 @@ void AWorldSwitchingGameModeBase::TogglePhysicalWorldActors()
 		{
 
 			APWorldActor *PWorldActor = *PActorItr;
+
+			if (!PActorItr->bOptOutOfCollisionChange)
 			PActorItr->SetActorEnableCollision(true);
+
+			if (!PActorItr->bOptOutOfVisibilityChange)
 			PActorItr->SetActorHiddenInGame(false);
 		}
 
@@ -185,11 +198,10 @@ void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
 
 			
 				if (!SActorItr->bOptOutOfCollisionChange)
-				{
 					SActorItr->SetActorEnableCollision(true);
-				}
 
-				SActorItr->SetActorHiddenInGame(false);
+				if (!SActorItr->bOptOutOfVisibilityChange)
+					SActorItr->SetActorHiddenInGame(false);
 			
 
 		}
@@ -213,10 +225,10 @@ void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
 			
 			
 				if (!SActorItr->bOptOutOfCollisionChange)
-				{
 					SActorItr->SetActorEnableCollision(false);
-				}
-				SActorItr->SetActorHiddenInGame(true);
+
+				if (!SActorItr->bOptOutOfVisibilityChange)
+					SActorItr->SetActorHiddenInGame(true);
 			
 		}
 
@@ -246,8 +258,11 @@ void AWorldSwitchingGameModeBase::ToggleParticleEffects()
 
 			else
 			{
-				ParticleItr->PhysicalWorldParticles->Deactivate();
-				ParticleItr->SpiritWorldParticles->Activate();
+				if (!ParticleItr->bOptOutOfWorldChangeEffect)
+				{
+					ParticleItr->PhysicalWorldParticles->Deactivate();
+					ParticleItr->SpiritWorldParticles->Activate();
+				}
 			}
 		}
 	}
@@ -264,8 +279,11 @@ void AWorldSwitchingGameModeBase::ToggleParticleEffects()
 
 			else
 			{
-				ParticleItr->PhysicalWorldParticles->Activate();
-				ParticleItr->SpiritWorldParticles->Deactivate();
+				if (!ParticleItr->bOptOutOfWorldChangeEffect)
+				{
+					ParticleItr->PhysicalWorldParticles->Activate();
+					ParticleItr->SpiritWorldParticles->Deactivate();
+				}
 			}
 		}
 	}

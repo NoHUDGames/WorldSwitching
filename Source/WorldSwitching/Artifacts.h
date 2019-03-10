@@ -22,10 +22,16 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void PickupFeedback();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PickupType)
-		EPickupTypes PickupType;
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = BelongsToLevel)
+		EArtifactBelongsToLevel BelongsToLevel;
+
+
+
 	virtual void Tick(float DeltaTime) override;
 
+	bool GetHasBeenPickedUp();
+
+private:
+	bool bHasBeenPickedUp = false;
 	
 };

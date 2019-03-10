@@ -27,7 +27,6 @@ void APSWorldActor::BeginPlay()
 
 	if (DynamicMaterial)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("DynamicMaterial Created"))
 		PhysicalColor = DynamicMaterial->K2_GetVectorParameterValue("BaseColor");
 		PhysicalGlow = DynamicMaterial->K2_GetScalarParameterValue("Glow");
 		PhysicalOpacity = DynamicMaterial->K2_GetScalarParameterValue("Opacity");

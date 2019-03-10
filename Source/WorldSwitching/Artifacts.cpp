@@ -16,3 +16,8 @@ void AArtifacts::Tick(float DeltaTime)
 	AddActorLocalRotation(FRotator(0.f, 50.f, 0.f)*DeltaTime);
 
 }
+
+bool AArtifacts::GetHasBeenPickedUp()
+{
+	return bHasBeenPickedUp;
+}

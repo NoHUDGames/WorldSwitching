@@ -15,6 +15,12 @@ public:
 	// Sets default values for this actor's properties
 	APWorldActor();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WorldChange)
+		bool bOptOutOfCollisionChange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WorldChange)
+		bool bOptOutOfVisibilityChange;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

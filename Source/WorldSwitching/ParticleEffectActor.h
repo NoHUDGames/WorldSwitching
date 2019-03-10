@@ -31,7 +31,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = DynamicFire)
 		//Set true to run dynamic change to DynamicBothWorlds component
-		bool bIsDynamicFire;
+	bool bIsDynamicFire;
+
+	bool bOptOutOfWorldChangeEffect = false;
 
 	FVector PhysicalFireColor;
 	FVector SpiritFireColor;

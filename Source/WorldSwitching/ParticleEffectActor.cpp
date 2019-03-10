@@ -27,7 +27,7 @@ AParticleEffectActor::AParticleEffectActor()
 void AParticleEffectActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	SpiritWorldParticles->Deactivate();
 }
 
 // Called every frame
