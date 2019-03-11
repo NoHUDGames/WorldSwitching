@@ -36,15 +36,10 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 	PlayerController = GetWorld()->GetFirstPlayerController();
 	PlayerPawn = Cast<ABP_Character>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 
-	Cast<UWorldSwitchingGameInstance>(GetWorld()->GetGameInstance())->ManageLevelArtifactsState();
-
-
-
 	if (PlayerPawn)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("GAME MODE: Got Player Pawn"))
 	}
-	
 	
 	if (PlayerCapsuleCollision)
 	{
@@ -63,6 +58,10 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 			PlayerController->InputComponent->BindAction("ChangeWorlds", IE_Pressed, this, &AWorldSwitchingGameModeBase::ChangeWorlds);
 	}
 	ToggleSpiritWorldActors();
+
+	GameInstance = Cast<UWorldSwitchingGameInstance>(GetWorld()->GetGameInstance());
+
+	GameInstance->ManageLevelArtifacts();
 }
 
 

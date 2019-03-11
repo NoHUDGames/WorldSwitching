@@ -20,31 +20,36 @@ public:
 
 	UWorldSwitchingGameInstance();
 
+	//_Start contains all location variables on BeginPlay
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FVector> Level_1ArtifactLocations_Start;
+
+	//_Continuing copies _Start at BeginPlay. Elements are removed from _Continuing as Artifacts are picked up.
+	TArray<FVector> Level_1ArtifactLocations_Continuing;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FVector> Level_2ArtifactLocations_Start;
+
+	TArray<FVector> Level_2ArtifactLocations_Continuing;
+
 private:
 
-	ECurrentLevelLoaded CurrentLevelLoaded;
+	ECurrentLevelLoaded CurrentLoadedLevel;
 	FString CurrentMapName;
 
-	FString PrototypeLevelName;
-	FString LevelOneName;
-	FString LevelTwoName;
-
-
-
 	uint8 AltarHoldingArtifacts = 0;
-
-	//TArray<TArray<AActor*>> AllArtifactsState;
-
-	TArray<AActor*> Level_1Artifacts;
-	TArray<AActor*> Level_2Artifacts;
 
 	bool bIsFirsTimeLoadingLevelOne = true;
 	bool bIsFirsTimeLoadingLevelTwo = true;
 
 public:
 
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<AArtifacts> ArtifactToSpawn;
 
-	void ManageLevelArtifactsState();
+	void ManageLevelArtifacts();
 	void GetCurrentLevel();
 	void ManageFirstTimeLevelLoad();
+	void SpawnArtifacts();
+	void RemovePickedUpArtifact(int index);
 };

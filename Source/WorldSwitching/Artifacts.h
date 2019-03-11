@@ -29,9 +29,11 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	bool GetHasBeenPickedUp();
-
-private:
-	bool bHasBeenPickedUp = false;
+	void SetArrayIndex(int index);
+	int GetArrayIndex();
 	
+private:
+	
+	//Used by GameInstance to keep track of artifacts in levels
+	int ArrayIndex;
 };

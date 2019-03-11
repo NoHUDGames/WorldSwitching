@@ -90,6 +90,7 @@ void ABP_Character::BeginPlay()
 		
 	}
 	/// Done setting up the BeginPlay values for the kicking timeline
+	GameInstance = Cast<UWorldSwitchingGameInstance>(GetWorld()->GetGameInstance());
 }
 
 // Called every frame
@@ -235,7 +236,9 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 		UE_LOG(LogTemp, Warning, TEXT("You're colliding with an artifact."))
 
 			++NumberOfHoldingArtifacts;
+		GameInstance->RemovePickedUpArtifact(PickedUpActor->GetArrayIndex());
 		PickedUpActor->PickupFeedback();
+		
 
 		UE_LOG(LogTemp,Warning, TEXT("We have %i artifacts"), NumberOfHoldingArtifacts)
 	}

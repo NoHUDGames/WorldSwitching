@@ -9,6 +9,7 @@
 #include "Components/CapsuleComponent.h"
 #include "TimerManager.h"
 #include "Components/TimelineComponent.h"
+#include "WorldSwitchingGameInstance.h"
 #include "BP_Character.generated.h"
 
 class AArtifacts;
@@ -123,6 +124,8 @@ public:
 
 	AActor* OtherActorForPhysicalTest = nullptr;
 	AActor* GetOtherActorForPhysicalTest();
+
+	UWorldSwitchingGameInstance* GameInstance = nullptr;
 
 
 	/// Start of functions and variables dealing with artifact picking

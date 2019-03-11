@@ -10,6 +10,7 @@
 #include "EngineUtils.h"
 #include "TimerManager.h"
 #include "BP_Character.h"
+#include "WorldSwitchingGameInstance.h"
 #include "WorldSwitchingGameModeBase.generated.h"
 
 /**
@@ -54,6 +55,10 @@ public:
 
 	AActor* OtherActorPhysicalTest = nullptr;
 
+	UWorldSwitchingGameInstance* GameInstance = nullptr;
+
+
+
 	UPROPERTY(EditAnywhere, Category ="Error Sound")
 	USoundBase* CannotReturnToPhysical = nullptr;
 
@@ -85,7 +90,6 @@ public:
 
 	void TogglePhysicalSpiritMaterialProperties();
 
-	void TurnOfPickedUpArtifacts();
 };
 
 

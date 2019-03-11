@@ -17,7 +17,13 @@ void AArtifacts::Tick(float DeltaTime)
 
 }
 
-bool AArtifacts::GetHasBeenPickedUp()
+
+void AArtifacts::SetArrayIndex(int index)
 {
-	return bHasBeenPickedUp;
+	ArrayIndex = index;
+}
+
+int AArtifacts::GetArrayIndex()
+{
+	return ArrayIndex;
 }
