@@ -8,3 +8,13 @@ void AS_PickupShield::Tick(float DeltaTime)
 
 
 }
+
+void AS_PickupShield::SetArrayIndex(int index)
+{
+	ArrayIndex = index;
+}
+
+int AS_PickupShield::GetArrayIndex()
+{
+	return ArrayIndex;
+}

@@ -17,7 +17,7 @@
 AWorldSwitchingGameModeBase::AWorldSwitchingGameModeBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	bIsSpiritWorld = false;
+	bIsSpiritWorld = true;
 }
 
 void AWorldSwitchingGameModeBase::Tick(float DeltaTime)
@@ -31,6 +31,12 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 	Super::BeginPlay();
 
 	EAutoReceiveInput::Player0;
+
+	GameInstance = Cast<UWorldSwitchingGameInstance>(GetWorld()->GetGameInstance());
+	GameInstance->ManageLevelPickups();
+	
+	
+
 	CameraComponent = Cast<UCameraComponent>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetComponentByClass(UCameraComponent::StaticClass()));
 	PlayerCapsuleCollision = Cast<UCapsuleComponent>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetComponentByClass(UCapsuleComponent::StaticClass()));
 	PlayerController = GetWorld()->GetFirstPlayerController();
@@ -40,7 +46,10 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("GAME MODE: Got Player Pawn"))
 	}
-	
+
+	PlayerPawn->SetLives(GameInstance->FeedPlayerHealth());
+	PlayerPawn->SetArtifacts(GameInstance->FeedPlayerArtifacts());
+
 	if (PlayerCapsuleCollision)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("GAME MODE: Got a Player Capsule Collision"))
@@ -55,17 +64,30 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("GAME MODE: Got first PlayerController"))
 
-			PlayerController->InputComponent->BindAction("ChangeWorlds", IE_Pressed, this, &AWorldSwitchingGameModeBase::ChangeWorlds);
+			PlayerController->InputComponent->BindAction("ChangeWorlds", IE_Pressed, this, &AWorldSwitchingGameModeBase::ChangeWorldsProxy);
 	}
-	ToggleSpiritWorldActors();
+	
 
-	GameInstance = Cast<UWorldSwitchingGameInstance>(GetWorld()->GetGameInstance());
-
-	GameInstance->ManageLevelArtifacts();
+	if (GameInstance->GetbIsFirstTimeStartingGame())
+	{
+		GameInstance->SetbIsFirstTimeStartingGame(false);
+		ChangeWorlds(false);
+	}
+	else
+	{
+		TogglePhysicalWorldActors();
+		ToggleParticleEffects();
+		TogglePhysicalSpiritMaterialProperties();
+		ToggleLastingCameraEffects();
+	}
 }
 
+void AWorldSwitchingGameModeBase::ChangeWorldsProxy()
+{
+	ChangeWorlds();
+}
 
-void AWorldSwitchingGameModeBase::ChangeWorlds()
+void AWorldSwitchingGameModeBase::ChangeWorlds(bool bShowTransitionEffects)
 {
 	bIsSpiritWorld = !bIsSpiritWorld;
 	
@@ -80,7 +102,8 @@ void AWorldSwitchingGameModeBase::ChangeWorlds()
 	
 	PlayerPawn->bIsSpiritWorld = bIsSpiritWorld;
 
-	WorldTransitionEffects();
+	if (bShowTransitionEffects) WorldTransitionEffects();
+	
 	TogglePhysicalWorldActors();
 	ToggleSpiritWorldActors();
 	ToggleParticleEffects();

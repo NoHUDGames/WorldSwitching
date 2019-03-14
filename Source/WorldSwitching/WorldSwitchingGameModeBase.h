@@ -10,6 +10,7 @@
 #include "EngineUtils.h"
 #include "TimerManager.h"
 #include "BP_Character.h"
+#include "Altar.h"
 #include "WorldSwitchingGameInstance.h"
 #include "WorldSwitchingGameModeBase.generated.h"
 
@@ -34,7 +35,10 @@ class WORLDSWITCHING_API AWorldSwitchingGameModeBase : public AGameModeBase
 public:
 
 	UFUNCTION(BlueprintCallable)
-	void ChangeWorlds();
+	void ChangeWorlds(bool bShowTransitionEffects = true);
+
+	//Because input cannot trigger functions with parameters?
+	void ChangeWorldsProxy();
 
 	//Returns true if collision occurred
 	bool TestPhysicalOverlaps();
@@ -54,6 +58,7 @@ public:
 	ABP_Character* PlayerPawn = nullptr;
 
 	AActor* OtherActorPhysicalTest = nullptr;
+
 
 	UWorldSwitchingGameInstance* GameInstance = nullptr;
 

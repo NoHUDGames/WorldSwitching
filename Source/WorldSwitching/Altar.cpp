@@ -14,6 +14,8 @@ AAltar::AAltar()
 	ArtifactDropoffCollider->SetupAttachment(RootComponent);
 	ArtifactDropoffCollider->SetSphereRadius(300.f);
 	ArtifactDropoffCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+
+	DroppedOffArtifacts = 0;
 }
 
 // Called when the game starts or when spawned

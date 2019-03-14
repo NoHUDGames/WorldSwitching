@@ -31,5 +31,5 @@ public:
 
 	void ReceivingArtifacts(int PlayerHoldingArtifacts);
 
-	int DroppedOffArtifacts{ 0 };
+	int DroppedOffArtifacts;
 };

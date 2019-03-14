@@ -11,7 +11,7 @@
  */
 
 UENUM(BlueprintType)
-enum class EPickupTypes : uint8
+enum class ESpawnHelperType : uint8
 {
 	Artifact	UMETA(DisplayName="Artifact"),
 	Shield		UMETA(DisplayName="Shield")
@@ -24,7 +24,7 @@ enum class EArtifactBelongsToLevel : uint8
 	Level_2		UMETA(DisplayName ="Level 2")
 };
 
-enum class ECurrentLevelLoaded : uint8
+enum class ECurrentLoadedLevel : uint8
 {
 	Level_1,
 	Level_2,

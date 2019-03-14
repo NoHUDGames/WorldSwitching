@@ -7,6 +7,8 @@
 #include "Components/BoxComponent.h"
 #include "ParticleEffectActor.h"
 #include "OurEnums.h"
+#include "BP_Character.h"
+#include "WorldSwitchingGameInstance.h"
 #include "PS_Portal.generated.h"
 
 /**
@@ -28,6 +30,7 @@ public:
 
 	void ActivatePortal();
 
+
 	UFUNCTION()
 	void Travel(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor,
 		UPrimitiveComponent *OtherComponent, int32 OtherBodyIndex,
@@ -48,4 +51,10 @@ private:
 
 		UPROPERTY(EditAnywhere)
 		bool bBeginActivated = false;
+
+		ABP_Character* PlayerPawn = nullptr;
+
+		UWorldSwitchingGameInstance* GameInstance = nullptr;
+
+		
 };

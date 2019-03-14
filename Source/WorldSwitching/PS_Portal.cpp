@@ -28,6 +28,9 @@ void APS_Portal::BeginPlay()
 
 	else
 		ActivatePortal();
+
+	GameInstance = Cast<UWorldSwitchingGameInstance>(GetGameInstance());
+	PlayerPawn = Cast<ABP_Character>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 }
 
 void APS_Portal::ActivatePortal()
@@ -43,6 +46,12 @@ void APS_Portal::Travel(UPrimitiveComponent* OverlappedComponent, AActor *OtherA
 	UPrimitiveComponent *OtherComponent, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult &SweepResult)
 {
+	if (PlayerPawn && GameInstance)
+	{
+		GameInstance->FetchPlayerHealth(PlayerPawn->GetLives());
+		GameInstance->FetchPlayerArtifacts(PlayerPawn->GetArtifacts());
+	}
+
 	switch (DestinationLevel)
 	{
 	case EDestinationLevel::Level_1:

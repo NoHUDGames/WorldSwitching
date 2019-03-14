@@ -10,6 +10,7 @@
 #include "TimerManager.h"
 #include "Components/TimelineComponent.h"
 #include "WorldSwitchingGameInstance.h"
+#include "OurPlayerController.h"
 #include "BP_Character.generated.h"
 
 class AArtifacts;
@@ -115,6 +116,7 @@ public:
 
 	void DecrementingLives();
 
+
 	UFUNCTION(BlueprintCallable)
 	void DeathSequence();
 
@@ -126,6 +128,8 @@ public:
 	AActor* GetOtherActorForPhysicalTest();
 
 	UWorldSwitchingGameInstance* GameInstance = nullptr;
+
+	AOurPlayerController* PlayerController = nullptr;
 
 
 	/// Start of functions and variables dealing with artifact picking
@@ -139,6 +143,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int NumberOfHoldingArtifacts;
+
 	/// End of function and variables dealing with artifact picking
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -148,7 +153,7 @@ public:
 	int Lives{ 3 };
 
 	UPROPERTY(EditAnywhere)
-		TSubclassOf<AArtifacts> ArtifactsToSpawn;
+	TSubclassOf<AArtifacts> ArtifactsToSpawn;
 
 	void SetRespawnLocation(FVector NewSaveLocation);
 
@@ -157,5 +162,15 @@ public:
 
 	//Is set from PS_SavePoint
 	FVector RespawnLocation;
+
+	
+	int GetLives();
+	int GetArtifacts();
+
+	void SetLives(int NewHealth);
+	void SetArtifacts(int NewArtifacts);
+
+
+
 
 };

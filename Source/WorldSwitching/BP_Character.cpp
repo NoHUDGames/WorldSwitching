@@ -91,6 +91,7 @@ void ABP_Character::BeginPlay()
 	}
 	/// Done setting up the BeginPlay values for the kicking timeline
 	GameInstance = Cast<UWorldSwitchingGameInstance>(GetWorld()->GetGameInstance());
+	PlayerController = Cast<AOurPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 }
 
 // Called every frame
@@ -235,8 +236,8 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 		
 		UE_LOG(LogTemp, Warning, TEXT("You're colliding with an artifact."))
 
-			++NumberOfHoldingArtifacts;
-		GameInstance->RemovePickedUpArtifact(PickedUpActor->GetArrayIndex());
+		++NumberOfHoldingArtifacts;
+		GameInstance->RegisterPickedUpArtifact(PickedUpActor->GetArrayIndex());
 		PickedUpActor->PickupFeedback();
 		
 
@@ -245,8 +246,9 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 
 	else if (Cast<AS_PickupShield>(OtherActor))
 	{
+		OtherActor->SetActorEnableCollision(false);
 		AS_PickupShield* PickedUpActor = Cast<AS_PickupShield>(OtherActor);
-
+		GameInstance->RegisterPickedUpShield(PickedUpActor->GetArrayIndex());
 		PickedUpActor->PickupFeedback();
 		UE_LOG(LogTemp, Warning, TEXT("You're picking up a SHIELD!"))
 	}
@@ -313,7 +315,9 @@ void ABP_Character::DeathSequence()
 
 	FVector ArtifactSpawnArea = GetActorLocation();
 
-	for (int i = 0; i < NumberOfHoldingArtifacts; ++i)
+	int Amount = NumberOfHoldingArtifacts;
+
+	for (int i = 0; i < Amount; ++i)
 	{
 		ArtifactSpawnArea.X += FMath::RandRange(-200.f, 200.f);
 		ArtifactSpawnArea.Y += FMath::RandRange(-200.f, 200.f);
@@ -322,7 +326,7 @@ void ABP_Character::DeathSequence()
 		World->SpawnActor<AArtifacts>(ArtifactsToSpawn, ArtifactSpawnArea, FRotator(0.f, 0.f, 0.f));
 	}
 
-	NumberOfHoldingArtifacts = 0;
+	PlayerController->Artifacts = 0;
 
 	GetWorldTimerManager().SetTimer(DeathSequenceTimer, this, &ABP_Character::RespawnSequence, 3.f, false);
 }
@@ -330,6 +334,7 @@ void ABP_Character::DeathSequence()
 void ABP_Character::RespawnSequence()
 {
 	Lives = 3;
+	PlayerController->SetHealth(3);
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 	SetActorLocation(RespawnLocation);
@@ -372,4 +377,23 @@ void ABP_Character::SetRespawnLocation(FVector NewSaveLocation)
 FVector ABP_Character::GetRespawnLocation()
 {
 	return RespawnLocation;
+}
+
+int ABP_Character::GetLives()
+{
+	return Lives;
+}
+
+int ABP_Character::GetArtifacts()
+{
+	return NumberOfHoldingArtifacts;
+}
+
+void ABP_Character::SetLives(int NewHealth)
+{
+	Lives = NewHealth;
+}
+void ABP_Character::SetArtifacts(int NewArtifacts)
+{
+	NumberOfHoldingArtifacts = NewArtifacts;
 }
