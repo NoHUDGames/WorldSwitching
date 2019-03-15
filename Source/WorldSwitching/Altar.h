@@ -26,7 +26,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-
+	UPROPERTY(EditAnywhere)
 	USphereComponent* ArtifactDropoffCollider {nullptr};
 
 	void ReceivingArtifacts(int PlayerHoldingArtifacts);

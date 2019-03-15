@@ -338,7 +338,6 @@ void ABP_Character::RespawnSequence()
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 	SetActorLocation(RespawnLocation);
-
 }
 
 
@@ -350,10 +349,13 @@ void ABP_Character::DeliveringArtifacts(UPrimitiveComponent * OverlappedComp, AA
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ARTIFACTS DELIVERED"))
 
-
-			Cast<AAltar>(OtherActor)->ReceivingArtifacts(NumberOfHoldingArtifacts);
+		Cast<AAltar>(OtherActor)->ReceivingArtifacts(NumberOfHoldingArtifacts);
 
 		NumberOfHoldingArtifacts = 0;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ARTIFACTS NOT DELIVERED"))
 	}
 }
 
@@ -395,4 +397,9 @@ void ABP_Character::SetLives(int NewHealth)
 void ABP_Character::SetArtifacts(int NewArtifacts)
 {
 	NumberOfHoldingArtifacts = NewArtifacts;
+}
+
+void ABP_Character::SetbIsSpiritWorld(bool state)
+{
+	bIsSpiritWorld = state;
 }

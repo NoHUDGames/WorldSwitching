@@ -14,16 +14,16 @@ AAltar::AAltar()
 	ArtifactDropoffCollider = CreateDefaultSubobject<USphereComponent>(TEXT("ArtifactDropoffCollider"));
 	ArtifactDropoffCollider->SetupAttachment(RootComponent);
 	ArtifactDropoffCollider->SetSphereRadius(300.f);
-	ArtifactDropoffCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 
-	ArtifactDropoffCollider->SetupAttachment(RootComponent);
+	//ArtifactDropoffCollider->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel4);
+	//ArtifactDropoffCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 }
 
 // Called when the game starts or when spawned
 void AAltar::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 }
 
 // Called every frame
@@ -35,7 +35,7 @@ void AAltar::Tick(float DeltaTime)
 
 void AAltar::ReceivingArtifacts(int PlayerHoldingArtifacts)
 {
-	DroppedOffArtifacts = DroppedOffArtifacts + PlayerHoldingArtifacts;
+	DroppedOffArtifacts += PlayerHoldingArtifacts;
 
 	UE_LOG(LogTemp, Warning, TEXT("Artifacts dropped off at the altar now: %i"), DroppedOffArtifacts)
 }

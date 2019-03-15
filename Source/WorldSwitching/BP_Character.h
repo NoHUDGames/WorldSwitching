@@ -169,6 +169,7 @@ public:
 
 	void SetLives(int NewHealth);
 	void SetArtifacts(int NewArtifacts);
+	void SetbIsSpiritWorld(bool state);
 
 
 

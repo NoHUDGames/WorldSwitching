@@ -49,6 +49,7 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 
 	PlayerPawn->SetLives(GameInstance->FeedPlayerHealth());
 	PlayerPawn->SetArtifacts(GameInstance->FeedPlayerArtifacts());
+	PlayerPawn->SetbIsSpiritWorld(bIsSpiritWorld);
 
 	if (PlayerCapsuleCollision)
 	{
