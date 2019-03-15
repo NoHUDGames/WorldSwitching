@@ -31,5 +31,6 @@ public:
 
 	void ReceivingArtifacts(int PlayerHoldingArtifacts);
 
-	int DroppedOffArtifacts;
+	UPROPERTY(BlueprintReadWrite)
+	int DroppedOffArtifacts = 0;
 };

@@ -3,11 +3,12 @@
 #include "Altar.h"
 #include "BP_Character.h"
 
+
 // Sets default values
 AAltar::AAltar()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	/// Makes a collider that will be used to test if the player is in range of dropping off artifacts
 	ArtifactDropoffCollider = CreateDefaultSubobject<USphereComponent>(TEXT("ArtifactDropoffCollider"));
@@ -15,7 +16,7 @@ AAltar::AAltar()
 	ArtifactDropoffCollider->SetSphereRadius(300.f);
 	ArtifactDropoffCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 
-	DroppedOffArtifacts = 0;
+	ArtifactDropoffCollider->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned

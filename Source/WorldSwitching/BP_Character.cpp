@@ -350,9 +350,8 @@ void ABP_Character::DeliveringArtifacts(UPrimitiveComponent * OverlappedComp, AA
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ARTIFACTS DELIVERED"))
 
-		AAltar* Altar = Cast<AAltar>(OtherActor);
 
-		Altar->ReceivingArtifacts(NumberOfHoldingArtifacts);
+			Cast<AAltar>(OtherActor)->ReceivingArtifacts(NumberOfHoldingArtifacts);
 
 		NumberOfHoldingArtifacts = 0;
 	}
