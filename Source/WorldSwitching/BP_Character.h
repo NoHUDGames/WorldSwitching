@@ -172,6 +172,22 @@ public:
 	void SetbIsSpiritWorld(bool state);
 
 
+private:
+	UAnimSequence* IdleAnim;
+	bool isIdleAnimStarted{ false };
 
+	UAnimSequence* KickingAnim;
+	bool isKickingAnimStarted{ false };
+
+	UAnimSequence* WalkingAnim;
+	bool isWalkingAnimStarted{ false };
+
+	
+
+	enum Animations {
+		WALKINGFORWARD, STRIFING, KICKING, IDLE
+	};
+
+	Animations RunningAnimations{ IDLE };
 
 };
