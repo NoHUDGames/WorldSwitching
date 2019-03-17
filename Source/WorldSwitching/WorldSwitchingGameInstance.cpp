@@ -9,12 +9,29 @@
 
 UWorldSwitchingGameInstance::UWorldSwitchingGameInstance()
 {
-
+	NumberOfLevelsWithSpawnHelpers = 2;
 }
 
 void UWorldSwitchingGameInstance::BeginGame()
 {
+	LevelPickupParameters.Init(nullptr, NumberOfLevelsWithSpawnHelpers);
+}
 
+void UWorldSwitchingGameInstance::ManageLevelPickups()
+{
+	GetCurrentLevel();
+
+	if ((CurrentLoadedLevel == ECurrentLoadedLevel::Level_1 && bIsFirsTimeLoadingLevelOne) ||
+		(CurrentLoadedLevel == ECurrentLoadedLevel::Level_2 && bIsFirsTimeLoadingLevelTwo))
+	{
+		GatherSpawnLocations();
+		SpawnPickups();
+		return;
+	}
+
+	if (CurrentLoadedLevel == ECurrentLoadedLevel::Hub) return;
+
+	SpawnPickups();
 }
 
 void UWorldSwitchingGameInstance::GatherSpawnLocations()
@@ -25,50 +42,49 @@ void UWorldSwitchingGameInstance::GatherSpawnLocations()
 
 		if (SpawnHelper->SpawnHelperType == ESpawnHelperType::Artifact)
 		{
+			
 			if (CurrentLoadedLevel == ECurrentLoadedLevel::Level_1)
 			{
-				Level_1ArtifactLocations.Add(SpawnHelper->GetActorLocation());
-				Level_1ArtifactPickedUp.Add(false);
+				Level_1PickupParameters.ArtifactLocations.Add(SpawnHelper->GetActorLocation());
+				Level_1PickupParameters.ArtifactPickedUp.Add(false);
 			}
 			else if (CurrentLoadedLevel == ECurrentLoadedLevel::Level_2)
 			{
-				Level_2ArtifactLocations.Add(SpawnHelper->GetActorLocation());
-				Level_2ArtifactPickedUp.Add(false);
+				Level_2PickupParameters.ArtifactLocations.Add(SpawnHelper->GetActorLocation());
+				Level_2PickupParameters.ArtifactPickedUp.Add(false);
 			}
+			
+			
 		}
 		else if (SpawnHelper->SpawnHelperType == ESpawnHelperType::Shield)
 		{
 			if (CurrentLoadedLevel == ECurrentLoadedLevel::Level_1)
 			{
-				Level_1ShieldLocations.Add(SpawnHelper->GetActorLocation());
-				Level_1ShieldPickedUp.Add(false);
+				Level_1PickupParameters.ShieldLocations.Add(SpawnHelper->GetActorLocation());
+				Level_1PickupParameters.ShieldPickedUp.Add(false);
 			}
 			else if (CurrentLoadedLevel == ECurrentLoadedLevel::Level_2)
 			{
-				Level_2ShieldLocations.Add(SpawnHelper->GetActorLocation());
-				Level_2ShieldPickedUp.Add(false);
+				Level_2PickupParameters.ShieldLocations.Add(SpawnHelper->GetActorLocation());
+				Level_2PickupParameters.ShieldPickedUp.Add(false);
 			}
 		}
 	}
-}
-
-void UWorldSwitchingGameInstance::ManageLevelPickups()
-{
-	GetCurrentLevel();
-
-	if ((CurrentLoadedLevel == ECurrentLoadedLevel::Level_1 && bIsFirsTimeLoadingLevelOne) ||
-		(CurrentLoadedLevel == ECurrentLoadedLevel::Level_2 && bIsFirsTimeLoadingLevelTwo))
-	{
-		SetIsFirstTimeLoadingLevel();
-		GatherSpawnLocations();
-		SpawnPickups();
-		return;
-	}
 	
+	if (CurrentLoadedLevel == ECurrentLoadedLevel::Level_1)
+	{
+		LevelPickupParameters[Level] = &Level_1PickupParameters;
+		bIsFirsTimeLoadingLevelOne = false;
+	}
 
-	SpawnPickups();
+	else if (CurrentLoadedLevel == ECurrentLoadedLevel::Level_2)
+	{
+		LevelPickupParameters[Level] = &Level_2PickupParameters;
+		bIsFirsTimeLoadingLevelTwo = false;
+	}
 
 }
+
 
 void UWorldSwitchingGameInstance::GetCurrentLevel()
 {
@@ -77,125 +93,64 @@ void UWorldSwitchingGameInstance::GetCurrentLevel()
 	if (CurrentMapName.Contains("Level_1")) CurrentLoadedLevel = ECurrentLoadedLevel::Level_1;
 	else if (CurrentMapName.Contains("Level_2")) CurrentLoadedLevel = ECurrentLoadedLevel::Level_2;
 	else if (CurrentMapName.Contains("Hub")) CurrentLoadedLevel = ECurrentLoadedLevel::Hub;
+
+	int Level = static_cast<int>(CurrentLoadedLevel);
 }
 
-void UWorldSwitchingGameInstance::SetIsFirstTimeLoadingLevel()
-{
-	switch (CurrentLoadedLevel)	
-	{
-		case ECurrentLoadedLevel::Level_1:
-			bIsFirsTimeLoadingLevelOne = false;
-
-
-		case ECurrentLoadedLevel::Level_2:
-			bIsFirsTimeLoadingLevelTwo = false;
-			break;
-	}
-}
 
 void UWorldSwitchingGameInstance::SpawnPickups()
 {
 	UWorld* World = GetWorld();
 
-	if (CurrentLoadedLevel == ECurrentLoadedLevel::Level_1)
-	{
-		int NumberOfArtifactsToSpawn = Level_1ArtifactLocations.Num();
+		int NumberOfArtifactsToSpawn = LevelPickupParameters[Level]->ArtifactLocations.Num();
 
 		for (int i = 0; i < NumberOfArtifactsToSpawn; ++i)
 		{
-
-			if (!Level_1ArtifactPickedUp[i])
+			if (!LevelPickupParameters[Level]->ArtifactPickedUp[i])
 			{
-				AArtifacts* Artifact = World->SpawnActor<AArtifacts>(ArtifactToSpawn, Level_1ArtifactLocations[i], FRotator(0));
+				AArtifacts* Artifact = World->SpawnActor<AArtifacts>(ArtifactToSpawn, LevelPickupParameters[Level]->ArtifactLocations[i], FRotator(0));
 				Artifact->SetArrayIndex(i);
 			}
 		}
-		int NumberOfShieldsToSpawn = Level_1ShieldLocations.Num();
+		int NumberOfShieldsToSpawn = LevelPickupParameters[Level]->ShieldLocations.Num();
 
 		for (int i = 0; i < NumberOfShieldsToSpawn; ++i)
 		{
-			if (!Level_1ShieldPickedUp[i])
+			if (!LevelPickupParameters[Level]->ShieldPickedUp[i])
 			{
-				AS_PickupShield* Shield = World->SpawnActor<AS_PickupShield>(ShieldToSpawn, Level_1ShieldLocations[i], FRotator(0));
+				AS_PickupShield* Shield = World->SpawnActor<AS_PickupShield>(ShieldToSpawn, LevelPickupParameters[Level]->ShieldLocations[i], FRotator(0));
 				Shield->SetArrayIndex(i);
 			}
 		}
-		return;
-	}
-
-	if (CurrentLoadedLevel == ECurrentLoadedLevel::Level_2)
-	{
-		int NumberOfArtifactsToSpawn = Level_2ArtifactLocations.Num();
-
-		for (int i = 0; i < NumberOfArtifactsToSpawn; ++i)
-		{
-			if (!Level_2ArtifactPickedUp[i])
-			{
-				AArtifacts* Artifact = World->SpawnActor<AArtifacts>(ArtifactToSpawn, Level_2ArtifactLocations[i], FRotator(0));
-				Artifact->SetArrayIndex(i);
-			}
-		}
-
-		int NumberOfShieldsToSpawn = Level_2ShieldLocations.Num();
-
-		for (int i = 0; i < NumberOfShieldsToSpawn; ++i)
-		{
-
-			if (!Level_2ShieldPickedUp[i])
-			{
-				AS_PickupShield* Shield = World->SpawnActor<AS_PickupShield>(ShieldToSpawn, Level_2ShieldLocations[i], FRotator(0));
-				Shield->SetArrayIndex(i);
-			}
-		}
-	}
 }
 
-void UWorldSwitchingGameInstance::RegisterPickedUpArtifact(int index)
+void UWorldSwitchingGameInstance::RegisterPickUp(int index, AActor* OtherActor)
 {
-	switch (CurrentLoadedLevel)
-	{
-	case ECurrentLoadedLevel::Level_1:
+	if (Cast<AArtifacts>(OtherActor))
+	LevelPickupParameters[Level]->ArtifactPickedUp[index] = true;
 
-		Level_1ArtifactPickedUp[index] = true;
-		break;
+	else if (Cast<AS_PickupShield>(OtherActor))
+	LevelPickupParameters[Level]->ShieldPickedUp[index] = true;
 
-	case ECurrentLoadedLevel::Level_2:
-		Level_2ArtifactPickedUp[index] = true;
-		break;
-	}
 }
 
-void UWorldSwitchingGameInstance::RegisterPickedUpShield(int index)
-{
-	switch (CurrentLoadedLevel)
-	{
-	case ECurrentLoadedLevel::Level_1:
 
-		Level_1ShieldPickedUp[index] = true;
-		break;
-
-	case ECurrentLoadedLevel::Level_2:
-		Level_2ShieldPickedUp[index] = true;
-		break;
-	}
-}
-
-void UWorldSwitchingGameInstance::FetchPlayerHealth(int PlayerHealth)
+void UWorldSwitchingGameInstance::SetPlayerHealth(int PlayerHealth)
 {
 	GI_PlayerHealth = PlayerHealth;
 }
 
-void UWorldSwitchingGameInstance::FetchPlayerArtifacts(int PlayerArtifacts)
+void UWorldSwitchingGameInstance::SetPlayerArtifacts(int PlayerArtifacts)
 {
 	GI_PlayerArtifacts = PlayerArtifacts;
 }
 
-int UWorldSwitchingGameInstance::FeedPlayerHealth()
+int UWorldSwitchingGameInstance::GetPlayerHealth()
 {
 	return GI_PlayerHealth;
 }
 
-int UWorldSwitchingGameInstance::FeedPlayerArtifacts()
+int UWorldSwitchingGameInstance::GetPlayerArtifacts()
 {
 	return GI_PlayerArtifacts;
 }

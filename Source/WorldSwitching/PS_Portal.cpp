@@ -48,8 +48,8 @@ void APS_Portal::Travel(UPrimitiveComponent* OverlappedComponent, AActor *OtherA
 {
 	if (PlayerPawn && GameInstance)
 	{
-		GameInstance->FetchPlayerHealth(PlayerPawn->GetLives());
-		GameInstance->FetchPlayerArtifacts(PlayerPawn->GetArtifacts());
+		GameInstance->SetPlayerHealth(PlayerPawn->GetLives());
+		GameInstance->SetPlayerArtifacts(PlayerPawn->GetArtifacts());
 	}
 
 	switch (DestinationLevel)

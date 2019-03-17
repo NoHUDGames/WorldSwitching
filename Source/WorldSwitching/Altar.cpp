@@ -3,6 +3,7 @@
 #include "Altar.h"
 #include "BP_Character.h"
 
+int AAltar::Artifacts = 0;
 
 // Sets default values
 AAltar::AAltar()
@@ -23,7 +24,7 @@ AAltar::AAltar()
 void AAltar::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	SyncArtifactsCount();
 }
 
 // Called every frame
@@ -36,6 +37,12 @@ void AAltar::Tick(float DeltaTime)
 void AAltar::ReceivingArtifacts(int PlayerHoldingArtifacts)
 {
 	DroppedOffArtifacts += PlayerHoldingArtifacts;
+	AAltar::Artifacts = DroppedOffArtifacts;
 
 	UE_LOG(LogTemp, Warning, TEXT("Artifacts dropped off at the altar now: %i"), DroppedOffArtifacts)
+}
+
+void AAltar::SyncArtifactsCount()
+{
+	DroppedOffArtifacts = AAltar::Artifacts;
 }

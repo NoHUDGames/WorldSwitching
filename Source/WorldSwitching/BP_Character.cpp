@@ -13,6 +13,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Math/UnrealMathUtility.h"
 #include "Components/TimelineComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 // Sets default values
 ABP_Character::ABP_Character()
@@ -56,6 +57,22 @@ ABP_Character::ABP_Character()
 	PitchOffset = 70.f;
 	/// Finished setting up the timeline for kicking movement
 
+
+	/// Setting up animation variables
+	static ConstructorHelpers::FObjectFinder<UAnimSequence> idle_Anim
+	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Character_Turning_Head.Main_Character_Turning_Head'"));
+	IdleAnim = idle_Anim.Object;
+
+	static ConstructorHelpers::FObjectFinder<UAnimSequence> kicking_Anim
+	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Character_Kick.Main_Character_Kick'"));
+	KickingAnim = kicking_Anim.Object;
+
+	static ConstructorHelpers::FObjectFinder<UAnimSequence> walking_Anim
+	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Character_Walk_Cycle.Main_Character_Walk_Cycle'"));
+	WalkingAnim = walking_Anim.Object;
+
+	
+
 }
 
 // Called when the game starts or when spawned
@@ -98,6 +115,31 @@ void ABP_Character::BeginPlay()
 void ABP_Character::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	if (isIdleAnimStarted == false && RunningAnimations == IDLE)
+	{
+	GetMesh()->PlayAnimation(IdleAnim, true);
+	isIdleAnimStarted = true;
+	isWalkingAnimStarted = false;
+	isKickingAnimStarted = false;
+
+	}
+	else if (isKickingAnimStarted == false && RunningAnimations == KICKING)
+	{
+		GetMesh()->PlayAnimation(KickingAnim, false);
+		isKickingAnimStarted = true;
+		isWalkingAnimStarted = false;
+		isIdleAnimStarted = false;
+	}
+	else if (isWalkingAnimStarted == false && (RunningAnimations == WALKINGFORWARD || RunningAnimations == STRIFING))
+	{
+		GetMesh()->PlayAnimation(WalkingAnim, true);
+		isWalkingAnimStarted = true;
+		isIdleAnimStarted = false;
+		isKickingAnimStarted = false;
+	}
+	
+	
 
 }
 
@@ -117,15 +159,46 @@ void ABP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 void ABP_Character::MoveUp(float AxisValue)
 {//50.f, 0.f, 0.f
 	AddMovementInput(FVector(50.f, 0.f, 0.f), AxisValue);
+	
+	if (AxisValue != 0)
+	{
+		RunningAnimations = ABP_Character::WALKINGFORWARD;
+		UE_LOG(LogTemp, Warning, TEXT("%f"), AxisValue)
+	}
+	else
+	{
+		if (RunningAnimations != ABP_Character::KICKING && RunningAnimations != ABP_Character::STRIFING)
+		{
+			RunningAnimations = ABP_Character::IDLE;
+		}
+		
+	}
+	
 }
 
 void ABP_Character::MoveRight(float AxisValue)
 {//0.f, 50.f, 0.f
 	AddMovementInput(FVector(0.f, 50.f, 0.f), AxisValue);
+	
+	if (AxisValue != 0)
+	{
+		RunningAnimations = ABP_Character::STRIFING;
+		UE_LOG(LogTemp, Warning, TEXT("%f"), AxisValue)
+	}
+	else
+	{
+		if (RunningAnimations != ABP_Character::KICKING && RunningAnimations != ABP_Character::WALKINGFORWARD)
+		{
+			RunningAnimations = ABP_Character::IDLE;
+		}
+
+	}
 }
 
 void ABP_Character::Kicking()
 {
+	RunningAnimations = KICKING;
+
 	if (!CurrentlyKicking)
 	{
 		/// Makes it impossible for the player to kick while it's already kicking
@@ -237,7 +310,7 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 		UE_LOG(LogTemp, Warning, TEXT("You're colliding with an artifact."))
 
 		++NumberOfHoldingArtifacts;
-		GameInstance->RegisterPickedUpArtifact(PickedUpActor->GetArrayIndex());
+		GameInstance->RegisterPickUp(PickedUpActor->GetArrayIndex(), OtherActor);
 		PickedUpActor->PickupFeedback();
 		
 
@@ -248,7 +321,7 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 	{
 		OtherActor->SetActorEnableCollision(false);
 		AS_PickupShield* PickedUpActor = Cast<AS_PickupShield>(OtherActor);
-		GameInstance->RegisterPickedUpShield(PickedUpActor->GetArrayIndex());
+		GameInstance->RegisterPickUp(PickedUpActor->GetArrayIndex(), OtherActor);;
 		PickedUpActor->PickupFeedback();
 		UE_LOG(LogTemp, Warning, TEXT("You're picking up a SHIELD!"))
 	}

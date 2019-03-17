@@ -12,6 +12,20 @@
 /**
  * 
  */
+
+
+USTRUCT()
+struct FLevelPickupParameters
+{
+	GENERATED_BODY()
+	TArray<FVector> ArtifactLocations;
+	TArray<bool> ArtifactPickedUp;
+
+	TArray<FVector> ShieldLocations;
+	TArray<bool> ShieldPickedUp;
+};
+
+
 UCLASS()
 class WORLDSWITCHING_API UWorldSwitchingGameInstance : public UGameInstance
 {
@@ -21,28 +35,36 @@ public:
 
 	UWorldSwitchingGameInstance();
 
+	UPROPERTY(EditAnywhere)
+	int NumberOfLevelsWithSpawnHelpers;
 
+	TArray<FLevelPickupParameters*> LevelPickupParameters;
+	FLevelPickupParameters Level_1PickupParameters;
+	FLevelPickupParameters Level_2PickupParameters;
 	
-	//Level 1 Pickups
-	TArray<FVector> Level_1ArtifactLocations;
-	TArray<bool> Level_1ArtifactPickedUp;
 
-	TArray<FVector> Level_1ShieldLocations;
-	TArray<bool> Level_1ShieldPickedUp;
+
+	//Level 1 Pickups
+	//TArray<FVector> Level_1ArtifactLocations;
+	//TArray<bool> Level_1ArtifactPickedUp;
+
+	//TArray<FVector> Level_1ShieldLocations;
+	//TArray<bool> Level_1ShieldPickedUp;
 
 
 
 	//Level 2 Pickups
-	TArray<FVector> Level_2ArtifactLocations;
-	TArray<bool> Level_2ArtifactPickedUp;
+	//TArray<FVector> Level_2ArtifactLocations;
+	//TArray<bool> Level_2ArtifactPickedUp;
 
-	TArray<FVector> Level_2ShieldLocations;
-	TArray<bool> Level_2ShieldPickedUp;
+	//TArray<FVector> Level_2ShieldLocations;
+	//TArray<bool> Level_2ShieldPickedUp;
 
 
 private:
 
 	ECurrentLoadedLevel CurrentLoadedLevel;
+	int Level;
 	FString CurrentMapName;
 
 
@@ -73,16 +95,14 @@ public:
 
 	void ManageLevelPickups();
 	void GetCurrentLevel();
-	void SetIsFirstTimeLoadingLevel();
 	void SpawnPickups();
-	void RegisterPickedUpArtifact(int index);
-	void RegisterPickedUpShield(int index);
+	void RegisterPickUp(int index, AActor* OtherActor);
 
-	void FetchPlayerHealth(int PlayerHealth);
-	void FetchPlayerArtifacts(int PlayerArtifacts);
+	void SetPlayerHealth(int PlayerHealth);
+	void SetPlayerArtifacts(int PlayerArtifacts);
 
-	int FeedPlayerHealth();
-	int FeedPlayerArtifacts();
+	int GetPlayerHealth();
+	int GetPlayerArtifacts();
 
 	bool GetbIsFirstTimeStartingGame();
 	void SetbIsFirstTimeStartingGame(bool State);
