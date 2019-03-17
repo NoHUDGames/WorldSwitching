@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "PSWorldActor.h"
 #include "Components/SphereComponent.h"
+#include "WorldSwitchingGameInstance.h"
 #include "Altar.generated.h"
 
 /**
@@ -28,6 +29,8 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	USphereComponent* ArtifactDropoffCollider {nullptr};
+
+	UWorldSwitchingGameInstance* GameInstance = nullptr;
 
 	void ReceivingArtifacts(int PlayerHoldingArtifacts);
 

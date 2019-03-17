@@ -310,7 +310,7 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 		UE_LOG(LogTemp, Warning, TEXT("You're colliding with an artifact."))
 
 		++NumberOfHoldingArtifacts;
-		GameInstance->RegisterPickedUpArtifact(PickedUpActor->GetArrayIndex());
+		GameInstance->RegisterPickUp(PickedUpActor->GetArrayIndex(), OtherActor);
 		PickedUpActor->PickupFeedback();
 		
 		UE_LOG(LogTemp,Warning, TEXT("We have %i artifacts"), NumberOfHoldingArtifacts)
@@ -320,7 +320,7 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 	{
 		OtherActor->SetActorEnableCollision(false);
 		AS_PickupShield* PickedUpActor = Cast<AS_PickupShield>(OtherActor);
-		GameInstance->RegisterPickedUpShield(PickedUpActor->GetArrayIndex());
+		GameInstance->RegisterPickUp(PickedUpActor->GetArrayIndex(), OtherActor);;
 		PickedUpActor->PickupFeedback();
 		++NumberOfShields;
 		UE_LOG(LogTemp, Warning, TEXT("You're picking up a SHIELD!"))

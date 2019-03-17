@@ -35,8 +35,6 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 	GameInstance = Cast<UWorldSwitchingGameInstance>(GetWorld()->GetGameInstance());
 	GameInstance->ManageLevelPickups();
 	
-	
-
 	CameraComponent = Cast<UCameraComponent>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetComponentByClass(UCameraComponent::StaticClass()));
 	PlayerCapsuleCollision = Cast<UCapsuleComponent>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetComponentByClass(UCapsuleComponent::StaticClass()));
 	PlayerController = GetWorld()->GetFirstPlayerController();
@@ -47,9 +45,11 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("GAME MODE: Got Player Pawn"))
 	}
 
-	PlayerPawn->SetLives(GameInstance->FeedPlayerHealth());
-	PlayerPawn->SetArtifacts(GameInstance->FeedPlayerArtifacts());
+	PlayerPawn->SetLives(GameInstance->GetPlayerHealth());
+	PlayerPawn->SetArtifacts(GameInstance->GetPlayerArtifacts());
 	PlayerPawn->SetbIsSpiritWorld(bIsSpiritWorld);
+
+
 
 	if (PlayerCapsuleCollision)
 	{
@@ -72,6 +72,7 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 	if (GameInstance->GetbIsFirstTimeStartingGame())
 	{
 		GameInstance->SetbIsFirstTimeStartingGame(false);
+		GameInstance->BeginGame();
 		ChangeWorlds(false);
 	}
 	else
