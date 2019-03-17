@@ -36,6 +36,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void PlayingAnimations();
+
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -47,7 +49,6 @@ public:
 
 	/// All these functions and variables deal with the players kicking
 	void Kicking();
-	void StopKicking();
 	void ResetKickingCombo();
 	
 	int NumberOfKicks{ 0 };
@@ -157,22 +158,29 @@ public:
 
 	void SetRespawnLocation(FVector NewSaveLocation);
 
-	FVector GetRespawnLocation();
+	FVector GetRespawnLocation() {return RespawnLocation;};
 
 
 	//Is set from PS_SavePoint
 	FVector RespawnLocation;
 
 	
-	int GetLives();
-	int GetArtifacts();
+	int GetLives() {return Lives;};
+	int GetArtifacts() {return NumberOfHoldingArtifacts;};
+	
+	UFUNCTION(BlueprintCallable)
+	int GetShields() { return NumberOfShields; };
 
 	void SetLives(int NewHealth);
 	void SetArtifacts(int NewArtifacts);
+	void SetShields(int NewShields) {NumberOfShields = NewShields;};
 	void SetbIsSpiritWorld(bool state);
+	
 
 
 private:
+	
+	/// Variables and enums that are related to animations
 	UAnimSequence* IdleAnim;
 	bool isIdleAnimStarted{ false };
 
@@ -182,12 +190,12 @@ private:
 	UAnimSequence* WalkingAnim;
 	bool isWalkingAnimStarted{ false };
 
-	
-
 	enum Animations {
 		WALKINGFORWARD, STRIFING, KICKING, IDLE
 	};
 
 	Animations RunningAnimations{ IDLE };
+	/// end of variable and enums that are related to animations
 
+	int NumberOfShields{ 0 };
 };

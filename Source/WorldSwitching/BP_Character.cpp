@@ -107,6 +107,7 @@ void ABP_Character::BeginPlay()
 		
 	}
 	/// Done setting up the BeginPlay values for the kicking timeline
+
 	GameInstance = Cast<UWorldSwitchingGameInstance>(GetWorld()->GetGameInstance());
 	PlayerController = Cast<AOurPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 }
@@ -116,31 +117,34 @@ void ABP_Character::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	if (isIdleAnimStarted == false && RunningAnimations == IDLE)
+	PlayingAnimations();
+}
+
+void ABP_Character::PlayingAnimations()
+{
+	if (isIdleAnimStarted == false && RunningAnimations == ABP_Character::IDLE)
 	{
-	GetMesh()->PlayAnimation(IdleAnim, true);
-	isIdleAnimStarted = true;
-	isWalkingAnimStarted = false;
-	isKickingAnimStarted = false;
+		GetMesh()->PlayAnimation(IdleAnim, true);
+		isIdleAnimStarted = true;
+		isWalkingAnimStarted = false;
+		isKickingAnimStarted = false;
 
 	}
-	else if (isKickingAnimStarted == false && RunningAnimations == KICKING)
+	else if (isKickingAnimStarted == false && RunningAnimations == ABP_Character::KICKING)
 	{
 		GetMesh()->PlayAnimation(KickingAnim, false);
 		isKickingAnimStarted = true;
 		isWalkingAnimStarted = false;
 		isIdleAnimStarted = false;
 	}
-	else if (isWalkingAnimStarted == false && (RunningAnimations == WALKINGFORWARD || RunningAnimations == STRIFING))
+	else if (isWalkingAnimStarted == false && 
+		(RunningAnimations == ABP_Character::WALKINGFORWARD || RunningAnimations == ABP_Character ::STRIFING))
 	{
 		GetMesh()->PlayAnimation(WalkingAnim, true);
 		isWalkingAnimStarted = true;
 		isIdleAnimStarted = false;
 		isKickingAnimStarted = false;
 	}
-	
-	
-
 }
 
 // Called to bind functionality to input
@@ -160,11 +164,14 @@ void ABP_Character::MoveUp(float AxisValue)
 {//50.f, 0.f, 0.f
 	AddMovementInput(FVector(50.f, 0.f, 0.f), AxisValue);
 	
-	if (AxisValue != 0)
+
+	/// if statement that determines what animation should be run
+	/// if the player are moving and the player aren't currently kicking, WalkingAnim runs
+	if (AxisValue != 0 && !CurrentlyKicking)
 	{
 		RunningAnimations = ABP_Character::WALKINGFORWARD;
-		UE_LOG(LogTemp, Warning, TEXT("%f"), AxisValue)
 	}
+	/// if the player aren't moving forward, aren't kicking and aren't strifing, the IdleAnim runs
 	else
 	{
 		if (RunningAnimations != ABP_Character::KICKING && RunningAnimations != ABP_Character::STRIFING)
@@ -173,6 +180,7 @@ void ABP_Character::MoveUp(float AxisValue)
 		}
 		
 	}
+	/// end of if statement that determines what animation should be run
 	
 }
 
@@ -180,11 +188,13 @@ void ABP_Character::MoveRight(float AxisValue)
 {//0.f, 50.f, 0.f
 	AddMovementInput(FVector(0.f, 50.f, 0.f), AxisValue);
 	
-	if (AxisValue != 0)
+	/// if statement that determines what animation should be run
+	/// if the player are moving and the player aren't currently kicking, StrifingAnim runs
+	if (AxisValue != 0 && !CurrentlyKicking)
 	{
 		RunningAnimations = ABP_Character::STRIFING;
-		UE_LOG(LogTemp, Warning, TEXT("%f"), AxisValue)
 	}
+	/// if the player aren't moving forward, aren't kicking and aren't strifing, the IdleAnim runs
 	else
 	{
 		if (RunningAnimations != ABP_Character::KICKING && RunningAnimations != ABP_Character::WALKINGFORWARD)
@@ -193,6 +203,7 @@ void ABP_Character::MoveRight(float AxisValue)
 		}
 
 	}
+	/// end of if statement that determines what animation should be run
 }
 
 void ABP_Character::Kicking()
@@ -219,29 +230,12 @@ void ABP_Character::Kicking()
 		/// Turns on overlapping with other pawns for the kick box collider
 		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
 		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Overlap);
-		
-		/// Rotates the scene component, so the kick can hit something
-		// FRotator NewRotation{ 90.f, 0.f ,0.f };
-		// KickingRotation->AddLocalRotation(NewRotation);
 
-		/// Starts the timeline
+		/// Starts the timeline (Can be removed when we connect the BoxCollider to the kickingAnim)
 		KickingTimeline->Play();
-
-		/// Resets the kick after 0.3 seconds
-		/// GetWorldTimerManager().SetTimer(KickingDurationTimer, this, &ABP_Character::StopKicking, 0.3f, false);
 
 	}
 	
-}
-
-void ABP_Character::StopKicking()
-{
-	/// Resets all values set in the function Kicking
-	FRotator NewRotation{ -90.f,0.f ,0.f };
-	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
-	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Ignore);
-	KickingRotation->AddLocalRotation(NewRotation);
-	CurrentlyKicking = false;
 }
 
 void ABP_Character::ResetKickingCombo()
@@ -250,8 +244,7 @@ void ABP_Character::ResetKickingCombo()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Resetting kicking combo."))
 		NumberOfKicks = 0;
-	}
-		
+	}	
 }
 
 void ABP_Character::KickingTimelineFloatReturn(float value)
@@ -271,6 +264,9 @@ void ABP_Character::OnKickingTimelineFinished()
 	else
 	{
 		CurrentlyKicking = false;
+		RunningAnimations = IDLE;
+		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
+		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Ignore);
 	}
 	
 }
@@ -290,7 +286,11 @@ void ABP_Character::StopInteracting()
 
 void ABP_Character::DecrementingLives()
 {
-	if (Lives > 0)
+	if (GetShields() > 0)
+	{
+		--NumberOfShields;
+	}
+	else if (GetLives() > 0)
 	{
 		--Lives;
 	}
@@ -313,16 +313,16 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 		GameInstance->RegisterPickedUpArtifact(PickedUpActor->GetArrayIndex());
 		PickedUpActor->PickupFeedback();
 		
-
 		UE_LOG(LogTemp,Warning, TEXT("We have %i artifacts"), NumberOfHoldingArtifacts)
 	}
 
-	else if (Cast<AS_PickupShield>(OtherActor))
+	else if (Cast<AS_PickupShield>(OtherActor) && GetShields() < 3)
 	{
 		OtherActor->SetActorEnableCollision(false);
 		AS_PickupShield* PickedUpActor = Cast<AS_PickupShield>(OtherActor);
 		GameInstance->RegisterPickedUpShield(PickedUpActor->GetArrayIndex());
 		PickedUpActor->PickupFeedback();
+		++NumberOfShields;
 		UE_LOG(LogTemp, Warning, TEXT("You're picking up a SHIELD!"))
 	}
 	else UE_LOG(LogTemp, Warning, TEXT("ALL CASTS FAILED / NOT PICKUP ACTOR"))
@@ -407,6 +407,7 @@ void ABP_Character::DeathSequence()
 void ABP_Character::RespawnSequence()
 {
 	Lives = 3;
+	SetShields(0);
 	PlayerController->SetHealth(3);
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
@@ -446,21 +447,6 @@ void ABP_Character::SetRespawnLocation(FVector NewSaveLocation)
 {
 	RespawnLocation = NewSaveLocation;
 
-}
-
-FVector ABP_Character::GetRespawnLocation()
-{
-	return RespawnLocation;
-}
-
-int ABP_Character::GetLives()
-{
-	return Lives;
-}
-
-int ABP_Character::GetArtifacts()
-{
-	return NumberOfHoldingArtifacts;
 }
 
 void ABP_Character::SetLives(int NewHealth)
