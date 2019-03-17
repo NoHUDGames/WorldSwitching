@@ -9,8 +9,22 @@ APS_Portal::APS_Portal()
 	Mesh2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh2"));
 	BoxTrigger = CreateDefaultSubobject<UBoxComponent>(TEXT("Boxtrigger"));
 
+
+	CharacterInner = CreateDefaultSubobject<USceneComponent>(TEXT("CharacterInner"));
+
+	CharacterOuter = CreateDefaultSubobject<USceneComponent>(TEXT("CharacterOuter"));
+
+	CameraInner = CreateDefaultSubobject<USceneComponent>(TEXT("CameraInner"));
+
+	CameraOuter = CreateDefaultSubobject<USceneComponent>(TEXT("CameraOuter"));
+
 	Mesh2->SetupAttachment(RootComponent);
 	BoxTrigger->SetupAttachment(RootComponent);
+	CharacterInner->SetupAttachment(RootComponent);
+	CharacterOuter->SetupAttachment(RootComponent);
+	CameraInner->SetupAttachment(RootComponent);
+	CameraOuter->SetupAttachment(RootComponent);
+
 }
 
 void APS_Portal::Tick(float DeltaTime)

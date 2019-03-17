@@ -25,7 +25,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = BelongsToLevel)
 		EArtifactBelongsToLevel BelongsToLevel;
 
-
+	UPROPERTY(EditAnywhere)
+	bool bKeepTrackOf = true;
 
 	virtual void Tick(float DeltaTime) override;
 

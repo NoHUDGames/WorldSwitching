@@ -21,9 +21,14 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void PickupFeedback();
 
+	UPROPERTY(EditAnywhere)
+	bool bKeepTrackOf = true;
+
 	//called in GameInstance after spawn
 	void SetArrayIndex(int index);
 	int GetArrayIndex();
+	
+
 
 private:
 	int ArrayIndex = 0;

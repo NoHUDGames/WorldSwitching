@@ -28,7 +28,8 @@ enum class ECurrentLoadedLevel : uint8
 {
 	Level_1,
 	Level_2,
-	Hub
+	Hub,
+	Non_Game
 };
 
 UENUM(BlueprintType)

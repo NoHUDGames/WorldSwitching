@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "PSWorldActor.h"
 #include "Components/BoxComponent.h"
+#include "Components/SceneComponent.h"
 #include "ParticleEffectActor.h"
 #include "OurEnums.h"
 #include "BP_Character.h"
@@ -42,6 +43,18 @@ private:
 
 		UPROPERTY(EditAnywhere)
 		UBoxComponent* BoxTrigger = nullptr;
+
+		UPROPERTY(EditAnywhere)
+		USceneComponent* CharacterInner = nullptr;
+
+		UPROPERTY(EditAnywhere)
+		USceneComponent* CharacterOuter = nullptr;
+
+		UPROPERTY(EditAnywhere)
+		USceneComponent* CameraInner = nullptr;
+
+		UPROPERTY(EditAnywhere)
+		USceneComponent* CameraOuter = nullptr;
 
 		UPROPERTY(EditAnywhere, Category = "ParticleEffectToSpawn")
 		TSubclassOf<AParticleEffectActor> ParticleEffectToSpawn;

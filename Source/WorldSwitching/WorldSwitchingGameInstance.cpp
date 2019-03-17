@@ -21,6 +21,8 @@ void UWorldSwitchingGameInstance::ManageLevelPickups()
 {
 	GetCurrentLevel();
 
+	if (CurrentLoadedLevel == ECurrentLoadedLevel::Non_Game) return;
+
 	if ((CurrentLoadedLevel == ECurrentLoadedLevel::Level_1 && bIsFirsTimeLoadingLevelOne) ||
 		(CurrentLoadedLevel == ECurrentLoadedLevel::Level_2 && bIsFirsTimeLoadingLevelTwo))
 	{
@@ -30,6 +32,8 @@ void UWorldSwitchingGameInstance::ManageLevelPickups()
 	}
 
 	if (CurrentLoadedLevel == ECurrentLoadedLevel::Hub) return;
+
+
 
 	SpawnPickups();
 }
@@ -93,6 +97,7 @@ void UWorldSwitchingGameInstance::GetCurrentLevel()
 	if (CurrentMapName.Contains("Level_1")) CurrentLoadedLevel = ECurrentLoadedLevel::Level_1;
 	else if (CurrentMapName.Contains("Level_2")) CurrentLoadedLevel = ECurrentLoadedLevel::Level_2;
 	else if (CurrentMapName.Contains("Hub")) CurrentLoadedLevel = ECurrentLoadedLevel::Hub;
+	else CurrentLoadedLevel = ECurrentLoadedLevel::Non_Game;
 
 	int Level = static_cast<int>(CurrentLoadedLevel);
 }
