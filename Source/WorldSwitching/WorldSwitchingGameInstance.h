@@ -43,24 +43,6 @@ public:
 	FLevelPickupParameters Level_2PickupParameters;
 	
 
-
-	//Level 1 Pickups
-	//TArray<FVector> Level_1ArtifactLocations;
-	//TArray<bool> Level_1ArtifactPickedUp;
-
-	//TArray<FVector> Level_1ShieldLocations;
-	//TArray<bool> Level_1ShieldPickedUp;
-
-
-
-	//Level 2 Pickups
-	//TArray<FVector> Level_2ArtifactLocations;
-	//TArray<bool> Level_2ArtifactPickedUp;
-
-	//TArray<FVector> Level_2ShieldLocations;
-	//TArray<bool> Level_2ShieldPickedUp;
-
-
 private:
 
 	ECurrentLoadedLevel CurrentLoadedLevel;
@@ -72,6 +54,7 @@ private:
 
 	int GI_PlayerHealth = 3;
 	int GI_PlayerArtifacts = 0;
+	int GI_AltarArtifacts = 0;
 
 	bool bIsFirsTimeLoadingLevelOne = true;
 	bool bIsFirsTimeLoadingLevelTwo = true;
@@ -103,6 +86,9 @@ public:
 
 	int GetPlayerHealth();
 	int GetPlayerArtifacts();
+
+	int GetAltarArtifacts();
+	void SetAltarArtifacts(int Number);
 
 	bool GetbIsFirstTimeStartingGame();
 	void SetbIsFirstTimeStartingGame(bool State);

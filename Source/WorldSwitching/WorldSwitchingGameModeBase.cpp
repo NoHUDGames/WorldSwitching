@@ -74,7 +74,6 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 		GameInstance->SetbIsFirstTimeStartingGame(false);
 		GameInstance->BeginGame();
 		ChangeWorlds(false);
-		AAltar::Artifacts = 0;
 	}
 	else
 	{

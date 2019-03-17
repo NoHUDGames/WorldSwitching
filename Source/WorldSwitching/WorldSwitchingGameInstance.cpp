@@ -164,3 +164,13 @@ void UWorldSwitchingGameInstance::SetbIsFirstTimeStartingGame(bool State)
 {
 	bIsFirstTimeStartingGame = State;
 }
+
+int UWorldSwitchingGameInstance::GetAltarArtifacts()
+{
+	return GI_AltarArtifacts;
+}
+
+void UWorldSwitchingGameInstance::SetAltarArtifacts(int Number)
+{
+	GI_AltarArtifacts = Number;
+}
