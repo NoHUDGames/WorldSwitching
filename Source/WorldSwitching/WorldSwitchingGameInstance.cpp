@@ -4,6 +4,7 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "SpawnHelper.h"
+#include "PS_Portal.h"
 #include "Kismet/GameplayStatics.h"
 
 

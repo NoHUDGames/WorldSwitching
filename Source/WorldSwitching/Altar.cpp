@@ -2,6 +2,8 @@
 
 #include "Altar.h"
 #include "BP_Character.h"
+#include "PS_Portal.h"
+#include "EngineUtils.h"
 
 // Sets default values
 AAltar::AAltar()
@@ -37,6 +39,22 @@ void AAltar::ReceivingArtifacts(int PlayerHoldingArtifacts)
 {
 	DroppedOffArtifacts += PlayerHoldingArtifacts;
 	GameInstance->SetAltarArtifacts(DroppedOffArtifacts);
-
+	
+	OpenNewPortals();
 	UE_LOG(LogTemp, Warning, TEXT("Artifacts dropped off at the altar now: %i"), DroppedOffArtifacts)
+}
+
+void AAltar::OpenNewPortals()
+{
+	for (TActorIterator<APS_Portal> PortalItr(GetWorld()); PortalItr; ++PortalItr)
+	{
+		APS_Portal *Portal = *PortalItr;
+		if (DroppedOffArtifacts >= Portal->GetArtifactsNeededToUse() && !Portal->bIsActive)
+		{
+			Portal->Activate();
+
+			if (Portal->PortalIndex == EPortalIndex::HubLevel_2)
+				GameInstance->SetHubPortalLevel2Open(true);
+		}
+	}
 }

@@ -41,6 +41,8 @@ public:
 	TArray<FLevelPickupParameters*> LevelPickupParameters;
 	FLevelPickupParameters Level_1PickupParameters;
 	FLevelPickupParameters Level_2PickupParameters;
+
+
 	
 
 private:
@@ -60,6 +62,7 @@ private:
 	bool bIsFirsTimeLoadingLevelTwo = true;
 	bool bIsFirstTimeStartingGame = true;
 
+	bool HubPortalToLevel2 = false;
 	
 
 public:
@@ -87,11 +90,16 @@ public:
 	int GetPlayerHealth();
 	int GetPlayerArtifacts();
 
+	UFUNCTION(BlueprintCallable)
 	int GetAltarArtifacts();
+
 	void SetAltarArtifacts(int Number);
 
 	bool GetbIsFirstTimeStartingGame();
 	void SetbIsFirstTimeStartingGame(bool State);
+
+	bool GetHubPortalLevel2Open() { return HubPortalToLevel2; }
+	void SetHubPortalLevel2Open(bool State) { HubPortalToLevel2 = State; }
 
 	void BeginGame();
 

@@ -7,9 +7,9 @@
 #include "Components/BoxComponent.h"
 #include "Components/SceneComponent.h"
 #include "ParticleEffectActor.h"
-#include "OurEnums.h"
 #include "BP_Character.h"
 #include "WorldSwitchingGameInstance.h"
+#include "WorldSwitchingGameModeBase.h"
 #include "PS_Portal.generated.h"
 
 /**
@@ -29,7 +29,8 @@ public:
 
 	virtual void BeginPlay() override;
 
-	void ActivatePortal();
+	void Activate(bool WithOpeningSequence = false);
+
 
 
 	UFUNCTION()
@@ -59,15 +60,32 @@ private:
 		UPROPERTY(EditAnywhere, Category = "ParticleEffectToSpawn")
 		TSubclassOf<AParticleEffectActor> ParticleEffectToSpawn;
 
-		UPROPERTY(EditAnywhere)
+		UPROPERTY(EditAnywhere, Category = Travel)
 		EDestinationLevel DestinationLevel;
 
-		UPROPERTY(EditAnywhere)
+		UPROPERTY(EditAnywhere, Category = Travel)
 		bool bBeginActivated = false;
+
+		UPROPERTY(EditAnywhere, Category = Travel)
+		int8 ArtifactsNeededToUse = 0;
 
 		ABP_Character* PlayerPawn = nullptr;
 
 		UWorldSwitchingGameInstance* GameInstance = nullptr;
+
+		AWorldSwitchingGameModeBase* GameMode = nullptr;
+
+
+
+public:
+		bool bIsActive = false;
+
+		UFUNCTION(BlueprintCallable)
+		int GetArtifactsNeededToUse() { return ArtifactsNeededToUse; }
+
+		UPROPERTY(EditAnywhere)
+		EPortalIndex PortalIndex;
+
 
 		
 };

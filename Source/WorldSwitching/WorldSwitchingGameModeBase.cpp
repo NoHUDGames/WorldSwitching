@@ -66,6 +66,14 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 			GameInstance->ManageLevelPickups();
 			ToggleAll();
 		}
+
+		if (GameInstance->GetHubPortalLevel2Open())
+		{
+			for (TActorIterator<APWorldActor> PActorItr(GetWorld()); PActorItr; ++PActorItr)
+			{
+
+			}
+		}
 	}
 }
 

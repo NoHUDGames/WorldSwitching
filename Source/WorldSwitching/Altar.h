@@ -34,6 +34,8 @@ public:
 
 	void ReceivingArtifacts(int PlayerHoldingArtifacts);
 
+	void OpenNewPortals();
+
 	UPROPERTY(BlueprintReadWrite)
 	int DroppedOffArtifacts = 0;
 };
