@@ -33,8 +33,6 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 	EAutoReceiveInput::Player0;
 
 	GameInstance = Cast<UWorldSwitchingGameInstance>(GetWorld()->GetGameInstance());
-	GameInstance->ManageLevelPickups();
-	
 	CameraComponent = Cast<UCameraComponent>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetComponentByClass(UCameraComponent::StaticClass()));
 	PlayerCapsuleCollision = Cast<UCapsuleComponent>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetComponentByClass(UCapsuleComponent::StaticClass()));
 	PlayerController = GetWorld()->GetFirstPlayerController();
@@ -42,45 +40,32 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 
 	if (PlayerPawn)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GAME MODE: Got Player Pawn"))
-	}
-
-	PlayerPawn->SetLives(GameInstance->GetPlayerHealth());
-	PlayerPawn->SetArtifacts(GameInstance->GetPlayerArtifacts());
-	PlayerPawn->SetbIsSpiritWorld(bIsSpiritWorld);
-
-
-
-	if (PlayerCapsuleCollision)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("GAME MODE: Got a Player Capsule Collision"))
-	}
-	
-	if (CameraComponent)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("GAME MODE: Got a CameraComponent"))
+		PlayerPawn->SetLives(GameInstance->GetPlayerHealth());
+		PlayerPawn->SetArtifacts(GameInstance->GetPlayerArtifacts());
+		PlayerPawn->SetbIsSpiritWorld(bIsSpiritWorld);
 	}
 
 	if (PlayerController)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GAME MODE: Got first PlayerController"))
-
 			PlayerController->InputComponent->BindAction("ChangeWorlds", IE_Pressed, this, &AWorldSwitchingGameModeBase::ChangeWorldsProxy);
 	}
 	
+	if (GameInstance)
+	{
+		bool bIsFirstTimeStartingGame = GameInstance->GetbIsFirstTimeStartingGame();
+		if (bIsFirstTimeStartingGame)
+		{
+			GameInstance->SetbIsFirstTimeStartingGame(false);
+			GameInstance->BeginGame();
+			GameInstance->ManageLevelPickups();
+			ChangeWorlds(false);
+		}
 
-	if (GameInstance->GetbIsFirstTimeStartingGame())
-	{
-		GameInstance->SetbIsFirstTimeStartingGame(false);
-		GameInstance->BeginGame();
-		ChangeWorlds(false);
-	}
-	else
-	{
-		TogglePhysicalWorldActors();
-		ToggleParticleEffects();
-		TogglePhysicalSpiritMaterialProperties();
-		ToggleLastingCameraEffects();
+		if (!bIsFirstTimeStartingGame)
+		{
+			GameInstance->ManageLevelPickups();
+			ToggleAll();
+		}
 	}
 }
 
@@ -93,12 +78,10 @@ void AWorldSwitchingGameModeBase::ChangeWorlds(bool bShowTransitionEffects)
 {
 	bIsSpiritWorld = !bIsSpiritWorld;
 	
-	
 	if (!bIsSpiritWorld && TestPhysicalOverlaps()) return;
 
 	else if (bIsSpiritWorld)
 	{
-		UE_LOG(LogTemp,Warning,TEXT("Inside IF for TestSpiritOverlaps"))
 		TestSpiritOverlaps();
 	}
 	
@@ -106,6 +89,11 @@ void AWorldSwitchingGameModeBase::ChangeWorlds(bool bShowTransitionEffects)
 
 	if (bShowTransitionEffects) WorldTransitionEffects();
 	
+	ToggleAll();
+}
+
+void AWorldSwitchingGameModeBase::ToggleAll()
+{
 	TogglePhysicalWorldActors();
 	ToggleSpiritWorldActors();
 	ToggleParticleEffects();

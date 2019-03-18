@@ -17,6 +17,18 @@ void UWorldSwitchingGameInstance::BeginGame()
 	LevelPickupParameters.Init(nullptr, NumberOfLevelsWithSpawnHelpers);
 }
 
+void UWorldSwitchingGameInstance::GetCurrentLevel()
+{
+	CurrentMapName = GetWorld()->GetMapName();
+
+	if (CurrentMapName.Contains("Level_1")) CurrentLoadedLevel = ECurrentLoadedLevel::Level_1;
+	else if (CurrentMapName.Contains("Level_2")) CurrentLoadedLevel = ECurrentLoadedLevel::Level_2;
+	else if (CurrentMapName.Contains("Hub")) CurrentLoadedLevel = ECurrentLoadedLevel::Hub;
+	else CurrentLoadedLevel = ECurrentLoadedLevel::Non_Game;
+
+	int Level = static_cast<int>(CurrentLoadedLevel);
+}
+
 void UWorldSwitchingGameInstance::ManageLevelPickups()
 {
 	GetCurrentLevel();
@@ -57,8 +69,6 @@ void UWorldSwitchingGameInstance::GatherSpawnLocations()
 				Level_2PickupParameters.ArtifactLocations.Add(SpawnHelper->GetActorLocation());
 				Level_2PickupParameters.ArtifactPickedUp.Add(false);
 			}
-			
-			
 		}
 		else if (SpawnHelper->SpawnHelperType == ESpawnHelperType::Shield)
 		{
@@ -86,21 +96,8 @@ void UWorldSwitchingGameInstance::GatherSpawnLocations()
 		LevelPickupParameters[Level] = &Level_2PickupParameters;
 		bIsFirsTimeLoadingLevelTwo = false;
 	}
-
 }
 
-
-void UWorldSwitchingGameInstance::GetCurrentLevel()
-{
-	CurrentMapName = GetWorld()->GetMapName();
-
-	if (CurrentMapName.Contains("Level_1")) CurrentLoadedLevel = ECurrentLoadedLevel::Level_1;
-	else if (CurrentMapName.Contains("Level_2")) CurrentLoadedLevel = ECurrentLoadedLevel::Level_2;
-	else if (CurrentMapName.Contains("Hub")) CurrentLoadedLevel = ECurrentLoadedLevel::Hub;
-	else CurrentLoadedLevel = ECurrentLoadedLevel::Non_Game;
-
-	int Level = static_cast<int>(CurrentLoadedLevel);
-}
 
 
 void UWorldSwitchingGameInstance::SpawnPickups()

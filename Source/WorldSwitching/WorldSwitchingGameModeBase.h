@@ -37,6 +37,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ChangeWorlds(bool bShowTransitionEffects = true);
 
+	void ToggleAll();
+
 	//Because input cannot trigger functions with parameters?
 	void ChangeWorldsProxy();
 
