@@ -14,6 +14,8 @@
 #include "Math/UnrealMathUtility.h"
 #include "Components/TimelineComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ABP_Character::ABP_Character()
@@ -70,8 +72,7 @@ ABP_Character::ABP_Character()
 	static ConstructorHelpers::FObjectFinder<UAnimSequence> walking_Anim
 	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Character_Walk_Cycle.Main_Character_Walk_Cycle'"));
 	WalkingAnim = walking_Anim.Object;
-
-	
+	/// finished setting up animation variables
 
 }
 
@@ -118,32 +119,61 @@ void ABP_Character::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	PlayingAnimations();
+
+	/// UE_LOG(LogTemp, Warning, TEXT("Forward vector: %s"), *UKismetMathLibrary::GetForwardVector(GetActorRotation()).ToString())
+	
 }
 
 void ABP_Character::PlayingAnimations()
 {
-	if (isIdleAnimStarted == false && RunningAnimations == ABP_Character::IDLE)
+	if (AnimationStarted[0] == false && RunningAnimations == ABP_Character::IDLE)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Spiller av idle"))
 		GetMesh()->PlayAnimation(IdleAnim, true);
-		isIdleAnimStarted = true;
-		isWalkingAnimStarted = false;
-		isKickingAnimStarted = false;
+
+		ChangingAnimationStarted(0);
 
 	}
-	else if (isKickingAnimStarted == false && RunningAnimations == ABP_Character::KICKING)
+	else if (AnimationStarted[1] == false && RunningAnimations == ABP_Character::KICKING)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Spiller av kicking"))
 		GetMesh()->PlayAnimation(KickingAnim, false);
-		isKickingAnimStarted = true;
-		isWalkingAnimStarted = false;
-		isIdleAnimStarted = false;
+
+		ChangingAnimationStarted(1);
 	}
-	else if (isWalkingAnimStarted == false && 
-		(RunningAnimations == ABP_Character::WALKINGFORWARD || RunningAnimations == ABP_Character ::STRIFING))
+	else if (AnimationStarted[2] == false && RunningAnimations == ABP_Character::WALKINGFORWARD)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Spiller av walking forward"))
 		GetMesh()->PlayAnimation(WalkingAnim, true);
-		isWalkingAnimStarted = true;
-		isIdleAnimStarted = false;
-		isKickingAnimStarted = false;
+
+		ChangingAnimationStarted(2);
+	}
+	else if (AnimationStarted[3] == false && RunningAnimations == ABP_Character::STRIFING)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Spiller av strifing"))
+		GetMesh()->PlayAnimation(WalkingAnim, true);
+
+		ChangingAnimationStarted(3);
+
+	}
+	else if (AnimationStarted[4] == false && RunningAnimations == ABP_Character::RUNNINGFORWARD)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Spiller av running forward"))
+		GetMesh()->PlayAnimation(WalkingAnim, true);
+
+		ChangingAnimationStarted(4);
+	}
+}
+
+void ABP_Character::ChangingAnimationStarted(int index)
+{
+	AnimationStarted[index] = true;
+	for (int i{ 0 }; i < 5; ++i)
+	{
+		if (i != index)
+		{
+			AnimationStarted[i] = false;
+		}
 	}
 }
 
@@ -157,6 +187,10 @@ void ABP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Kicking", IE_Pressed, this, &ABP_Character::Kicking);
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ABP_Character::Interact);
 	PlayerInputComponent->BindAction("Interact", IE_Released, this, &ABP_Character::StopInteracting);
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ABP_Character::Sprinting);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ABP_Character::Walking);
+
+	
 
 }
 
@@ -164,40 +198,50 @@ void ABP_Character::MoveUp(float AxisValue)
 {//50.f, 0.f, 0.f
 	AddMovementInput(FVector(50.f, 0.f, 0.f), AxisValue);
 	
-
-	/// if statement that determines what animation should be run
-	/// if the player are moving and the player aren't currently kicking, WalkingAnim runs
-	if (AxisValue != 0 && !CurrentlyKicking)
-	{
-		RunningAnimations = ABP_Character::WALKINGFORWARD;
-	}
-	/// if the player aren't moving forward, aren't kicking and aren't strifing, the IdleAnim runs
-	else
-	{
-		if (RunningAnimations != ABP_Character::KICKING && RunningAnimations != ABP_Character::STRIFING)
-		{
-			RunningAnimations = ABP_Character::IDLE;
-		}
-		
-	}
-	/// end of if statement that determines what animation should be run
+	MovementAnimationTesting(AxisValue, UKismetMathLibrary::GetForwardVector(GetActorRotation()).Y);
 	
 }
 
 void ABP_Character::MoveRight(float AxisValue)
 {//0.f, 50.f, 0.f
 	AddMovementInput(FVector(0.f, 50.f, 0.f), AxisValue);
-	
-	/// if statement that determines what animation should be run
-	/// if the player are moving and the player aren't currently kicking, StrifingAnim runs
+
+	MovementAnimationTesting(AxisValue, UKismetMathLibrary::GetForwardVector(GetActorRotation()).X);
+}
+
+void ABP_Character::MovementAnimationTesting(float AxisValue, float ForwardVector)
+{
 	if (AxisValue != 0 && !CurrentlyKicking)
 	{
-		RunningAnimations = ABP_Character::STRIFING;
+		if (ForwardVector < 0.6f && ForwardVector > -0.6f)
+		{
+
+			if (CurrentlyTryingToRun == true)
+			{
+				Sprinting();
+				RunningAnimations = ABP_Character::RUNNINGFORWARD;
+			}
+			else
+			{
+				RunningAnimations = ABP_Character::WALKINGFORWARD;
+			}
+		}
+		else
+		{
+			RunningAnimations = ABP_Character::STRIFING;
+
+			if (GetCharacterMovement()->MaxWalkSpeed != WalkingSpeed)
+			{
+				GetCharacterMovement()->MaxWalkSpeed = WalkingSpeed;
+			}
+
+		}
+
 	}
 	/// if the player aren't moving forward, aren't kicking and aren't strifing, the IdleAnim runs
 	else
 	{
-		if (RunningAnimations != ABP_Character::KICKING && RunningAnimations != ABP_Character::WALKINGFORWARD)
+		if (RunningAnimations != ABP_Character::KICKING && GetVelocity().IsZero())
 		{
 			RunningAnimations = ABP_Character::IDLE;
 		}
@@ -467,4 +511,23 @@ void ABP_Character::SetArtifacts(int NewArtifacts)
 void ABP_Character::SetbIsSpiritWorld(bool state)
 {
 	bIsSpiritWorld = state;
+}
+
+void ABP_Character::Sprinting()
+{
+	if (RunningAnimations == ABP_Character::WALKINGFORWARD || RunningAnimations == ABP_Character::IDLE)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = SprintingSpeed;
+
+		RunningAnimations = ABP_Character::RUNNINGFORWARD;
+	}
+	CurrentlyTryingToRun = true;
+	
+}
+
+void ABP_Character::Walking()
+{
+	GetCharacterMovement()->MaxWalkSpeed = WalkingSpeed;
+	RunningAnimations = ABP_Character::WALKINGFORWARD;
+	CurrentlyTryingToRun = false;
 }

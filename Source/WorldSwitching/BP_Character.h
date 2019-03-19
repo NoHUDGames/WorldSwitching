@@ -38,6 +38,8 @@ public:
 
 	void PlayingAnimations();
 
+	void ChangingAnimationStarted(int index);
+
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -176,26 +178,38 @@ public:
 	void SetShields(int NewShields) {NumberOfShields = NewShields;};
 	void SetbIsSpiritWorld(bool state);
 	
-
+	void Sprinting();
+	void Walking();
 
 private:
 	
 	/// Variables and enums that are related to animations
 	UAnimSequence* IdleAnim;
-	bool isIdleAnimStarted{ false };
-
 	UAnimSequence* KickingAnim;
-	bool isKickingAnimStarted{ false };
-
 	UAnimSequence* WalkingAnim;
-	bool isWalkingAnimStarted{ false };
+	UAnimSequence* RunningAnim;
+	UAnimSequence* StrifingAnim;
+
+	/// 0 = IdleAnim, 1 = KickingAnim, 2 = WalkingAnim, 3 = StrifingAnim, 4 = RunningAnim
+	bool AnimationStarted[5] = {false};
 
 	enum Animations {
-		WALKINGFORWARD, STRIFING, KICKING, IDLE
+		WALKINGFORWARD, STRIFING, KICKING, IDLE, RUNNINGFORWARD
 	};
 
 	Animations RunningAnimations{ IDLE };
 	/// end of variable and enums that are related to animations
 
 	int NumberOfShields{ 0 };
+
+	UPROPERTY(VisibleAnywhere, Category = "CharacterMovement")
+		float SprintingSpeed{ 1600.f };
+	bool CurrentlyTryingToRun{ false };
+
+	UPROPERTY(VisibleAnywhere, Category = "CharacterMovement")
+		float WalkingSpeed{ 600.f };
+
+	void MovementAnimationTesting(float AxisValue, float ForwardVector);
+	
+
 };
