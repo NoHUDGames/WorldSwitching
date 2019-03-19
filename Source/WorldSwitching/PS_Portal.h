@@ -10,6 +10,9 @@
 #include "BP_Character.h"
 #include "WorldSwitchingGameInstance.h"
 #include "WorldSwitchingGameModeBase.h"
+#include "Camera/CameraActor.h"
+#include "Components/TimelineComponent.h"
+#include "Curves/CurveFloat.h"
 #include "PS_Portal.generated.h"
 
 /**
@@ -31,12 +34,28 @@ public:
 
 	void Activate(bool WithOpeningSequence = false);
 
-
+	FVector CameraOuterLocation;
+	FVector CameraInnerLocation;
 
 	UFUNCTION()
-	void Travel(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor,
+	void TravelSequence(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor,
 		UPrimitiveComponent *OtherComponent, int32 OtherBodyIndex,
 		bool bFromSweep, const FHitResult &SweepResult);
+
+	void ExitLevel();
+
+	//TIMELINE
+
+	UTimelineComponent* TimeLineMovePortalCamera = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = CameraMovement)
+	class UCurveFloat* CameraPortalMovement = nullptr;
+
+	FOnTimelineFloat InterpFunction{};
+
+	UFUNCTION()
+	void MoveCameraIntoPortal(float value);
+	//TIMELINE/
 
 private:
 		UPROPERTY(EditAnywhere)
@@ -69,13 +88,19 @@ private:
 		UPROPERTY(EditAnywhere, Category = Travel)
 		int8 ArtifactsNeededToUse = 0;
 
+
 		ABP_Character* PlayerPawn = nullptr;
 
 		UWorldSwitchingGameInstance* GameInstance = nullptr;
 
 		AWorldSwitchingGameModeBase* GameMode = nullptr;
 
+		ACameraActor* LevelCamera = nullptr;
 
+		FTimerHandle ExitHandle;
+		FTimerHandle CameraMoveHandle;
+
+		FRotator CameraPointsLookAt;
 
 public:
 		bool bIsActive = false;
@@ -86,6 +111,6 @@ public:
 		UPROPERTY(EditAnywhere)
 		EPortalIndex PortalIndex;
 
+		void MoveCameraProxy();
 
-		
 };
