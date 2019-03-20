@@ -85,8 +85,7 @@ private:
 		UPROPERTY(EditAnywhere, Category = Travel)
 		bool bBeginActivated = false;
 
-		UPROPERTY(EditAnywhere, Category = Travel)
-		int8 ArtifactsNeededToUse = 0;
+		
 
 
 		ABP_Character* PlayerPawn = nullptr;
@@ -103,9 +102,12 @@ private:
 		FRotator CameraPointsLookAt;
 
 public:
+
+		UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Travel)
+		int ArtifactsNeededToUse = 0;
+
 		bool bIsActive = false;
 
-		UFUNCTION(BlueprintCallable)
 		int GetArtifactsNeededToUse() { return ArtifactsNeededToUse; }
 
 		UPROPERTY(EditAnywhere)
