@@ -6,6 +6,7 @@
 #include "PSWorldActor.h"
 #include "Components/BoxComponent.h"
 #include "Components/SceneComponent.h"
+#include "Components/PointLightComponent.h"
 #include "ParticleEffectActor.h"
 #include "BP_Character.h"
 #include "WorldSwitchingGameInstance.h"
@@ -38,7 +39,7 @@ public:
 	FVector CameraInnerLocation;
 
 	UFUNCTION()
-	void TravelSequence(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor,
+	void TravelExitSequence(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor,
 		UPrimitiveComponent *OtherComponent, int32 OtherBodyIndex,
 		bool bFromSweep, const FHitResult &SweepResult);
 
@@ -47,17 +48,22 @@ public:
 	//TIMELINE
 
 	UTimelineComponent* TimeLineMovePortalCamera = nullptr;
+	UTimelineComponent* TimeLineMovePortalPlayer = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = CameraMovement)
 	class UCurveFloat* CameraPortalMovement = nullptr;
 
-	FOnTimelineFloat InterpFunction{};
+	FOnTimelineFloat InterpFunction1{};
+	FOnTimelineFloat InterpFunction2{};
 
 	UFUNCTION()
 	void MoveCameraIntoPortal(float value);
+
+	UFUNCTION()
+	void MovePlayerIntoPortal(float value);
 	//TIMELINE/
 
-private:
+
 		UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* Mesh2 = nullptr;
 
@@ -75,6 +81,9 @@ private:
 
 		UPROPERTY(EditAnywhere)
 		USceneComponent* CameraOuter = nullptr;
+
+		UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UPointLightComponent* PortalLight = nullptr;
 
 		UPROPERTY(EditAnywhere, Category = "ParticleEffectToSpawn")
 		TSubclassOf<AParticleEffectActor> ParticleEffectToSpawn;
@@ -98,15 +107,20 @@ private:
 
 		FTimerHandle ExitHandle;
 		FTimerHandle CameraMoveHandle;
+		FTimerHandle CameraFadeHandle;
 
 		FRotator CameraPointsLookAt;
 
-public:
+
 
 		UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Travel)
 		int ArtifactsNeededToUse = 0;
 
 		bool bIsActive = false;
+		float LightIntensity = 15000;
+
+		//True for In, False for out
+		bool bCameraFadeInOut = false;
 
 		int GetArtifactsNeededToUse() { return ArtifactsNeededToUse; }
 
@@ -114,5 +128,12 @@ public:
 		EPortalIndex PortalIndex;
 
 		void MoveCameraProxy();
+
+		UFUNCTION(BlueprintImplementableEvent)
+		void CameraFadeInOut(ACameraActor* LevelCamera, bool FadeInOut);
+
+		void CameraFadeProxy();
+
+
 
 };
