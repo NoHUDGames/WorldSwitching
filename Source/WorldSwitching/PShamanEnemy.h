@@ -6,6 +6,7 @@
 #include "PWorldCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Components/BoxComponent.h"
+#include "SpiritTest.h"
 #include "PShamanEnemy.generated.h"
 
 /**
@@ -58,4 +59,6 @@ public:
 	UFUNCTION()
 		void HittingPlayer(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
 			UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
+	/// TSubclassOf<ASpiritTest> SpiritOfShaman;
 };

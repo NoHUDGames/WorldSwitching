@@ -28,6 +28,15 @@ APShamanEnemy::APShamanEnemy()
 	/// Weapon collider, the collision sphere that damages the player when using the weapon
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponCollider"));
 	BoxCollider->SetupAttachment(WeaponVisual);
+
+	/*
+	static ConstructorHelpers::FObjectFinder<UBlueprint> SpiritBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_SpiritTest.BP_SpiritTest'"));
+	if (SpiritBlueprint.Object) {
+		SpiritOfShaman = (UClass*)SpiritBlueprint.Object->GeneratedClass;
+	}
+	*/
+	
+
 }
 
 void APShamanEnemy::BeginPlay()
@@ -62,8 +71,16 @@ void APShamanEnemy::KillingEnemy()
 {
 	if (Lives <= 0)
 	{
+		FVector DeathLocation = GetActorLocation() + FVector(100.f, 100.f, 0.f);
+		FRotator DeathRotation = GetActorRotation();
 		UE_LOG(LogTemp, Warning, TEXT("Enemy is dying!"))
-			Destroy();
+		
+		/// ASpiritTest* NewSpiritEnemy = GetWorld()->SpawnActor<ASpiritTest>(SpiritOfShaman, DeathLocation, DeathRotation);
+		
+		Destroy();
+		
+		
+		
 	}
 }
 
