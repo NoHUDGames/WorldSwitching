@@ -12,6 +12,8 @@ APS_Portal::APS_Portal()
 	PrimaryActorTick.bCanEverTick = true;
 
 	TimeLineMovePortalCamera = CreateDefaultSubobject<UTimelineComponent>(TEXT("CameraMovementTimeline"));
+	TimeLineMovePortalPlayer = CreateDefaultSubobject<UTimelineComponent>(TEXT("PlayerMovementTimeline"));
+
 	Mesh2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh2"));
 	BoxTrigger = CreateDefaultSubobject<UBoxComponent>(TEXT("Boxtrigger"));
 
@@ -24,33 +26,43 @@ APS_Portal::APS_Portal()
 
 	CameraOuter = CreateDefaultSubobject<USceneComponent>(TEXT("CameraOuter"));
 
+	PortalLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("PortalLight"));
+
 	Mesh2->SetupAttachment(RootComponent);
 	BoxTrigger->SetupAttachment(RootComponent);
 	CharacterInner->SetupAttachment(RootComponent);
 	CharacterOuter->SetupAttachment(RootComponent);
 	CameraInner->SetupAttachment(RootComponent);
 	CameraOuter->SetupAttachment(RootComponent);
+	PortalLight->SetupAttachment(RootComponent);
 
 	
-	InterpFunction.BindUFunction(this, FName("MoveCameraIntoPortal"));
+	InterpFunction1.BindUFunction(this, FName("MoveCameraIntoPortal"));
+	InterpFunction2.BindUFunction(this, FName("MovePlayerIntoPortal"));
+
+
 }
 
 void APS_Portal::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 }
 
 void APS_Portal::BeginPlay()
 {
 	Super::BeginPlay();
 
-	BoxTrigger->OnComponentBeginOverlap.AddDynamic(this, &APS_Portal::TravelSequence);
+	BoxTrigger->OnComponentBeginOverlap.AddDynamic(this, &APS_Portal::TravelExitSequence);
 	GameInstance = Cast<UWorldSwitchingGameInstance>(GetGameInstance());
 	GameMode = Cast<AWorldSwitchingGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 	PlayerPawn = Cast<ABP_Character>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 
 	if (!bBeginActivated)
+	{
+		PortalLight->SetIntensity(0);
 		BoxTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 
 	else	Activate();
 
@@ -70,7 +82,8 @@ void APS_Portal::BeginPlay()
 	CameraPointsLookAt = UKismetMathLibrary::FindLookAtRotation(
 		CameraOuter->GetComponentLocation(), CameraInner->GetComponentLocation());
 
-	TimeLineMovePortalCamera->AddInterpFloat(CameraPortalMovement, InterpFunction, FName("Alpha"));
+	TimeLineMovePortalCamera->AddInterpFloat(CameraPortalMovement, InterpFunction1, FName("Alpha"));
+	TimeLineMovePortalPlayer->AddInterpFloat(CameraPortalMovement, InterpFunction2, FName("Alpha"));
 	CameraOuterLocation = CameraOuter->GetComponentLocation();
 	CameraInnerLocation = CameraInner->GetComponentLocation();
 
@@ -87,31 +100,39 @@ void APS_Portal::Activate(bool WithOpeningSequence)
 
 	BoxTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	bIsActive = true;
-
+	PortalLight->SetIntensity(20000);
 }
 
-void APS_Portal::TravelSequence(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor,
+void APS_Portal::TravelExitSequence(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor,
 	UPrimitiveComponent *OtherComponent, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult &SweepResult)
 {
+	
 	if (GameMode && !GameMode->bIsSpiritWorld) return;
+	else SetActorEnableCollision(false);
 
 	if (PlayerPawn && GameInstance && LevelCamera)
 	{
 		GameInstance->SetPlayerHealth(PlayerPawn->GetLives());
 		GameInstance->SetPlayerArtifacts(PlayerPawn->GetArtifacts());
-		PlayerPawn->DisableInput(0);
-		PlayerPawn->SetActorTickEnabled(false);
-
 		LevelCamera->SetActorLocation(CameraOuter->GetComponentLocation());
 
+		
+		PlayerPawn->DisableInput(0);
+		PlayerPawn->SetActorTickEnabled(false);
+		PlayerPawn->bUseControllerRotationYaw = false;
+		PlayerPawn->SetActorRotation(CameraPointsLookAt);
 		LevelCamera->SetActorRotation(CameraPointsLookAt);
 
 		Cast<APlayerController>(PlayerPawn->GetController())->SetViewTargetWithBlend(LevelCamera, 1.f);
 	}
+	UGameplayStatics::PlaySound2D(GetWorld(), PortalEnterSound);
 
 	GetWorldTimerManager().SetTimer(CameraMoveHandle, this, &APS_Portal::MoveCameraProxy, 1.1f, false);
-	GetWorldTimerManager().SetTimer(ExitHandle, this, &APS_Portal::ExitLevel, 3.f, false);
+	bCameraFadeInOut = false;
+	GetWorldTimerManager().SetTimer(CameraFadeHandle, this, &APS_Portal::CameraFadeProxy, 2.0f, false);
+	GetWorldTimerManager().SetTimer(ExitHandle, this, &APS_Portal::ExitLevel, 5.f, false);
+	
 }
 
 void APS_Portal::ExitLevel()
@@ -137,10 +158,23 @@ void APS_Portal::MoveCameraIntoPortal(float value)
 	LevelCamera->SetActorLocation(
 		FMath::Lerp(
 			CameraOuterLocation, CameraInnerLocation, value));
+
+	
+}
+
+void APS_Portal::MovePlayerIntoPortal(float value)
+{
+	PlayerPawn->AddMovementInput(CameraPointsLookAt.Vector(), value);
 }
 
 void APS_Portal::MoveCameraProxy()
 {
 	UE_LOG(LogTemp, Warning, TEXT("INSIDE MOVECAMERAPROXY"))
 	TimeLineMovePortalCamera->PlayFromStart();
+	TimeLineMovePortalPlayer->PlayFromStart();
+}
+
+void APS_Portal::CameraFadeProxy()
+{
+	CameraFadeInOut(LevelCamera, bCameraFadeInOut);
 }

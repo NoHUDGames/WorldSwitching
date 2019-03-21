@@ -281,7 +281,9 @@ void AWorldSwitchingGameModeBase::ToggleParticleEffects()
 				if (!ParticleItr->bOptOutOfWorldChangeEffect)
 				{
 					ParticleItr->PhysicalWorldParticles->Deactivate();
+					ParticleItr->PhysicalWorldParticles->SetHiddenInGame(true);
 					ParticleItr->SpiritWorldParticles->Activate();
+					ParticleItr->SpiritWorldParticles->SetHiddenInGame(false);
 				}
 			}
 		}
@@ -302,7 +304,9 @@ void AWorldSwitchingGameModeBase::ToggleParticleEffects()
 				if (!ParticleItr->bOptOutOfWorldChangeEffect)
 				{
 					ParticleItr->PhysicalWorldParticles->Activate();
+					ParticleItr->PhysicalWorldParticles->SetHiddenInGame(false);
 					ParticleItr->SpiritWorldParticles->Deactivate();
+					ParticleItr->SpiritWorldParticles->SetHiddenInGame(true);
 				}
 			}
 		}
