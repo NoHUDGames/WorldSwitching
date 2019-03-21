@@ -53,11 +53,20 @@ ABP_Character::ABP_Character()
 	/// Sets up the timeline that determines the players ability to kick
 	KickingTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineForKicking"));
 
-	InterpFunction.BindUFunction(this, FName("KickingTimelineFloatReturn"));
-	TimelineFinished.BindUFunction(this, FName("OnKickingTimelineFinished"));
+	InterpKickingFunction.BindUFunction(this, FName("KickingTimelineFloatReturn"));
+	KickingTimelineFinished.BindUFunction(this, FName("OnKickingTimelineFinished"));
 
 	PitchOffset = 70.f;
 	/// Finished setting up the timeline for kicking movement
+
+	/// Sets up the timeline for dashing
+	DashingTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineForDashing"));
+
+	InterpDashingFunction.BindUFunction(this, FName("DashingTimelineFloatReturn"));
+	DashingTimelineFinished.BindUFunction(this, FName("OnDashingTimelineFinished"));
+
+	PitchOffset = 70.f;
+	/// Finished setting up the timeline for dashing
 
 
 	/// Setting up animation variables
@@ -94,9 +103,9 @@ void ABP_Character::BeginPlay()
 	if (fKickingCurve)
 	{
 		/// Add the float curve to the timeline and connect it to the interpfunctions delegate
-		KickingTimeline->AddInterpFloat(fKickingCurve, InterpFunction, FName("Alpha"));
+		KickingTimeline->AddInterpFloat(fKickingCurve, InterpKickingFunction, FName("Alpha"));
 		//Add our timeline finished function
-		KickingTimeline->SetTimelineFinishedFunc(TimelineFinished);
+		KickingTimeline->SetTimelineFinishedFunc(KickingTimelineFinished);
 
 		/// Setting vectors
 		StartRotationOfKicking = KickingRotation->GetComponentRotation();
@@ -106,6 +115,21 @@ void ABP_Character::BeginPlay()
 		KickingTimeline->SetLooping(false);
 		KickingTimeline->SetIgnoreTimeDilation(true);
 		
+	}
+	/// Done setting up the BeginPlay values for the kicking timeline
+
+	/// Sets up the BeginPlay values for the kicking timeline
+	if (fKickingCurve)
+	{
+		/// Add the float curve to the timeline and connect it to the interpfunctions delegate
+		DashingTimeline->AddInterpFloat(fDashingCurve, InterpDashingFunction, FName("Alpha"));
+		//Add our timeline finished function
+		DashingTimeline->SetTimelineFinishedFunc(DashingTimelineFinished);
+
+		/// Setting our timeline settings before we start it
+		KickingTimeline->SetLooping(false);
+		KickingTimeline->SetIgnoreTimeDilation(true);
+
 	}
 	/// Done setting up the BeginPlay values for the kicking timeline
 
@@ -156,9 +180,9 @@ void ABP_Character::PlayingAnimations()
 		ChangingAnimationStarted(3);
 
 	}
-	else if (AnimationStarted[4] == false && RunningAnimations == ABP_Character::RUNNINGFORWARD)
+	else if (AnimationStarted[4] == false && RunningAnimations == ABP_Character::DASHING)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Spiller av running forward"))
+		UE_LOG(LogTemp, Warning, TEXT("Spiller av dashing"))
 		GetMesh()->PlayAnimation(WalkingAnim, true);
 
 		ChangingAnimationStarted(4);
@@ -187,8 +211,8 @@ void ABP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Kicking", IE_Pressed, this, &ABP_Character::Kicking);
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ABP_Character::Interact);
 	PlayerInputComponent->BindAction("Interact", IE_Released, this, &ABP_Character::StopInteracting);
-	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ABP_Character::Sprinting);
-	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ABP_Character::Walking);
+	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &ABP_Character::Dashing);
+
 
 	
 
@@ -199,7 +223,6 @@ void ABP_Character::MoveUp(float AxisValue)
 	AddMovementInput(FVector(50.f, 0.f, 0.f), AxisValue);
 	
 	MovementAnimationTesting(AxisValue, UKismetMathLibrary::GetForwardVector(GetActorRotation()).Y);
-	
 }
 
 void ABP_Character::MoveRight(float AxisValue)
@@ -215,26 +238,11 @@ void ABP_Character::MovementAnimationTesting(float AxisValue, float ForwardVecto
 	{
 		if (ForwardVector < 0.6f && ForwardVector > -0.6f)
 		{
-
-			if (CurrentlyTryingToRun == true)
-			{
-				Sprinting();
-				RunningAnimations = ABP_Character::RUNNINGFORWARD;
-			}
-			else
-			{
-				RunningAnimations = ABP_Character::WALKINGFORWARD;
-			}
+			RunningAnimations = ABP_Character::WALKINGFORWARD;
 		}
 		else
 		{
 			RunningAnimations = ABP_Character::STRIFING;
-
-			if (GetCharacterMovement()->MaxWalkSpeed != WalkingSpeed)
-			{
-				GetCharacterMovement()->MaxWalkSpeed = WalkingSpeed;
-			}
-
 		}
 
 	}
@@ -263,7 +271,7 @@ void ABP_Character::Kicking()
 		{
 			++NumberOfKicks;
 			UE_LOG(LogTemp, Warning, TEXT("Number of kicks: %i"), NumberOfKicks)
-			/// Resets the kick after 0.3 seconds
+			/// Resets the kick after 1.5 seconds
 			GetWorldTimerManager().SetTimer(ComboDurationTimer, this, &ABP_Character::ResetKickingCombo, 1.5f, false);
 		}
 		else
@@ -513,21 +521,32 @@ void ABP_Character::SetbIsSpiritWorld(bool state)
 	bIsSpiritWorld = state;
 }
 
-void ABP_Character::Sprinting()
+void ABP_Character::Dashing()
 {
-	if (RunningAnimations == ABP_Character::WALKINGFORWARD || RunningAnimations == ABP_Character::IDLE)
+	if (CurrentlyDashing == false)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = SprintingSpeed;
+		/// Setting vectors
+		ActorLocation = GetActorLocation();
 
-		RunningAnimations = ABP_Character::RUNNINGFORWARD;
+		FVector CharacterAcceleration = GetCharacterMovement()->GetCurrentAcceleration().GetSafeNormal(1.0f);
+
+		GoalLocation = ActorLocation + (CharacterAcceleration * DashingDistance);
+
+		RunningAnimations = ABP_Character::DASHING;
+		ReverseCurrentlyDashing();
+
+		DashingTimeline->PlayFromStart();
+
 	}
-	CurrentlyTryingToRun = true;
 	
 }
 
-void ABP_Character::Walking()
+void ABP_Character::DashingTimelineFloatReturn(float value)
 {
-	GetCharacterMovement()->MaxWalkSpeed = WalkingSpeed;
-	RunningAnimations = ABP_Character::WALKINGFORWARD;
-	CurrentlyTryingToRun = false;
+	SetActorLocation(FMath::Lerp(ActorLocation, GoalLocation, value));
+}
+
+void ABP_Character::OnDashingTimelineFinished()
+{
+	GetWorldTimerManager().SetTimer(DashCooldown, this, &ABP_Character::ReverseCurrentlyDashing, 1.0f, false);
 }

@@ -21,7 +21,8 @@ class WORLDSWITCHING_API ABP_Character : public ACharacter
 {
 	GENERATED_BODY()
 
-		class UTimelineComponent* KickingTimeline;
+	class UTimelineComponent* KickingTimeline;
+	class UTimelineComponent* DashingTimeline;
 
 public:
 	// Sets default values for this character's properties
@@ -46,6 +47,28 @@ public:
 	/// These functions makes it possible for the player to move
 	void MoveUp(float AxisValue);
 	void MoveRight(float AxisValue);
+
+	void Dashing();
+	bool GetCurrentlyDashing() { return CurrentlyDashing; };
+	void ReverseCurrentlyDashing() { CurrentlyDashing = !CurrentlyDashing; };
+
+	FVector ActorLocation;
+	FVector GoalLocation;
+	
+	UPROPERTY(EditAnywhere, Category = "Movement")
+		class UCurveFloat* fDashingCurve;
+
+	/// declare our delegate function to be binded with TimelineFloatReturn()
+	FOnTimelineFloat InterpDashingFunction{};
+
+	/// Declare our delegate function to be binded with OnTimelineFinished()
+	FOnTimelineEvent DashingTimelineFinished{};
+
+	UFUNCTION()
+		void DashingTimelineFloatReturn(float value);
+
+	UFUNCTION()
+		void OnDashingTimelineFinished();
 	/// end of movement functions
 
 
@@ -58,6 +81,7 @@ public:
 	FTimerHandle KickingDurationTimer;
 	FTimerHandle ComboDurationTimer;
 	FTimerHandle DeathSequenceTimer;
+	FTimerHandle DashCooldown;
 
 	bool CurrentlyKicking{ false };
 
@@ -94,10 +118,10 @@ public:
 		float PitchOffset;
 	
 	/// declare our delegate function to be binded with TimelineFloatReturn()
-	FOnTimelineFloat InterpFunction{};
+	FOnTimelineFloat InterpKickingFunction{};
 
 	/// Declare our delegate function to be binded with OnTimelineFinished()
-	FOnTimelineEvent TimelineFinished{};
+	FOnTimelineEvent KickingTimelineFinished{};
 
 	UFUNCTION()
 		void KickingTimelineFloatReturn(float value);
@@ -178,8 +202,8 @@ public:
 	void SetShields(int NewShields) {NumberOfShields = NewShields;};
 	void SetbIsSpiritWorld(bool state);
 	
-	void Sprinting();
-	void Walking();
+
+
 
 private:
 	
@@ -187,14 +211,14 @@ private:
 	UAnimSequence* IdleAnim;
 	UAnimSequence* KickingAnim;
 	UAnimSequence* WalkingAnim;
-	UAnimSequence* RunningAnim;
+	UAnimSequence* DashingAnim;
 	UAnimSequence* StrifingAnim;
 
-	/// 0 = IdleAnim, 1 = KickingAnim, 2 = WalkingAnim, 3 = StrifingAnim, 4 = RunningAnim
+	/// 0 = IdleAnim, 1 = KickingAnim, 2 = WalkingAnim, 3 = StrifingAnim, 4 = DashingAnim
 	bool AnimationStarted[5] = {false};
 
 	enum Animations {
-		WALKINGFORWARD, STRIFING, KICKING, IDLE, RUNNINGFORWARD
+		WALKINGFORWARD, STRIFING, KICKING, IDLE, DASHING
 	};
 
 	Animations RunningAnimations{ IDLE };
@@ -202,12 +226,8 @@ private:
 
 	int NumberOfShields{ 0 };
 
-	UPROPERTY(VisibleAnywhere, Category = "CharacterMovement")
-		float SprintingSpeed{ 1600.f };
-	bool CurrentlyTryingToRun{ false };
-
-	UPROPERTY(VisibleAnywhere, Category = "CharacterMovement")
-		float WalkingSpeed{ 600.f };
+	bool CurrentlyDashing{ false };
+	float DashingDistance{ 500.f };
 
 	void MovementAnimationTesting(float AxisValue, float ForwardVector);
 	
