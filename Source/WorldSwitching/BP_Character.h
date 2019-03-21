@@ -202,7 +202,7 @@ public:
 	void SetShields(int NewShields) {NumberOfShields = NewShields;};
 	void SetbIsSpiritWorld(bool state);
 	
-
+	
 
 
 private:
