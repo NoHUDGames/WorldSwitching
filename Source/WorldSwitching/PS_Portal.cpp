@@ -126,6 +126,7 @@ void APS_Portal::TravelExitSequence(UPrimitiveComponent* OverlappedComponent, AA
 
 		Cast<APlayerController>(PlayerPawn->GetController())->SetViewTargetWithBlend(LevelCamera, 1.f);
 	}
+	UGameplayStatics::PlaySound2D(GetWorld(), PortalEnterSound);
 
 	GetWorldTimerManager().SetTimer(CameraMoveHandle, this, &APS_Portal::MoveCameraProxy, 1.1f, false);
 	bCameraFadeInOut = false;

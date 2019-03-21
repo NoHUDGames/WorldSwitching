@@ -14,6 +14,7 @@
 #include "Camera/CameraActor.h"
 #include "Components/TimelineComponent.h"
 #include "Curves/CurveFloat.h"
+#include "Sound/SoundBase.h"
 #include "PS_Portal.generated.h"
 
 /**
@@ -84,6 +85,9 @@ public:
 
 		UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UPointLightComponent* PortalLight = nullptr;
+
+		UPROPERTY(EditAnywhere)
+		USoundBase* PortalEnterSound = nullptr;
 
 		UPROPERTY(EditAnywhere, Category = "ParticleEffectToSpawn")
 		TSubclassOf<AParticleEffectActor> ParticleEffectToSpawn;
