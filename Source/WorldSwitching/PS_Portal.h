@@ -12,6 +12,7 @@
 #include "WorldSwitchingGameInstance.h"
 #include "WorldSwitchingGameModeBase.h"
 #include "Camera/CameraActor.h"
+#include "Camera/CameraComponent.h"
 #include "Components/TimelineComponent.h"
 #include "Curves/CurveFloat.h"
 #include "Sound/SoundBase.h"
@@ -20,6 +21,15 @@
 /**
  * 
  */
+
+UENUM()
+
+enum EComingOrGoing
+{
+	COMING,
+	GOING
+};
+
 UCLASS()
 class WORLDSWITCHING_API APS_Portal : public APSWorldActor
 {
@@ -34,37 +44,7 @@ public:
 
 	virtual void BeginPlay() override;
 
-	void Activate(bool WithOpeningSequence = false);
-
-	FVector CameraOuterLocation;
-	FVector CameraInnerLocation;
-
-	UFUNCTION()
-	void TravelExitSequence(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor,
-		UPrimitiveComponent *OtherComponent, int32 OtherBodyIndex,
-		bool bFromSweep, const FHitResult &SweepResult);
-
-	void ExitLevel();
-
-	//TIMELINE
-
-	UTimelineComponent* TimeLineMovePortalCamera = nullptr;
-	UTimelineComponent* TimeLineMovePortalPlayer = nullptr;
-
-	UPROPERTY(EditAnywhere, Category = CameraMovement)
-	class UCurveFloat* CameraPortalMovement = nullptr;
-
-	FOnTimelineFloat InterpFunction1{};
-	FOnTimelineFloat InterpFunction2{};
-
-	UFUNCTION()
-	void MoveCameraIntoPortal(float value);
-
-	UFUNCTION()
-	void MovePlayerIntoPortal(float value);
-	//TIMELINE/
-
-
+	
 		UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* Mesh2 = nullptr;
 
@@ -89,6 +69,7 @@ public:
 		UPROPERTY(EditAnywhere)
 		USoundBase* PortalEnterSound = nullptr;
 
+
 		UPROPERTY(EditAnywhere, Category = "ParticleEffectToSpawn")
 		TSubclassOf<AParticleEffectActor> ParticleEffectToSpawn;
 
@@ -98,24 +79,30 @@ public:
 		UPROPERTY(EditAnywhere, Category = Travel)
 		bool bBeginActivated = false;
 
-		
-
-
 		ABP_Character* PlayerPawn = nullptr;
-
 		UWorldSwitchingGameInstance* GameInstance = nullptr;
-
 		AWorldSwitchingGameModeBase* GameMode = nullptr;
-
 		ACameraActor* LevelCamera = nullptr;
+		UCameraComponent* PlayerCamera = nullptr;
+
+		static EComingOrGoing ComingOrGoing;
 
 		FTimerHandle ExitHandle;
-		FTimerHandle CameraMoveHandle;
+		FTimerHandle PlayerMoveHandle;
 		FTimerHandle CameraFadeHandle;
+		FTimerHandle ActivatePlayerHandle;
 
-		FRotator CameraPointsLookAt;
+		FRotator PlayerLookAt;
 
 
+		//Used for portal travel sequences
+		FVector CameraInnerLoc;
+		FVector CameraOuterLoc;
+		FVector CharacterInnerLoc;
+		FVector CharacterOuterLoc;
+
+
+		
 
 		UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Travel)
 		int ArtifactsNeededToUse = 0;
@@ -126,18 +113,62 @@ public:
 		//True for In, False for out
 		bool bCameraFadeInOut = false;
 
+		bool ComingIn = false;
+		bool GoingOut = false;
+
 		int GetArtifactsNeededToUse() { return ArtifactsNeededToUse; }
 
 		UPROPERTY(EditAnywhere)
 		EPortalIndex PortalIndex;
 
-		void MoveCameraProxy();
+		static EPortalIndex PlayerCameFrom;
+
+		APS_Portal* PortalToEnterFrom;
+
+		FString CurrentMapName;
+
+		UFUNCTION()
+			void ExitLevelSequence(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor,
+				UPrimitiveComponent *OtherComponent, int32 OtherBodyIndex,
+				bool bFromSweep, const FHitResult &SweepResult);
+
 
 		UFUNCTION(BlueprintImplementableEvent)
-		void CameraFadeInOut(ACameraActor* LevelCamera, bool FadeInOut);
+		void TL_TriggerEnterLevelSequence();
 
-		void CameraFadeProxy();
+		UFUNCTION(BlueprintCallable)
+		void TL_EnterLevelSequence(float MoveCamera, float MovePlayer, float FadeCamera );
 
+
+
+
+
+		//InOrOut = True: In, False: Out
+		UFUNCTION(BlueprintImplementableEvent)
+		void FadeCamera(bool InOrOut, ACameraActor* LevelFreeCamera);
+
+		void FadeCameraProxy();
+
+
+		UFUNCTION(BlueprintImplementableEvent)
+		void TL_TriggerMovePlayerIntoPortal();
+
+		UFUNCTION(BlueprintCallable)
+		void TL_MovePlayerIntoPortal(float MovePlayer, float MoveCamera);
+	
+
+		void Activate(bool WithOpeningSequence = false);
+
+		void ExitLevel();
+
+		bool SetPortalToEnterFrom();
+
+		void SetupNavigationPoints();
+
+		void PreparePlayerAndCamera();
+
+		void ActivatePlayerAfterEntry();
+		
 
 
 };
