@@ -84,6 +84,24 @@ void ASpiritTest::DecrementingLives()
 	KillingEnemy();	
 }
 
+void ASpiritTest::DamageOverTimeAttack()
+{
+	if (bCanPerformNextDamageOverTime == true)
+	{
+		bCanPerformNextDamageOverTime = false;
+		GetWorldTimerManager().SetTimer(DamageOverTimeHandler, this, &ASpiritTest::CallingPlayerDecrementLivesFunction, DamageOverTimeCooldown, false);
+	}
+}
+
+void ASpiritTest::CallingPlayerDecrementLivesFunction()
+{
+	ABP_Character * PlayerCharacter = Cast<ABP_Character>(GetWorld()->GetFirstPlayerController()->GetPawn());
+
+	PlayerCharacter->DecrementingLives();
+	bCanPerformNextDamageOverTime = true;
+	
+}
+
 void ASpiritTest::HittingPlayer(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	if (OtherActor->IsA(ABP_Character::StaticClass()))

@@ -36,6 +36,15 @@ public:
 
 	void DecrementingLives();
 
+	FTimerHandle DamageOverTimeHandler;
+	bool bCanPerformNextDamageOverTime{ true };
+	float DamageOverTimeCooldown{ 3.f };
+	
+	UFUNCTION(BlueprintCallable)
+		void DamageOverTimeAttack();
+	
+	void CallingPlayerDecrementLivesFunction();
+
 	UFUNCTION()
 		void HittingPlayer(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
 			UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
