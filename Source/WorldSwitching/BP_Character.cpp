@@ -135,6 +135,14 @@ void ABP_Character::BeginPlay()
 
 	GameInstance = Cast<UWorldSwitchingGameInstance>(GetWorld()->GetGameInstance());
 	PlayerController = Cast<AOurPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+
+
+	if (GetCharacterMovement()->GetMaxSpeed() != 600.f)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 600.f;
+	}
+
+	
 }
 
 // Called every frame
@@ -144,8 +152,6 @@ void ABP_Character::Tick(float DeltaTime)
 	
 	PlayingAnimations();
 
-	/// UE_LOG(LogTemp, Warning, TEXT("Forward vector: %s"), *UKismetMathLibrary::GetForwardVector(GetActorRotation()).ToString())
-	
 }
 
 void ABP_Character::PlayingAnimations()
@@ -345,6 +351,11 @@ void ABP_Character::DecrementingLives()
 	else if (GetLives() > 0)
 	{
 		--Lives;
+
+		if (Lives <= 0)
+		{
+			DeathSequence();
+		}
 	}
 }
 
