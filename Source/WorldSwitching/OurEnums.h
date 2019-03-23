@@ -35,10 +35,11 @@ enum class ECurrentLoadedLevel : uint8
 UENUM(BlueprintType)
 enum class EDestinationLevel : uint8
 {
-	Level_1	UMETA(DisplayName = "Level 1"),
-	Level_2 UMETA(DisplayName = "Level 2"),
-	Hub		UMETA(DisplayName = "Hub"),
-	None	UMETA(DisplayName = "None")
+	Level_1		UMETA(DisplayName = "Level 1"),
+	Level_2		UMETA(DisplayName = "Level 2"),
+	Hub			UMETA(DisplayName = "Hub"),
+	Prototype	UMETA(DisplayName = "Prototype"),
+	None		UMETA(DisplayName = "None")
 };
 
 UENUM(BlueprintType)
@@ -51,7 +52,20 @@ enum class EPortalIndex : uint8
 	Level_2Entrance		UMETA(DisplayName = "Level 2 Entrance"),
 	Level_2Exit			UMETA(DisplayName = "Level 2 Exit"),
 	Level_3Entrance		UMETA(DisplayName = "Level 3 Entrance"),
-	Level_3Exit			UMETA(DisplayName = "Level 3 Exit")
+	Level_3Exit			UMETA(DisplayName = "Level 3 Exit"),
+	HubToPrototype		UMETA(DisplayName = "Hub to prototype"),
+	PrototypeEntrance	UMETA(DisplayName = "PrototypeEntrance"),
+	PrototypeExit		UMETA(DisplayName = "PrototypeExit")
+
+};
+
+
+UENUM(BlueprintType)
+enum class ECameraActor : uint8
+{
+	//Only ONE Free Level Camera per level
+	FreeLevel	UMETA(DisplayName = "FreeLevel")
+
 };
 
 UCLASS()
@@ -60,3 +74,5 @@ class WORLDSWITCHING_API UOurEnums : public UUserDefinedEnum
 	GENERATED_BODY()
 	
 };
+
+

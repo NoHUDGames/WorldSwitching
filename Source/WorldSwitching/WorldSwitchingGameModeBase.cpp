@@ -29,6 +29,7 @@ void AWorldSwitchingGameModeBase::Tick(float DeltaTime)
 void AWorldSwitchingGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
+	GatherLevelCameras();
 
 	EAutoReceiveInput::Player0;
 
@@ -37,6 +38,7 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 	PlayerCapsuleCollision = Cast<UCapsuleComponent>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetComponentByClass(UCapsuleComponent::StaticClass()));
 	PlayerController = GetWorld()->GetFirstPlayerController();
 	PlayerPawn = Cast<ABP_Character>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	
 
 	if (PlayerPawn)
 	{
@@ -151,6 +153,18 @@ void AWorldSwitchingGameModeBase::TestSpiritOverlaps()
 		//Will be set to block again OnComponentEndOverlap from blueprint 
 		PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
 	}
+}
+
+void AWorldSwitchingGameModeBase::GatherLevelCameras()
+{
+	for (TActorIterator<ALevelCamera> CameraItr(GetWorld()); CameraItr; ++CameraItr)
+	{
+		ALevelCamera* Camera = *CameraItr;
+
+		if (Camera->CameraType == ECameraActor::FreeLevel)
+			FreeLevelCamera = Camera;
+	}
+
 }
 
 AActor* AWorldSwitchingGameModeBase::GetOtherActorPhysicalTest()

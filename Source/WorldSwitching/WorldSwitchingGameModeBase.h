@@ -11,6 +11,8 @@
 #include "TimerManager.h"
 #include "BP_Character.h"
 #include "Altar.h"
+#include "LevelCamera.h"
+#include "OurEnums.h"
 #include "WorldSwitchingGameInstance.h"
 #include "WorldSwitchingGameModeBase.generated.h"
 
@@ -52,6 +54,12 @@ public:
 	
 	
 	UCameraComponent* CameraComponent = nullptr;
+
+	ALevelCamera* FreeLevelCamera = nullptr;
+
+	void GatherLevelCameras();
+
+	ALevelCamera* GetFreeLevelCamera() { return FreeLevelCamera; }
 
 	APlayerController* PlayerController = nullptr;
 
@@ -96,6 +104,8 @@ public:
 	void ToggleParticleEffects();
 
 	void TogglePhysicalSpiritMaterialProperties();
+
+
 
 };
 

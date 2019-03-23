@@ -451,8 +451,6 @@ void ABP_Character::DeathSequence()
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
 
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DeathExplosion, GetTransform());
-
 	UWorld* World = GetWorld();
 
 	FVector ArtifactSpawnArea = GetActorLocation();

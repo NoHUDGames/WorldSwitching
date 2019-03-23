@@ -131,8 +131,6 @@ public:
 
 	/// end of functions and variables for kicking
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UParticleSystem* DeathExplosion = nullptr;
 
 
 	/// These functions turns on and off the collision with objects that have the Interaction collision channel on them

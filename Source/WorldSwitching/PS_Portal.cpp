@@ -43,10 +43,12 @@ void APS_Portal::BeginPlay()
 	BoxTrigger->OnComponentBeginOverlap.AddDynamic(this, &APS_Portal::ExitLevelSequence);
 	GameInstance = Cast<UWorldSwitchingGameInstance>(GetGameInstance());
 	GameMode = Cast<AWorldSwitchingGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	
 	PlayerPawn = Cast<ABP_Character>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	PlayerCamera = Cast<UCameraComponent>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetComponentByClass(UCameraComponent::StaticClass()));
-
+	SetLevelCamera();
 	
+
 	if (!bBeginActivated)
 	{
 		PortalLight->SetIntensity(0);
@@ -56,19 +58,11 @@ void APS_Portal::BeginPlay()
 
 	if (GameInstance->GetAltarArtifacts() >= ArtifactsNeededToUse) Activate();
 
-	for (TActorIterator<ACameraActor> PortalEffectCamera(GetWorld()); PortalEffectCamera; ++PortalEffectCamera)
-	{
-		ACameraActor* Temp = *PortalEffectCamera;
-		if (Temp->GetActorLabel() == "LevelFreeCamera")
-		{
-			LevelCamera = Temp;
-			UE_LOG(LogTemp, Warning, TEXT("Found camera name: %s"), *LevelCamera->GetActorLabel())
-		}
-	}
-
+	
+	
 	// Enter Level through Portal
 	CurrentMapName = GetWorld()->GetMapName();
-	if (!GameInstance->GetbIsFirstTimeStartingGame() && SetPortalToEnterFrom())
+	if (!GameInstance->GetbIsFirstTimeStartingGame() && SetPortalToEnterFrom() && LevelCamera)
 	{
 		ComingOrGoing = COMING;
 		PortalToEnterFrom->BoxTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -81,6 +75,9 @@ void APS_Portal::BeginPlay()
 
 		TL_TriggerEnterLevelSequence();
 	}
+
+	else if (LevelCamera) UE_LOG(LogTemp, Warning, TEXT("PORTAL: GOT LEVEL CAMERA"))
+	else if (!LevelCamera) UE_LOG(LogTemp, Warning, TEXT("PORTAL: DID NOT GET LEVEL CAMERA"))
 	// Enter Level through Portal
 }
 
@@ -127,6 +124,7 @@ void APS_Portal::ExitLevelSequence(UPrimitiveComponent* OverlappedComponent, AAc
 	UPrimitiveComponent *OtherComponent, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult &SweepResult)
 {
+
 	ComingOrGoing = GOING;
 	
 	PlayerCameFrom = PortalIndex;
@@ -145,10 +143,13 @@ void APS_Portal::ExitLevelSequence(UPrimitiveComponent* OverlappedComponent, AAc
 	}
 	UGameplayStatics::PlaySound2D(GetWorld(), PortalEnterSound);
 
+	if (LevelCamera)
+	{
+		GetWorldTimerManager().SetTimer(CameraFadeHandle, this, &APS_Portal::FadeCameraProxy, 1.f, false);
 
-	GetWorldTimerManager().SetTimer(CameraFadeHandle, this, &APS_Portal::FadeCameraProxy, 1.f, false);
-	GetWorldTimerManager().SetTimer(PlayerMoveHandle, this, &APS_Portal::TL_TriggerMovePlayerIntoPortal, 1.1f, false);
-
+		GetWorldTimerManager().SetTimer(PlayerMoveHandle, this, &APS_Portal::TL_TriggerMovePlayerIntoPortal, 1.1f, false);
+	}
+	else UE_LOG(LogTemp, Warning, TEXT("PORTAL EXIT SEQUENCE: DID NOT GET LEVEL CAMERA"))
 
 	GetWorldTimerManager().SetTimer(ExitHandle, this, &APS_Portal::ExitLevel, 5.f, false);
 	
@@ -166,7 +167,11 @@ void APS_Portal::ExitLevel()
 		break;
 	case EDestinationLevel::Hub:
 		UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Levels/GameLevels/Hub"), TRAVEL_Absolute);
-
+		break;
+	case EDestinationLevel::Prototype :
+		UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Levels/PrototypeLevel"), TRAVEL_Absolute);
+	default:
+		break;
 	}
 }
 
@@ -183,8 +188,8 @@ bool APS_Portal::SetPortalToEnterFrom()
 				if (Temp)
 				{
 					PortalToEnterFrom = Temp;
-					UE_LOG(LogTemp, Warning, TEXT("HUB: GOT PORTALT TO ENTER FROM: %s"), *PortalToEnterFrom->GetActorLabel())
-					return true; }
+					return true; 
+				}
 			}
 		}
 
@@ -196,14 +201,27 @@ bool APS_Portal::SetPortalToEnterFrom()
 				if (Temp)
 				{
 					PortalToEnterFrom = Temp;
-					UE_LOG(LogTemp, Warning, TEXT("HUB: GOT PORTALT TO ENTER FROM: %s"), *PortalToEnterFrom->GetActorLabel())
+
 						return true;
+				}
+			}
+		}
+
+		if (PlayerCameFrom == EPortalIndex::PrototypeEntrance || PlayerCameFrom == EPortalIndex::PrototypeExit)
+		{
+			if (PortalIndex == EPortalIndex::HubToPrototype)
+			{
+				Temp = this;
+				if (Temp)
+				{
+					PortalToEnterFrom = Temp;
+					return true;
 				}
 			}
 		}
 	}
 
-	if (CurrentMapName.Contains("1"))
+	else if (CurrentMapName.Contains("1"))
 	{
 		if (PortalIndex == EPortalIndex::Level_1Entrance)
 		{
@@ -211,10 +229,10 @@ bool APS_Portal::SetPortalToEnterFrom()
 			if (Temp)
 			{
 				PortalToEnterFrom = Temp;
-				UE_LOG(LogTemp, Warning, TEXT("Level1: GOT PORTAL TO ENTER FROM: %s"), *PortalToEnterFrom->GetActorLabel())
+
 					return true; }}}
 
-	if (CurrentMapName.Contains("2"))
+	else if (CurrentMapName.Contains("2"))
 	{
 		if (PortalIndex == EPortalIndex::Level_2Entrance)
 		{
@@ -222,9 +240,20 @@ bool APS_Portal::SetPortalToEnterFrom()
 			if (Temp)
 			{
 				PortalToEnterFrom = Temp;
-				UE_LOG(LogTemp, Warning, TEXT("Level2: GOT PORTAL TO ENTER FROM: %s"), *PortalToEnterFrom->GetActorLabel())
 					return true; }}}
 
+	else if (CurrentMapName.Contains("Prot"))
+	{
+		if (PortalIndex == EPortalIndex::PrototypeEntrance)
+		{
+			Temp = this;
+			if (Temp)
+			{
+				PortalToEnterFrom = Temp;
+				return true;
+			}
+		}
+	}
 	return false;
 }
 
@@ -294,4 +323,15 @@ void APS_Portal::ActivatePlayerAfterEntry()
 
 	PortalToEnterFrom->BoxTrigger->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
+}
+
+void APS_Portal::SetLevelCamera()
+{
+	for (TActorIterator<ALevelCamera> CameraItr(GetWorld()); CameraItr; ++CameraItr)
+	{
+		ALevelCamera* Camera = *CameraItr;
+
+		if (Camera->CameraType == ECameraActor::FreeLevel)
+			LevelCamera = Camera;
+	}
 }

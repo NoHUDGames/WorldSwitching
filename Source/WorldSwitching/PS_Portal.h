@@ -11,7 +11,7 @@
 #include "BP_Character.h"
 #include "WorldSwitchingGameInstance.h"
 #include "WorldSwitchingGameModeBase.h"
-#include "Camera/CameraActor.h"
+#include "LevelCamera.h"
 #include "Camera/CameraComponent.h"
 #include "Components/TimelineComponent.h"
 #include "Curves/CurveFloat.h"
@@ -82,7 +82,7 @@ public:
 		ABP_Character* PlayerPawn = nullptr;
 		UWorldSwitchingGameInstance* GameInstance = nullptr;
 		AWorldSwitchingGameModeBase* GameMode = nullptr;
-		ACameraActor* LevelCamera = nullptr;
+		ALevelCamera* LevelCamera = nullptr;
 		UCameraComponent* PlayerCamera = nullptr;
 
 		static EComingOrGoing ComingOrGoing;
@@ -145,7 +145,7 @@ public:
 
 		//InOrOut = True: In, False: Out
 		UFUNCTION(BlueprintImplementableEvent)
-		void FadeCamera(bool InOrOut, ACameraActor* LevelFreeCamera);
+		void FadeCamera(bool InOrOut, ALevelCamera* LevelFreeCamera);
 
 		void FadeCameraProxy();
 
@@ -163,12 +163,15 @@ public:
 
 		bool SetPortalToEnterFrom();
 
+		void SetLevelCamera();
+
 		void SetupNavigationPoints();
 
 		void PreparePlayerAndCamera();
 
 		void ActivatePlayerAfterEntry();
 		
+
 
 
 };
