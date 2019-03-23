@@ -7,7 +7,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Components/BoxComponent.h"
 #include "SpiritTest.h"
-#include "AIController.h"
+///#include "Runtime/AIModule/Classes/AIController.h"
 #include "PShamanEnemy.generated.h"
 
 /**
