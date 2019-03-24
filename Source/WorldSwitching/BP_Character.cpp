@@ -218,7 +218,7 @@ void ABP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ABP_Character::Interact);
 	PlayerInputComponent->BindAction("Interact", IE_Released, this, &ABP_Character::StopInteracting);
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &ABP_Character::Dashing);
-
+	PlayerInputComponent->BindAction("SenseWorld", IE_Pressed, this, &ABP_Character::SenseWorld);
 
 	
 
@@ -558,4 +558,9 @@ void ABP_Character::DashingTimelineFloatReturn(float value)
 void ABP_Character::OnDashingTimelineFinished()
 {
 	GetWorldTimerManager().SetTimer(DashCooldown, this, &ABP_Character::ReverseCurrentlyDashing, 1.0f, false);
+}
+
+void ABP_Character::SenseWorld()
+{
+	GetWorld()->SpawnActor<ASensingSphere>(SensingSphereToSpawn, GetActorLocation(), FRotator(0, 0, 0));
 }

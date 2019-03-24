@@ -11,6 +11,7 @@
 #include "Components/TimelineComponent.h"
 #include "WorldSwitchingGameInstance.h"
 #include "OurPlayerController.h"
+#include "SensingSphere.h"
 #include "BP_Character.generated.h"
 
 class AArtifacts;
@@ -132,7 +133,6 @@ public:
 	/// end of functions and variables for kicking
 
 
-
 	/// These functions turns on and off the collision with objects that have the Interaction collision channel on them
 	/// This is how we will test if it's possible for the player to interact with something
 	void Interact();
@@ -141,6 +141,7 @@ public:
 
 	void DecrementingLives();
 
+	void SenseWorld();
 
 	UFUNCTION(BlueprintCallable)
 	void DeathSequence();
@@ -179,6 +180,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AArtifacts> ArtifactsToSpawn;
+
+	UPROPERTY(EditAnywhere, Category = SensingSphere)
+	TSubclassOf<ASensingSphere> SensingSphereToSpawn;
 
 	void SetRespawnLocation(FVector NewSaveLocation);
 
