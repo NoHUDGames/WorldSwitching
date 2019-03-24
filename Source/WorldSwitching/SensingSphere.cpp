@@ -165,13 +165,11 @@ void ASensingSphere::OverlapsWithActors(UPrimitiveComponent * OverlappedComp, AA
 	{
 		OtherActor->SetActorEnableCollision(false);
 		Cast<ASWorldActor>(OtherActor)->LightUpActorWhenSensed();
-		UE_LOG(LogTemp, Warning, TEXT("SENSING SPHERE: COLLIDED WITH %s"), *OtherActor->GetActorLabel())
 	}
 	
 
 	if (OtherActor->IsA(APWorldActor::StaticClass()) && Cast<APWorldActor>(OtherActor)->bCanBeSensed)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SENSING SPHERE: COLLIDED WITH %s"), *OtherActor->GetActorLabel())
 			OtherActor->SetActorEnableCollision(false);
 		Cast<APWorldActor>(OtherActor)->LightUpActorWhenSensed();
 
