@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Components/BoxComponent.h"
+#include "OurEnums.h"
 #include "SpiritTest.generated.h"
 
 UCLASS()
@@ -63,5 +64,22 @@ public:
 
 	/// End of variables and functions for the enemy attack
 
+	void PlayingAnimations();
+	void ChangingAnimationStarted(int index);
+
+	/// 0 = IdleAnim, 1 = AttackAnim, 2 = WalkingAnim, 3 = DeathAnim
+	bool AnimationStarted[5] = { false };
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
+		EAnimations RunningAnimations = EAnimations::IDLE;
+
+private:
+	/// Variables and enums that are related to animations
+	UAnimationAsset* IdleAnim;
+	UAnimationAsset* AttackAnim;
+	UAnimationAsset* WalkingAnim;
+	UAnimationAsset* DeathAnim;
+
+	/// end of variable and enums that are related to animations
 
 };

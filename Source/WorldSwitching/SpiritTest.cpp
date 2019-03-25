@@ -6,6 +6,7 @@
 #include "Components/BoxComponent.h"
 #include "BP_Character.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 // Sets default values
 ASpiritTest::ASpiritTest()
@@ -33,7 +34,22 @@ ASpiritTest::ASpiritTest()
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponCollider"));
 	BoxCollider->SetupAttachment(WeaponVisual);
 
+	/// Setting up animation variables
+	static ConstructorHelpers::FObjectFinder<UAnimationAsset> idle_Anim
+	(TEXT("AnimSequence'/Game/Meshes/Characters/SpiritEnemy/Animations/Lil_Blub_Idle_V2.Lil_Blub_Idle_V2'"));
+	if (idle_Anim.Object)
+	{
+		IdleAnim = idle_Anim.Object;
+	}
 
+	static ConstructorHelpers::FObjectFinder<UAnimationAsset> attack_Anim
+	(TEXT("AnimSequence'/Game/Meshes/Characters/SpiritEnemy/Animations/Lil_Blub_Attack.Lil_Blub_Attack'"));
+	AttackAnim = attack_Anim.Object;
+
+	static ConstructorHelpers::FObjectFinder<UAnimationAsset> walking_Anim
+	(TEXT("AnimSequence'/Game/Meshes/Characters/SpiritEnemy/Animations/Lil_Blub_Walk.Lil_Blub_Walk'"));
+	WalkingAnim = walking_Anim.Object;
+	/// finished setting up animation variables
 
 }
 
@@ -51,8 +67,53 @@ void ASpiritTest::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	
+	PlayingAnimations();
 
+}
+
+void ASpiritTest::PlayingAnimations()
+{
+
+	if (AnimationStarted[0] == false && RunningAnimations == EAnimations::IDLE && GetVelocity() == FVector(0.f, 0.f, 0.f))
+	{
+
+		GetMesh()->PlayAnimation(IdleAnim, true);
+
+		ChangingAnimationStarted(0);
+
+	}
+	else if (AnimationStarted[1] == false && RunningAnimations == EAnimations::ATTACKING)
+	{
+
+		GetMesh()->PlayAnimation(AttackAnim, false);
+
+		ChangingAnimationStarted(1);
+	}
+	else if (AnimationStarted[2] == false && RunningAnimations == EAnimations::WALKINGFORWARD)
+	{
+		GetMesh()->PlayAnimation(WalkingAnim, true);
+
+		ChangingAnimationStarted(2);
+	}
+	else if (AnimationStarted[3] == false && RunningAnimations == EAnimations::DYING)
+	{
+		GetMesh()->PlayAnimation(WalkingAnim, true);
+
+		ChangingAnimationStarted(3);
+
+	}
+}
+
+void ASpiritTest::ChangingAnimationStarted(int index)
+{
+	AnimationStarted[index] = true;
+	for (int i{ 0 }; i < 4; ++i)
+	{
+		if (i != index)
+		{
+			AnimationStarted[i] = false;
+		}
+	}
 }
 
 // Called to bind functionality to input

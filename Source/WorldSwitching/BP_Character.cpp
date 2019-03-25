@@ -70,15 +70,15 @@ ABP_Character::ABP_Character()
 
 
 	/// Setting up animation variables
-	static ConstructorHelpers::FObjectFinder<UAnimSequence> idle_Anim
+	static ConstructorHelpers::FObjectFinder<UAnimationAsset> idle_Anim
 	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Character_Turning_Head.Main_Character_Turning_Head'"));
 	IdleAnim = idle_Anim.Object;
 
-	static ConstructorHelpers::FObjectFinder<UAnimSequence> kicking_Anim
+	static ConstructorHelpers::FObjectFinder<UAnimationAsset> kicking_Anim
 	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Character_Kick.Main_Character_Kick'"));
 	KickingAnim = kicking_Anim.Object;
 
-	static ConstructorHelpers::FObjectFinder<UAnimSequence> walking_Anim
+	static ConstructorHelpers::FObjectFinder<UAnimationAsset> walking_Anim
 	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Character_Walk_Cycle.Main_Character_Walk_Cycle'"));
 	WalkingAnim = walking_Anim.Object;
 	/// finished setting up animation variables
@@ -137,9 +137,9 @@ void ABP_Character::BeginPlay()
 	PlayerController = Cast<AOurPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 
 
-	if (GetCharacterMovement()->GetMaxSpeed() != 600.f)
+	if (GetCharacterMovement()->GetMaxSpeed() != NormalSpeed)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = 600.f;
+		GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	}
 
 	
@@ -344,6 +344,7 @@ void ABP_Character::StopInteracting()
 
 void ABP_Character::DecrementingLives()
 {
+	UGameplayStatics::PlayWorldCameraShake(GetWorld(), TakingDamageCameraShake, GetActorLocation(), 10.f, 1100.f);
 	if (GetShields() > 0)
 	{
 		--NumberOfShields;
