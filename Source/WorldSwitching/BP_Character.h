@@ -151,6 +151,7 @@ public:
 
 	void RespawnSequence();
 
+	class AWorldSwitchingGameModeBase* GameModeRef = nullptr;
 
 	AActor* OtherActorForPhysicalTest = nullptr;
 	AActor* GetOtherActorForPhysicalTest();

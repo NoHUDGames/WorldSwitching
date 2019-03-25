@@ -105,7 +105,24 @@ public:
 
 	void TogglePhysicalSpiritMaterialProperties();
 
+	//SensingSphereStuff
+	int LitUpBySensing = 0;
+	int GetLitUpBySensing() { return LitUpBySensing; }
+	void IncrementLitUpBySensing() 
+	{ 
+		++LitUpBySensing;
+		UE_LOG(LogTemp, Warning, TEXT("GAME MODE: Objects Lit up: %i"), LitUpBySensing)
+	}
+	void DecrementLitUpBySensing() 
+	{ 
+		--LitUpBySensing; 
+		UE_LOG(LogTemp, Warning, TEXT("GAME MODE: Objects Lit up: %i"), LitUpBySensing)
+	}
 
+	bool bSphereIsRunning = false;
+	bool GetSphereIsRunning() { return bSphereIsRunning; }
+	void SetSphereIsRunning(bool state) { bSphereIsRunning = state; }
+	//SensingSphereStuff
 
 };
 

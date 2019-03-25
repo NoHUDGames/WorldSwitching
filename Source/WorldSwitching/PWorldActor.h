@@ -27,6 +27,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WorldChange)
 		bool bCanBeSensed = false;
 
+	class AWorldSwitchingGameModeBase* GameModeRef = nullptr;
+
 	UStaticMeshComponent* MeshRef = nullptr;
 
 	UFUNCTION(BlueprintCallable)

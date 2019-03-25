@@ -7,6 +7,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Materials/MaterialInterface.h"
 #include "Materials/MaterialInstanceDynamic.h"
+
 #include "SWorldActor.generated.h"
 
 UCLASS()
@@ -18,6 +19,7 @@ public:
 	// Sets default values for this actor's properties
 	ASWorldActor();
 
+	class AWorldSwitchingGameModeBase* GameModeRef = nullptr;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WorldChange)
 		bool bOptOutOfCollisionChange;

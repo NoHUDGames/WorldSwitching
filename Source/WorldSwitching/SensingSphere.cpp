@@ -3,6 +3,7 @@
 #include "SensingSphere.h"
 #include "WorldSwitchingGameModeBase.h"
 
+
 // Sets default values
 ASensingSphere::ASensingSphere()
 {
@@ -21,6 +22,8 @@ void ASensingSphere::BeginPlay()
 	SphereCollider->OnComponentBeginOverlap.AddDynamic(this, &ASensingSphere::OverlapsWithActors);
 	SetActorTickEnabled(false);
 	GameMode = Cast<AWorldSwitchingGameModeBase>(GetWorld()->GetAuthGameMode());
+
+	GameMode->SetSphereIsRunning(true);
 
 	Activate();
 	
@@ -48,6 +51,7 @@ void ASensingSphere::Activate()
 void ASensingSphere::Kill()
 {
 	TurnOffOtherActorCollisions();
+	GameMode->SetSphereIsRunning(false);
 	Destroy();
 }
 
