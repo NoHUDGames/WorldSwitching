@@ -88,7 +88,7 @@ public:
 		AActor* GetOtherActorPhysicalTest();
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void LightUpCollidingActor();
+	void LightUpCollidingActor(ASWorldActor* SWordActor = nullptr, APWorldActor* PWorldActor = nullptr);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void WorldTransitionEffects();

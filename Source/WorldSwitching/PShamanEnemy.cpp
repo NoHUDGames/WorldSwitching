@@ -30,9 +30,9 @@ APShamanEnemy::APShamanEnemy()
 	BoxCollider->SetupAttachment(WeaponVisual);
 
 	
-	static ConstructorHelpers::FObjectFinder<UBlueprint> SpiritBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_SpiritTest.BP_SpiritTest'"));
+	static ConstructorHelpers::FObjectFinder<UClass> SpiritBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_SpiritTest.BP_SpiritTest_C'"));
 	if (SpiritBlueprint.Object) {
-		SpiritOfShaman = (UClass*)SpiritBlueprint.Object->GeneratedClass;
+		SpiritOfShaman = SpiritBlueprint.Object;
 	}
 	
 	
