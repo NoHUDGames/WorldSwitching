@@ -479,6 +479,7 @@ void ABP_Character::RespawnSequence()
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 	SetActorLocation(RespawnLocation);
+	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 }
 
 

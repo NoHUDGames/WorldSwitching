@@ -70,6 +70,8 @@ public:
 
 	UFUNCTION()
 		void OnDashingTimelineFinished();
+
+	float NormalSpeed{ 600.f };
 	/// end of movement functions
 
 
