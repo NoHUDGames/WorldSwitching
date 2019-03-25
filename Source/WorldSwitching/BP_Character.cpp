@@ -15,6 +15,7 @@
 #include "Components/TimelineComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "WorldSwitchingGameModeBase.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
@@ -97,6 +98,8 @@ void ABP_Character::BeginPlay()
 
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ABP_Character::DeliveringArtifacts);
 	
+	GameModeRef = Cast<AWorldSwitchingGameModeBase>(GetWorld()->GetAuthGameMode());
+
 	RespawnLocation = GetActorLocation();
 
 	/// Sets up the BeginPlay values for the kicking timeline
@@ -563,5 +566,6 @@ void ABP_Character::OnDashingTimelineFinished()
 
 void ABP_Character::SenseWorld()
 {
+	if (!GameModeRef->GetSphereIsRunning())
 	GetWorld()->SpawnActor<ASensingSphere>(SensingSphereToSpawn, GetActorLocation(), FRotator(0, 0, 0));
 }

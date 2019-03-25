@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PWorldActor.h"
+#include "WorldSwitchingGameModeBase.h"
 
 // Sets default values
 APWorldActor::APWorldActor()
@@ -17,6 +18,8 @@ void APWorldActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	GameModeRef = Cast<AWorldSwitchingGameModeBase>(GetWorld()->GetAuthGameMode());
+
 	if (bCanBeSensed) TriggerSetMeshRef();
 	if (MeshRef)
 	{
@@ -58,11 +61,12 @@ void APWorldActor::ReapplyOriginalMaterials()
 	{
 		MeshRef->SetMaterial(i, OriginalMaterial[i]);
 	}
+	GameModeRef->DecrementLitUpBySensing();
 }
 
 void APWorldActor::LightUpActorWhenSensed()
 {
-
+	GameModeRef->IncrementLitUpBySensing();
 	ApplyDynamicMaterials();
 	SetActorHiddenInGame(false);
 
