@@ -7,6 +7,8 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Components/BoxComponent.h"
 #include "OurEnums.h"
+#include "Engine/StaticMeshActor.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "SpiritTest.generated.h"
 
 UCLASS()
@@ -67,11 +69,21 @@ public:
 	void PlayingAnimations();
 	void ChangingAnimationStarted(int index);
 
-	/// 0 = IdleAnim, 1 = AttackAnim, 2 = WalkingAnim, 3 = DeathAnim
+	/// 0 = IdleAnim, 1 = AttackAnim, 2 = WalkingAnim, 3 = DeathAnim, 4 = TakingDamageAnim
 	bool AnimationStarted[5] = { false };
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 		EAnimations RunningAnimations = EAnimations::IDLE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UStaticMeshComponent* HeadAfterDeath {nullptr};
+	void SpawnHead();
+	void DestroyActor();
+	FTimerHandle SpawningHeadTimerHandler;
+	FTimerHandle DestroyingActorTimerHandler;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UParticleSystemComponent* BlueSmoke = nullptr;
 
 private:
 	/// Variables and enums that are related to animations
@@ -79,6 +91,7 @@ private:
 	UAnimationAsset* AttackAnim;
 	UAnimationAsset* WalkingAnim;
 	UAnimationAsset* DeathAnim;
+	UAnimationAsset* TakingDamageAnim;
 
 	/// end of variable and enums that are related to animations
 
