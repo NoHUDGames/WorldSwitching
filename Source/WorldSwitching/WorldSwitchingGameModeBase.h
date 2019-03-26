@@ -13,12 +13,14 @@
 #include "Altar.h"
 #include "LevelCamera.h"
 #include "OurEnums.h"
+#include "Engine/StaticMesh.h"
 #include "WorldSwitchingGameInstance.h"
 #include "WorldSwitchingGameModeBase.generated.h"
 
 /**
  * 
  */
+
 
 class UCameraComponent;
 
@@ -105,6 +107,8 @@ public:
 
 	void TogglePhysicalSpiritMaterialProperties();
 
+	
+
 	//SensingSphereStuff
 	int LitUpBySensing = 0;
 	int GetLitUpBySensing() { return LitUpBySensing; }
@@ -123,6 +127,23 @@ public:
 	bool GetSphereIsRunning() { return bSphereIsRunning; }
 	void SetSphereIsRunning(bool state) { bSphereIsRunning = state; }
 	//SensingSphereStuff
+
+
+	//FoliageMeshes
+	UPROPERTY(EditAnywhere, Category = Foliage)
+	TArray<UStaticMesh*> Meshes;
+
+	UPROPERTY(EditAnywhere, Category = Foliage)
+	TArray<int> NumberOfMaterials;
+
+	UPROPERTY(EditAnywhere, Category = Foliage)
+	TArray<UMaterialInterface*> PhysicalMaterials;
+
+	UPROPERTY(EditAnywhere, Category = Foliage)
+	TArray<UMaterialInterface*> SpiritMaterials;
+
+	void ToggleInstanceMeshes();
+
 
 };
 
