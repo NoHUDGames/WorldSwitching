@@ -68,6 +68,17 @@ enum class ECameraActor : uint8
 
 };
 
+UENUM(BlueprintType)
+enum class EAnimations : uint8
+{
+	IDLE				UMETA(DisplayName = "Idle"),
+	WALKINGFORWARD		UMETA(DisplayName = "Walking"),
+	STRIFING			UMETA(DisplayName = "Strifing"),
+	ATTACKING			UMETA(DisplayName = "Attacking"),
+	DYING				UMETA(DisplayName = "Dying"),
+	DASHING				UMETA(DisplayName = "Dashing")
+};
+
 UCLASS()
 class WORLDSWITCHING_API UOurEnums : public UUserDefinedEnum
 {

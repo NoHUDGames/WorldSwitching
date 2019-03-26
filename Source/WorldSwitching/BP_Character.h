@@ -170,18 +170,18 @@ public:
 		void DeliveringArtifacts(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
 			UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Collecting")
 	int NumberOfHoldingArtifacts;
 
 	/// End of function and variables dealing with artifact picking
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WorldChanging")
 	bool bIsSpiritWorld{ false };
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	int Lives{ 3 };
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Collecting")
 	TSubclassOf<AArtifacts> ArtifactsToSpawn;
 
 	UPROPERTY(EditAnywhere, Category = SensingSphere)
@@ -213,11 +213,11 @@ public:
 private:
 	
 	/// Variables and enums that are related to animations
-	UAnimSequence* IdleAnim;
-	UAnimSequence* KickingAnim;
-	UAnimSequence* WalkingAnim;
-	UAnimSequence* DashingAnim;
-	UAnimSequence* StrifingAnim;
+	UAnimationAsset* IdleAnim;
+	UAnimationAsset* KickingAnim;
+	UAnimationAsset* WalkingAnim;
+	UAnimationAsset* DashingAnim;
+	UAnimationAsset* StrifingAnim;
 
 	/// 0 = IdleAnim, 1 = KickingAnim, 2 = WalkingAnim, 3 = StrifingAnim, 4 = DashingAnim
 	bool AnimationStarted[5] = {false};
@@ -235,6 +235,9 @@ private:
 	float DashingDistance{ 500.f };
 
 	void MovementAnimationTesting(float AxisValue, float ForwardVector);
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TSubclassOf<UCameraShake> TakingDamageCameraShake;
 	
 
 };

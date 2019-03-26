@@ -4,7 +4,7 @@
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
-#include "BP_Character.h"
+#include "Components/SkeletalMeshComponent.h"
 
 APShamanEnemy::APShamanEnemy()
 {
@@ -35,7 +35,22 @@ APShamanEnemy::APShamanEnemy()
 		SpiritOfShaman = SpiritBlueprint.Object;
 	}
 	
-	
+	/// Setting up animation variables
+	static ConstructorHelpers::FObjectFinder<UAnimationAsset> idle_Anim
+	(TEXT("AnimSequence'/Game/Meshes/Characters/SpiritEnemy/Animations/Lil_Blub_Idle_V2.Lil_Blub_Idle_V2'"));
+	if (idle_Anim.Object)
+	{
+		IdleAnim = idle_Anim.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimationAsset> attack_Anim
+	(TEXT("AnimSequence'/Game/Meshes/Characters/SpiritEnemy/Animations/Lil_Blub_Idle.Lil_Blub_Idle'"));
+	AttackAnim = attack_Anim.Object;
+
+	static ConstructorHelpers::FObjectFinder<UAnimationAsset> walking_Anim
+	(TEXT("AnimSequence'/Game/Meshes/Characters/SpiritEnemy/Animations/Lil_Blub_Walk.Lil_Blub_Walk'"));
+	WalkingAnim = walking_Anim.Object;
+	/// finished setting up animation variables
 
 }
 
@@ -49,6 +64,55 @@ void APShamanEnemy::BeginPlay()
 void APShamanEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	PlayingAnimations();
+
+	
+}
+
+void APShamanEnemy::PlayingAnimations()
+{
+	
+	if (AnimationStarted[0] == false && RunningAnimations == EAnimations::IDLE && GetVelocity() == FVector(0.f, 0.f, 0.f))
+	{
+		
+		GetMesh()->PlayAnimation(IdleAnim, true);
+
+		ChangingAnimationStarted(0);
+
+	}
+	else if (AnimationStarted[1] == false && RunningAnimations == EAnimations::ATTACKING)
+	{
+
+		GetMesh()->PlayAnimation(AttackAnim, false);
+
+		ChangingAnimationStarted(1);
+	}
+	else if (AnimationStarted[2] == false && RunningAnimations == EAnimations::WALKINGFORWARD)
+	{
+		GetMesh()->PlayAnimation(WalkingAnim, true);
+
+		ChangingAnimationStarted(2);
+	}
+	else if (AnimationStarted[3] == false && RunningAnimations == EAnimations::DYING)
+	{
+		GetMesh()->PlayAnimation(WalkingAnim, true);
+
+		ChangingAnimationStarted(3);
+
+	}
+}
+
+void APShamanEnemy::ChangingAnimationStarted(int index)
+{
+	AnimationStarted[index] = true;
+	for (int i{ 0 }; i < 4; ++i)
+	{
+		if (i != index)
+		{
+			AnimationStarted[i] = false;
+		}
+	}
 }
 
 void APShamanEnemy::SetupPlayerInputComponent(UInputComponent * PlayerInputComponent)
