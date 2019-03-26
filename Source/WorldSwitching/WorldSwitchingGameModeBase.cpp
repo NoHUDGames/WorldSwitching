@@ -111,6 +111,7 @@ void AWorldSwitchingGameModeBase::ToggleAll()
 	ToggleParticleEffects();
 	ToggleLastingCameraEffects();
 	TogglePhysicalSpiritMaterialProperties();
+	ToggleInstanceMeshes();
 }
 
 bool AWorldSwitchingGameModeBase::TestPhysicalOverlaps()
@@ -363,4 +364,54 @@ void AWorldSwitchingGameModeBase::TogglePhysicalSpiritMaterialProperties()
 			PSActor->ActivatePhysicalMaterialProperties();
 		}
 	}
+}
+
+void AWorldSwitchingGameModeBase::ToggleInstanceMeshes()
+{
+	/*
+	UE_LOG(LogTemp, Warning, TEXT("ToggleInstanceMeshes: Called"))
+
+	if (bIsSpiritWorld)
+	{
+		int MeshIndexAccumulator = 0;
+
+		for (int i = 0; i < Meshes.Num(); ++i)
+		{
+			if (NumberOfMaterials[i])
+			MeshIndexAccumulator += NumberOfMaterials[i];
+
+			int MaterialElementIterator = 0;
+			for (int j = MeshIndexAccumulator - NumberOfMaterials[i]; j < NumberOfMaterials[i]; ++j)
+			{
+				if (Meshes[i])
+				Meshes[i]->SetMaterial(MaterialElementIterator, SpiritMaterials[j]);
+
+				MaterialElementIterator++;
+				UE_LOG(LogTemp, Warning, TEXT("ToggleInstanceMeshes: Assigning material index %i, Material name: %s"), j, *SpiritMaterials[j]->GetDetailedInfo())
+			}
+		}
+	}
+
+	if (!bIsSpiritWorld)
+	{
+		int MeshIndexAccumulator = 0;
+
+		for (int i = 0; i < Meshes.Num(); ++i)
+		{
+			if(NumberOfMaterials[i])
+			MeshIndexAccumulator += NumberOfMaterials[i];
+
+			int MaterialElementIterator = 0;
+			for (int j = MeshIndexAccumulator - NumberOfMaterials[i]; j < NumberOfMaterials[i]; ++j)
+			{	
+				if(Meshes[i])
+				Meshes[i]->SetMaterial(MaterialElementIterator, PhysicalMaterials[j]);
+				else UE_LOG(LogTemp, Warning, TEXT("ToggleInstanceMeshes: NO MESHES FOUND"))
+
+					MaterialElementIterator++;
+					UE_LOG(LogTemp, Warning, TEXT("ToggleInstanceMeshes: Assigning material index %i, Material name: %s"), j, *SpiritMaterials[j]->GetDetailedInfo())
+			}
+		}
+	}
+	*/
 }

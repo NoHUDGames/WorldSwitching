@@ -11,8 +11,6 @@ ASphere_WorldChange::ASphere_WorldChange()
 	BallMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BallMesh"));
 
 	RootComponent = BallMesh;
-
-	
 }
 
 // Called when the game starts or when spawned
@@ -38,6 +36,7 @@ void ASphere_WorldChange::BeginPlay()
 	}
 	
 	//Fade(DynamicMaterial);
+	SetLifeSpan(0.3);
 	TriggerMorph(bIsSpiritWorld);
 
 }
@@ -48,7 +47,6 @@ void ASphere_WorldChange::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-UFUNCTION(BlueprintCallable)
 void ASphere_WorldChange::Morph(float TimeLine)
 {
 	SetActorScale3D(UKismetMathLibrary::VLerp(StartScale, EndScale, TimeLine));

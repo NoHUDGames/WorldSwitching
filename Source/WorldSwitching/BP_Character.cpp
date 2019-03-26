@@ -570,6 +570,6 @@ void ABP_Character::SenseWorld()
 	if (!GameModeRef->GetSphereIsRunning())
 	{
 
-		GetWorld()->SpawnActor<ASensingSphere>(SensingSphereToSpawn, GetActorLocation() + FVector(0.f, 0.f,100.f), FRotator(0, 0, 0));
+		GetWorld()->SpawnActor<ASensingSphere>(SensingSphereToSpawn, GetActorLocation() + FVector(0.f, 0.f,85.f), FRotator(0, 0, 0));
 	}
 }
