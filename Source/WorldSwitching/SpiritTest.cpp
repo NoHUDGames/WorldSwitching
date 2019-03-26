@@ -16,25 +16,10 @@ ASpiritTest::ASpiritTest()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	WeaponRotation = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponRotation"));
-	WeaponRotation->SetupAttachment(RootComponent);
-	WeaponRotation->Mobility = EComponentMobility::Movable;
-
-	WeaponVisual = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TempWeapon"));
-	WeaponVisual->SetupAttachment(WeaponRotation);
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> WeaponVisualAsset(TEXT("/Engine/BasicShapes/Cube.Cube"));
-	if (WeaponVisualAsset.Succeeded())
-	{
-		/// WeaponVisual->bVisualizeComponent = true;
-		WeaponVisual->SetStaticMesh(WeaponVisualAsset.Object);
-		WeaponVisual->SetRelativeLocation(FVector(0.0f, 0.0f, 50.0f));
-		WeaponVisual->Mobility = EComponentMobility::Movable;
-		WeaponVisual->SetWorldScale3D(FVector(0.2f));
-	}
-
 	/// Weapon collider, the collision sphere that damages the player when using the weapon
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponCollider"));
-	BoxCollider->SetupAttachment(WeaponVisual);
+	BoxCollider->SetupAttachment(GetMesh());
+
 
 	/// Setting up animation variables
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> idle_Anim
@@ -70,7 +55,11 @@ void ASpiritTest::BeginPlay()
 	Super::BeginPlay();
 
 	BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &ASpiritTest::HittingPlayer);
-	
+
+	FName SocketName = TEXT("WeaponRotation");
+	BoxCollider->AttachToComponent(GetMesh(), 
+		FAttachmentTransformRules(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepRelative, true),
+		SocketName);
 }
 
 // Called every frame

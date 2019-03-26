@@ -57,12 +57,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UBoxComponent* BoxCollider { nullptr };
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		USceneComponent* WeaponRotation { nullptr };
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		UStaticMeshComponent* WeaponVisual { nullptr };
-
 
 	/// End of variables and functions for the enemy attack
 
@@ -84,6 +78,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UParticleSystemComponent* BlueSmoke = nullptr;
+
+	UFUNCTION(BlueprintCallable)
+		UAnimationAsset* GetAttackAnim() { return AttackAnim; };
 
 private:
 	/// Variables and enums that are related to animations
