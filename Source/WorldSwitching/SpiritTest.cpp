@@ -7,6 +7,8 @@
 #include "BP_Character.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
+
 
 // Sets default values
 ASpiritTest::ASpiritTest()
@@ -51,6 +53,15 @@ ASpiritTest::ASpiritTest()
 	WalkingAnim = walking_Anim.Object;
 	/// finished setting up animation variables
 
+
+	HeadAfterDeath = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("EnemyHead"));
+	HeadAfterDeath->SetupAttachment(RootComponent);
+	HeadAfterDeath->Mobility = EComponentMobility::Movable;
+	HeadAfterDeath->SetHiddenInGame(true);
+	HeadAfterDeath->SetSimulatePhysics(false);
+	
+	BlueSmoke = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("BlueSmokeOnDeath"));
+	BlueSmoke->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -130,8 +141,37 @@ void ASpiritTest::KillingEnemy()
 	if (Lives <= 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Enemy is dying!"))
-			Destroy();
+
+		GetMesh()->SetHiddenInGame(true);
+
+		/// Kills off the controller of the pawn
+		GetController()->Destroy();		
+
+		BlueSmoke->Activate();
+
+		GetWorldTimerManager().SetTimer(SpawningHeadTimerHandler, this, &ASpiritTest::SpawnHead, 1.f, false);
+		
+		GetWorldTimerManager().SetTimer(DestroyingActorTimerHandler, this, &ASpiritTest::DestroyActor, 3.f, false);
 	}
+}
+
+void ASpiritTest::SpawnHead()
+{	
+	HeadAfterDeath->SetHiddenInGame(false);
+	HeadAfterDeath->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	HeadAfterDeath->SetSimulatePhysics(true);
+
+	BlueSmoke->Deactivate();
+}
+
+void ASpiritTest::DestroyActor()
+{
+	if (APawn::Controller == nullptr)
+	{
+		Destroy();
+	}
+		
+
 }
 
 void ASpiritTest::DecrementingLives()

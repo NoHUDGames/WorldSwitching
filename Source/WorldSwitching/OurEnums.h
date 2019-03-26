@@ -76,7 +76,8 @@ enum class EAnimations : uint8
 	STRIFING			UMETA(DisplayName = "Strifing"),
 	ATTACKING			UMETA(DisplayName = "Attacking"),
 	DYING				UMETA(DisplayName = "Dying"),
-	DASHING				UMETA(DisplayName = "Dashing")
+	DASHING				UMETA(DisplayName = "Dashing"),
+	TAKINGDAMAGE		UMETA(DisplayName = "TakingDamage")
 };
 
 UCLASS()
