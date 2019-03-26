@@ -11,7 +11,9 @@ ASensingSphere::ASensingSphere()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SphereCollider = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollider"));
+	BallMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Ball Mesh"));
 	RootComponent = SphereCollider;
+	BallMesh->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -45,7 +47,7 @@ void ASensingSphere::Activate()
 	TurnOnOtherActorCollisions();
 	AdjustSphereColliderForWorldType();
 	SetActorTickEnabled(true);
-	GetWorldTimerManager().SetTimer(KillTimer, this, &ASensingSphere::Kill, 3.f, false);
+	GetWorldTimerManager().SetTimer(KillTimer, this, &ASensingSphere::Kill, 2.f, false);
 }
 
 void ASensingSphere::Kill()

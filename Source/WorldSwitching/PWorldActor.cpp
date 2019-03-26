@@ -57,11 +57,12 @@ void APWorldActor::TimeLineLightUp(float TimeLine)
 void APWorldActor::ReapplyOriginalMaterials()
 {
 	SetActorHiddenInGame(true);
+	GameModeRef->DecrementLitUpBySensing();
 	for (int i = 0; i < NumberOfMaterials; ++i)
 	{
 		MeshRef->SetMaterial(i, OriginalMaterial[i]);
 	}
-	GameModeRef->DecrementLitUpBySensing();
+	
 }
 
 void APWorldActor::LightUpActorWhenSensed()

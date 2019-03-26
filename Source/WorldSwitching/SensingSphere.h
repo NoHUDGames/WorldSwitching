@@ -8,6 +8,7 @@
 #include "SWorldActor.h"
 #include "TimerManager.h"
 #include "Components/SphereComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "SensingSphere.generated.h"
 
 UCLASS()
@@ -19,8 +20,14 @@ public:
 	// Sets default values for this actor's properties
 	ASensingSphere();
 
+	UPROPERTY(EditAnywhere)
+		USphereComponent* SphereCollider = nullptr;
+
+	UPROPERTY(EditAnywhere)
+		UStaticMeshComponent* BallMesh = nullptr;
+
 	FVector Scale = { 1.f, 1.f, 1.f };
-	float SpeedScale = 35;
+	float SpeedScale = 70;
 
 	FTimerHandle KillTimer;
 
@@ -40,8 +47,7 @@ public:
 
 	class AWorldSwitchingGameModeBase* GameMode = nullptr;
 
-	UPROPERTY(EditAnywhere)
-	USphereComponent* SphereCollider = nullptr;
+	
 
 protected:
 	// Called when the game starts or when spawned
