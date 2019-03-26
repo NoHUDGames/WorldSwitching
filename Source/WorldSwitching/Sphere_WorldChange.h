@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "TimerManager.h"
 #include "Components/StaticMeshComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "WorldSwitchingGameModeBase.h"
 #include "Sphere_WorldChange.generated.h"
 
 UCLASS()
@@ -20,8 +22,23 @@ public:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* BallMesh = nullptr;
 
-	FVector Scale = { 1.f, 1.f, 1.f };
-	float SpeedScale = 200;
+	UMaterialInstanceDynamic* DynamicMaterial = nullptr;
+
+	AWorldSwitchingGameModeBase* GameModeRef = nullptr;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void Fade(UMaterialInstanceDynamic* Material);
+
+	bool bIsSpiritWorld;
+
+	FVector StartScale;
+	FVector EndScale;
+
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void TriggerMorph(bool bIsSpiritWorld);
+	UFUNCTION(BlueprintCallable)
+		void Morph(float TimeLine);
 
 	FTimerHandle KillTimer;
 protected:

@@ -47,7 +47,7 @@ void ASensingSphere::Activate()
 	TurnOnOtherActorCollisions();
 	AdjustSphereColliderForWorldType();
 	SetActorTickEnabled(true);
-	GetWorldTimerManager().SetTimer(KillTimer, this, &ASensingSphere::Kill, 2.f, false);
+	GetWorldTimerManager().SetTimer(KillTimer, this, &ASensingSphere::Kill, 1.5f, false);
 }
 
 void ASensingSphere::Kill()

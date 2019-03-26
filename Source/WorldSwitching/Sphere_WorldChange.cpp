@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Sphere_WorldChange.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ASphere_WorldChange::ASphere_WorldChange()
@@ -10,23 +11,46 @@ ASphere_WorldChange::ASphere_WorldChange()
 	BallMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BallMesh"));
 
 	RootComponent = BallMesh;
+
+	
 }
 
 // Called when the game starts or when spawned
 void ASphere_WorldChange::BeginPlay()
 {
 	Super::BeginPlay();
+	//DynamicMaterial = BallMesh->CreateDynamicMaterialInstance(0);
+
+	GameModeRef = Cast<AWorldSwitchingGameModeBase>(GetWorld()->GetAuthGameMode());
+
+	if(GameModeRef)
+	bIsSpiritWorld = GameModeRef->bIsSpiritWorld;
+
+	if (GameModeRef && bIsSpiritWorld)
+	{
+		StartScale = FVector(1.f, 1.f, 1.f);
+		EndScale = FVector(300.f, 300.f, 300.f);
+	}
+	else if (GameModeRef && !bIsSpiritWorld)
+	{
+		StartScale = FVector(300.f, 300.f, 300.f);
+		EndScale = FVector(1.f, 1.f, 1.f);
+	}
 	
+	//Fade(DynamicMaterial);
+	TriggerMorph(bIsSpiritWorld);
+
 }
 
 // Called every frame
 void ASphere_WorldChange::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
 
-	Scale += FVector(DeltaTime*SpeedScale, DeltaTime*SpeedScale, DeltaTime*SpeedScale);
-
-	SetActorScale3D(Scale);
-
+UFUNCTION(BlueprintCallable)
+void ASphere_WorldChange::Morph(float TimeLine)
+{
+	SetActorScale3D(UKismetMathLibrary::VLerp(StartScale, EndScale, TimeLine));
 }
 
