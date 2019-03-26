@@ -82,8 +82,6 @@ void ASWorldActor::LightUpActorWhenSensed()
 	}
 
 	TimeLineLightUpTrigger();
-
-
 }
 
 void ASWorldActor::ApplyDynamicMaterials()
