@@ -38,6 +38,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
+
+	void CalculateFallDuration();
+
 	void PlayingAnimations();
 
 	void ChangingAnimationStarted(int index);
@@ -207,8 +211,8 @@ public:
 	void SetShields(int NewShields) {NumberOfShields = NewShields;};
 	void SetbIsSpiritWorld(bool state);
 	
-	
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float FallDurationForDeath{ 1.f };
 
 private:
 	
@@ -239,5 +243,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TSubclassOf<UCameraShake> TakingDamageCameraShake;
 	
-
+	float startedFalling;
+	float endedFalling;
 };

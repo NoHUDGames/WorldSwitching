@@ -154,7 +154,34 @@ void ABP_Character::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	PlayingAnimations();
+	
+}
 
+void ABP_Character::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
+{
+	
+	if (GetCharacterMovement()->GetMovementName() == "Falling")
+	{
+		startedFalling = UGameplayStatics::GetRealTimeSeconds(GetWorld());
+		UE_LOG(LogTemp, Warning, TEXT("Started falling: %f"), startedFalling)
+	}
+	else if (GetCharacterMovement()->GetMovementName() == "Walking")
+	{
+		endedFalling = UGameplayStatics::GetRealTimeSeconds(GetWorld());	
+		UE_LOG(LogTemp, Warning, TEXT("Ended falling: %f"), endedFalling)
+
+		CalculateFallDuration();
+	}
+}
+
+void ABP_Character::CalculateFallDuration()
+{
+	float TimeFalled = endedFalling - startedFalling;
+
+	if (TimeFalled > FallDurationForDeath)
+	{
+		DeathSequence();
+	}
 }
 
 void ABP_Character::PlayingAnimations()
@@ -266,6 +293,7 @@ void ABP_Character::MovementAnimationTesting(float AxisValue, float ForwardVecto
 	}
 	/// end of if statement that determines what animation should be run
 }
+
 
 void ABP_Character::Kicking()
 {
