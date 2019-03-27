@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/Engine.h"
 
 
 // Sets default values
@@ -36,6 +37,10 @@ ASpiritTest::ASpiritTest()
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> walking_Anim
 	(TEXT("AnimSequence'/Game/Meshes/Characters/SpiritEnemy/Animations/Lil_Blub_Walk.Lil_Blub_Walk'"));
 	WalkingAnim = walking_Anim.Object;
+
+	static ConstructorHelpers::FObjectFinder<UAnimationAsset> takingDamage_Anim
+	(TEXT("AnimSequence'/Game/Meshes/Characters/SpiritEnemy/Animations/Lil_Blub_Damage.Lil_Blub_Damage'"));
+	TakingDamageAnim = takingDamage_Anim.Object;
 	/// finished setting up animation variables
 
 
@@ -82,9 +87,19 @@ void ASpiritTest::PlayingAnimations()
 		ChangingAnimationStarted(0);
 
 	}
+	else if (AnimationStarted[4] == false && RunningAnimations == EAnimations::TAKINGDAMAGE)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Running TakingDamageAnim"));
+		GetMesh()->PlayAnimation(TakingDamageAnim, false);
+
+		ChangingAnimationStarted(4);
+
+		/// The waiting time set for when the function should run is based on the duration of the animation
+		GetWorldTimerManager().SetTimer(TakingDamageTimerHandler, this, &ASpiritTest::TurnOffTakingDamageAnim, 0.766667f, false);
+	}
 	else if (AnimationStarted[1] == false && RunningAnimations == EAnimations::ATTACKING)
 	{
-
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("AttackAnim"));
 		GetMesh()->PlayAnimation(AttackAnim, false);
 
 		ChangingAnimationStarted(1);
@@ -163,13 +178,21 @@ void ASpiritTest::DestroyActor()
 
 }
 
+void ASpiritTest::TurnOffTakingDamageAnim()
+{
+	RunningAnimations = EAnimations::IDLE;
+
+	AnimationStarted[4] = false;
+}
+
 void ASpiritTest::DecrementingLives()
 {
 	if (Lives > 0)
 	{
 		--Lives;
 		UE_LOG(LogTemp, Warning, TEXT("Enemy has %i lives left"), Lives)
-		
+
+			RunningAnimations = EAnimations::TAKINGDAMAGE;
 	}
 	KillingEnemy();	
 }

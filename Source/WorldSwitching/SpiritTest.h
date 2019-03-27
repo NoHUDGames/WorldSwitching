@@ -83,13 +83,15 @@ public:
 		UAnimationAsset* GetAttackAnim() { return AttackAnim; };
 
 private:
-	/// Variables and enums that are related to animations
+	/// Variables that are related to animations
 	UAnimationAsset* IdleAnim;
 	UAnimationAsset* AttackAnim;
 	UAnimationAsset* WalkingAnim;
 	UAnimationAsset* DeathAnim;
 	UAnimationAsset* TakingDamageAnim;
 
-	/// end of variable and enums that are related to animations
+	FTimerHandle TakingDamageTimerHandler;
+	void TurnOffTakingDamageAnim();
+	/// end of variables that are related to animations
 
 };
