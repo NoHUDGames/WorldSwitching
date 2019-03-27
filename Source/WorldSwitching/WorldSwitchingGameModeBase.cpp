@@ -368,7 +368,7 @@ void AWorldSwitchingGameModeBase::TogglePhysicalSpiritMaterialProperties()
 
 void AWorldSwitchingGameModeBase::ToggleInstanceMeshes()
 {
-	/*
+
 	UE_LOG(LogTemp, Warning, TEXT("ToggleInstanceMeshes: Called"))
 
 	if (bIsSpiritWorld)
@@ -381,13 +381,13 @@ void AWorldSwitchingGameModeBase::ToggleInstanceMeshes()
 			MeshIndexAccumulator += NumberOfMaterials[i];
 
 			int MaterialElementIterator = 0;
-			for (int j = MeshIndexAccumulator - NumberOfMaterials[i]; j < NumberOfMaterials[i]; ++j)
+			for (int j = MeshIndexAccumulator - NumberOfMaterials[i]; j < MeshIndexAccumulator; ++j)
 			{
 				if (Meshes[i])
 				Meshes[i]->SetMaterial(MaterialElementIterator, SpiritMaterials[j]);
 
 				MaterialElementIterator++;
-				UE_LOG(LogTemp, Warning, TEXT("ToggleInstanceMeshes: Assigning material index %i, Material name: %s"), j, *SpiritMaterials[j]->GetDetailedInfo())
+				UE_LOG(LogTemp, Warning, TEXT("ToggleInstanceMeshes: Assigning material index %i"), j)
 			}
 		}
 	}
@@ -401,17 +401,19 @@ void AWorldSwitchingGameModeBase::ToggleInstanceMeshes()
 			if(NumberOfMaterials[i])
 			MeshIndexAccumulator += NumberOfMaterials[i];
 
+			UE_LOG(LogTemp, Warning, TEXT("MeshIndexAccumulator = %i"), MeshIndexAccumulator)
+
 			int MaterialElementIterator = 0;
-			for (int j = MeshIndexAccumulator - NumberOfMaterials[i]; j < NumberOfMaterials[i]; ++j)
+			for (int j = MeshIndexAccumulator - NumberOfMaterials[i]; j < MeshIndexAccumulator; ++j)
 			{	
 				if(Meshes[i])
 				Meshes[i]->SetMaterial(MaterialElementIterator, PhysicalMaterials[j]);
 				else UE_LOG(LogTemp, Warning, TEXT("ToggleInstanceMeshes: NO MESHES FOUND"))
 
 					MaterialElementIterator++;
-					UE_LOG(LogTemp, Warning, TEXT("ToggleInstanceMeshes: Assigning material index %i, Material name: %s"), j, *SpiritMaterials[j]->GetDetailedInfo())
+					UE_LOG(LogTemp, Warning, TEXT("ToggleInstanceMeshes: Assigning material index %i"), j)
 			}
 		}
 	}
-	*/
+
 }
