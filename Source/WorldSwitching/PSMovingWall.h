@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "PSWorldActor.h"
-#include "Components/TimelineComponent.h"
+#include "TimerManager.h"
 #include "PSMovingWall.generated.h"
 
 /**
@@ -37,11 +37,18 @@ public:
 	UPROPERTY(EditAnywhere)
 		float MovementSpeed;
 
+	UPROPERTY(EditAnywhere)
+		float PauseDuration;
+
 	UPROPERTY(VisibleAnywhere)
 		FVector MovementDirection;
 
 	void MovingActor();
 
+	void setIsReverse();
+
 private:
 	bool isReverse{ false };
+	FTimerHandle PauseTimerHandler;
+	bool TimerRunning{ false };
 };

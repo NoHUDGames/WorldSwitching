@@ -2,11 +2,13 @@
 
 #include "PSMovingWall.h"
 
+
 APSMovingWall::APSMovingWall()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	PauseDuration = 1.f;
 }
 
 void APSMovingWall::BeginPlay()
@@ -23,27 +25,50 @@ void APSMovingWall::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	MovingActor();
+
 }
 
 void APSMovingWall::MovingActor()
 {
 	if (isReverse == false)
 	{
-		SetActorLocation(GetActorLocation() + (MovementDirection * MovementSpeed));
+		
 
-		if (GetActorLocation().Equals(EndLocation, 1.f))
+		if (GetActorLocation().Equals(EndLocation, 10.f))
 		{
-			isReverse = true;
+			setIsReverse();
+			
+		}
+		else
+		{
+			SetActorLocation(GetActorLocation() + (MovementDirection * MovementSpeed));
 		}
 	}
 	else if (isReverse == true)
 	{
-		SetActorLocation(GetActorLocation() - (MovementDirection * MovementSpeed));
+		
 
-		if (GetActorLocation().Equals(StartLocation, 1.f))
+		if (GetActorLocation().Equals(StartLocation, 10.f))
 		{
-			isReverse = false;
+			if (TimerRunning == false)
+			{
+				TimerRunning = true;
+				GetWorldTimerManager().SetTimer(PauseTimerHandler, this, &APSMovingWall::setIsReverse, 1.f, false);
+			}
 		}
+		else
+		{
+			SetActorLocation(GetActorLocation() - (MovementDirection * MovementSpeed));
+		}
+			
 	}
 	
 }
+
+void APSMovingWall::setIsReverse()
+{
+	isReverse = !isReverse;
+	TimerRunning = false;
+}
+
+
