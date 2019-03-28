@@ -147,6 +147,8 @@ void ASpiritTest::KillingEnemy()
 		UE_LOG(LogTemp, Warning, TEXT("Enemy is dying!"))
 
 		GetMesh()->SetHiddenInGame(true);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		BoxCollider->DestroyComponent(true);
 
 		/// Kills off the controller of the pawn
 		GetController()->Destroy();		
@@ -162,7 +164,7 @@ void ASpiritTest::KillingEnemy()
 void ASpiritTest::SpawnHead()
 {	
 	HeadAfterDeath->SetHiddenInGame(false);
-	HeadAfterDeath->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	HeadAfterDeath->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	HeadAfterDeath->SetSimulatePhysics(true);
 
 	BlueSmoke->Deactivate();
