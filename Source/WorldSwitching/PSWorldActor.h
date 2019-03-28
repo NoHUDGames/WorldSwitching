@@ -8,7 +8,9 @@
 #include "Components/SceneComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialLayersFunctions.h"
+#include "Materials/MaterialInstance.h"
 #include "Math/Color.h"
+#include "OurEnums.h"
 #include "PSWorldActor.generated.h"
 
 UCLASS()
@@ -24,7 +26,15 @@ public:
 	USceneComponent* SceneRoot = nullptr;
 
 	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* Mesh = nullptr;
+	UStaticMeshComponent* MeshPhysical = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* MeshSpirit = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* MeshBoth = nullptr;
+
+
 
 	UMaterialInstanceDynamic* DynamicMaterial = nullptr;
 
@@ -32,7 +42,17 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Dynamic Material Settings")
 	bool bCanChangeMaterial;
 
-	
+	UPROPERTY(EditAnywhere, Category = WorldChange)
+	EWorldChangeType WorldChangeType;
+
+	UPROPERTY(EditAnywhere, Category = WorldChange)
+	TArray<UMaterialInterface*> PhysicalMaterials;
+	UPROPERTY(EditAnywhere, Category = WorldChange)
+	TArray<UMaterialInterface*> SpiritMaterials;
+
+	int NumberOfMaterials;
+
+
 	FLinearColor PhysicalColor;
 	float PhysicalGlow;
 	float PhysicalOpacity;
@@ -49,6 +69,9 @@ public:
 	void ActivatePhysicalMaterialProperties();
 
 	void ActivateSpiritMaterialProperties();
+
+	void AssignSpiritMaterials();
+	void AssignPhysicalMaterials();
 
 protected:
 	// Called when the game starts or when spawned

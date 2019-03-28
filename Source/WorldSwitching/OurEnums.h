@@ -80,6 +80,14 @@ enum class EAnimations : uint8
 	TAKINGDAMAGE		UMETA(DisplayName = "TakingDamage")
 };
 
+UENUM(BlueprintType)
+enum class EWorldChangeType : uint8
+{
+	ToggleComponents		UMETA(DisplayName = "Toggle Components"),
+	ChangeMaterials			UMETA(DisplayName = "ChangeMaterials"),
+	None
+};
+
 UCLASS()
 class WORLDSWITCHING_API UOurEnums : public UUserDefinedEnum
 {

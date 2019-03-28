@@ -9,11 +9,15 @@ APSWorldActor::APSWorldActor()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceenRoot"));
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	MeshPhysical = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshPhysical"));
+	MeshSpirit = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshSpirit"));
+	MeshBoth = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshBoth"));
 
 	RootComponent = SceneRoot;
 
-	Mesh->SetupAttachment(RootComponent);
+	MeshPhysical->SetupAttachment(RootComponent);
+	MeshSpirit->SetupAttachment(RootComponent);
+	MeshBoth->SetupAttachment(RootComponent);
 
 
 }
@@ -23,7 +27,16 @@ void APSWorldActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	DynamicMaterial = Mesh->CreateDynamicMaterialInstance(0);
+	if (SpiritMaterials.Num() == PhysicalMaterials.Num()) NumberOfMaterials = SpiritMaterials.Num();
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UNEQUAL NUMBER OF MATERIALS IN  %s"), *GetActorLabel())
+		Destroy();
+	}
+
+	/*
+	if (MeshBoth->GetStaticMesh())
+	DynamicMaterial = MeshBoth->CreateDynamicMaterialInstance(0);
 
 	if (DynamicMaterial)
 	{
@@ -31,6 +44,7 @@ void APSWorldActor::BeginPlay()
 		PhysicalGlow = DynamicMaterial->K2_GetScalarParameterValue("Glow");
 		PhysicalOpacity = DynamicMaterial->K2_GetScalarParameterValue("Opacity");
 	}
+	*/
 }
 
 // Called every frame
@@ -40,6 +54,8 @@ void APSWorldActor::Tick(float DeltaTime)
 
 }
 
+
+//Skal slettes
 void APSWorldActor::ActivatePhysicalMaterialProperties()
 {
 	DynamicMaterial->SetVectorParameterValue("BaseColor", PhysicalColor);
@@ -47,9 +63,27 @@ void APSWorldActor::ActivatePhysicalMaterialProperties()
 	DynamicMaterial->SetScalarParameterValue("Opacity", PhysicalOpacity);
 }
 
+//Skal slettes
 void APSWorldActor::ActivateSpiritMaterialProperties()
 {
 	DynamicMaterial->SetVectorParameterValue("BaseColor", SpiritColor);
 	DynamicMaterial->SetScalarParameterValue("Glow", SpiritGlow);
 	DynamicMaterial->SetScalarParameterValue("Opacity", SpiritOpacity);
+}
+
+void APSWorldActor::AssignSpiritMaterials()
+{
+	for (int i = 0; i < NumberOfMaterials; ++i)
+	{
+		MeshBoth->SetMaterial(i, SpiritMaterials[i]);
+	}
+
+}
+void APSWorldActor::AssignPhysicalMaterials()
+{
+	for (int i = 0; i < NumberOfMaterials; ++i)
+	{
+		MeshBoth->SetMaterial(i, PhysicalMaterials[i]);
+	}
+
 }

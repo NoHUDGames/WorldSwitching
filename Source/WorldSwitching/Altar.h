@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "PSWorldActor.h"
 #include "Components/SphereComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "WorldSwitchingGameInstance.h"
 #include "Altar.generated.h"
 
@@ -28,7 +29,19 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere)
-	USphereComponent* ArtifactDropoffCollider {nullptr};
+		USphereComponent* ArtifactDropoffCollider {
+		nullptr
+	};
+
+	USkeletalMeshComponent* GoddessMesh = nullptr;
+
+	UFUNCTION(BlueprintCallable)
+		void SetGoddessMeshComponent(USkeletalMeshComponent* ComponentToGet) {
+		GoddessMesh = ComponentToGet;
+		
+		if(GoddessMesh) UE_LOG(LogTemp, Warning, TEXT("Got GoddessMeshComponent"))
+
+};
 
 	UWorldSwitchingGameInstance* GameInstance = nullptr;
 

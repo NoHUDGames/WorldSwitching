@@ -99,6 +99,8 @@ void UWorldSwitchingGameInstance::GatherSpawnLocations()
 	}
 }
 
+//SpawnPickups som man mister når man dør
+//Må addes både i Locations og bool og gis en index samt skrus på bKeepTrackOf
 
 
 void UWorldSwitchingGameInstance::SpawnPickups()
@@ -112,6 +114,7 @@ void UWorldSwitchingGameInstance::SpawnPickups()
 			if (!LevelPickupParameters[Level]->ArtifactPickedUp[i])
 			{
 				AArtifacts* Artifact = World->SpawnActor<AArtifacts>(ArtifactToSpawn, LevelPickupParameters[Level]->ArtifactLocations[i], FRotator(0));
+				Artifact->bKeepTrackOf = true;
 				Artifact->SetArrayIndex(i);
 			}
 		}
@@ -135,6 +138,26 @@ void UWorldSwitchingGameInstance::RegisterPickUp(int index, AActor* OtherActor)
 	else if (Cast<AS_PickupShield>(OtherActor))
 	LevelPickupParameters[Level]->ShieldPickedUp[index] = true;
 
+}
+
+// Hva hvis man tar med artifacts fra ett level og dør i et annet?
+// Lage en variabel PickedUpInLevel, og hvis den kommer fra et annet level, gi den en ny index,
+// ny PickedUpInLevel verdi, og legge den til i Arrayene / Lage en ny TArray som lagrer posisjon.
+// Vi skal antageligvis ikke kunne ta med seg artifacts til et nytt level
+
+void UWorldSwitchingGameInstance::SetArtifactPickedUp(int index)
+{
+	if (GetWorld()->GetMapName().Contains("1"))
+	{
+
+		Level_1PickupParameters.ArtifactPickedUp[index] = false;
+	}
+
+	if (GetWorld()->GetMapName().Contains("2"))
+	{
+
+		Level_2PickupParameters.ArtifactPickedUp[index] = false;
+	}
 }
 
 

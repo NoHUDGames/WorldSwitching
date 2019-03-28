@@ -105,7 +105,7 @@ public:
 	//For ParticleEffects that have a spiritworld and physicalworld component
 	void ToggleParticleEffects();
 
-	void TogglePhysicalSpiritMaterialProperties();
+	void TogglePhysicalSpiritActors();
 
 	
 

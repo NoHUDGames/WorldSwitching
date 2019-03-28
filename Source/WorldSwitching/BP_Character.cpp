@@ -405,6 +405,7 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 		UE_LOG(LogTemp, Warning, TEXT("You're colliding with an artifact."))
 
 		++NumberOfHoldingArtifacts;
+		PickedUpArtifactsIndexes.Add(PickedUpActor->GetArrayIndex());
 
 		if (PickedUpActor->bKeepTrackOf)
 		GameInstance->RegisterPickUp(PickedUpActor->GetArrayIndex(), OtherActor);
@@ -487,16 +488,32 @@ void ABP_Character::DeathSequence()
 
 	FVector ArtifactSpawnArea = GetActorLocation();
 
-	int Amount = NumberOfHoldingArtifacts;
 
-	for (int i = 0; i < Amount; ++i)
+	for (int i = 0; i < NumberOfHoldingArtifacts; ++i)
 	{
+		AArtifacts* SpawnedArtifact = nullptr;
 		ArtifactSpawnArea.X += FMath::RandRange(-200.f, 200.f);
 		ArtifactSpawnArea.Y += FMath::RandRange(-200.f, 200.f);
 
-		//if (World)
-		World->SpawnActor<AArtifacts>(ArtifactsToSpawn, ArtifactSpawnArea, FRotator(0.f, 0.f, 0.f));
+		SpawnedArtifact = World->SpawnActor<AArtifacts>(ArtifactsToSpawn, ArtifactSpawnArea, FRotator(0.f, 0.f, 0.f));
+		if (PickedUpArtifactsIndexes.IsValidIndex(i))
+		{
+			SpawnedArtifact->SetArrayIndex(PickedUpArtifactsIndexes[i]);
+			UE_LOG(LogTemp, Warning, TEXT("PickedUpArtifactsIndex is valid with content %i"), PickedUpArtifactsIndexes[i])
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("PickedUpArtifactsIndex is NOT valid"))
+			UE_LOG(LogTemp, Warning, TEXT("PickedUpArtifactsIndex contains %i elements"), PickedUpArtifactsIndexes.Num())
+
+		}
+
+		SpawnedArtifact->bKeepTrackOf = true;
+		//GameInstance->SetArtifactPickedUp(PickedUpArtifactsIndexes[i]);
+		
 	}
+	NumberOfHoldingArtifacts = 0;
+	PickedUpArtifactsIndexes.Empty();
 
 	PlayerController->Artifacts = 0;
 

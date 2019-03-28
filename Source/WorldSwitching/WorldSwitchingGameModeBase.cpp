@@ -108,9 +108,9 @@ void AWorldSwitchingGameModeBase::ToggleAll()
 {
 	TogglePhysicalWorldActors();
 	ToggleSpiritWorldActors();
+	TogglePhysicalSpiritActors();
 	ToggleParticleEffects();
 	ToggleLastingCameraEffects();
-	TogglePhysicalSpiritMaterialProperties();
 	ToggleInstanceMeshes();
 }
 
@@ -344,35 +344,68 @@ void AWorldSwitchingGameModeBase::ToggleLastingCameraEffects()
 
 }
 
-void AWorldSwitchingGameModeBase::TogglePhysicalSpiritMaterialProperties()
+void AWorldSwitchingGameModeBase::TogglePhysicalSpiritActors()
 {
-
-
-	for (TActorIterator<APSWorldActor> PSActorItr(GetWorld()); PSActorItr; ++PSActorItr)
+	if (bIsSpiritWorld)
 	{
-		APSWorldActor *PSActor = *PSActorItr;
-
-		if (!PSActor->bCanChangeMaterial) continue;
-
-		else if (bIsSpiritWorld)
+		for (TActorIterator<APSWorldActor> PSActorItr(GetWorld()); PSActorItr; ++PSActorItr)
 		{
-			PSActor->ActivateSpiritMaterialProperties();
+			APSWorldActor *PSActor = *PSActorItr;
+
+			if (PSActor->WorldChangeType == EWorldChangeType::None) continue;
+
+			if (PSActor->WorldChangeType == EWorldChangeType::ToggleComponents)
+			{
+				PSActor->MeshPhysical->SetHiddenInGame(true);
+				PSActor->MeshSpirit->SetHiddenInGame(false);
+			}
+
+			if (PSActor->WorldChangeType == EWorldChangeType::ChangeMaterials)
+			{
+				PSActor->AssignSpiritMaterials();
+			}
 		}
 
-		else if (!bIsSpiritWorld)
+		for (TActorIterator<AAltar> AltarItr(GetWorld()); AltarItr; ++AltarItr)
 		{
-			PSActor->ActivatePhysicalMaterialProperties();
+			AAltar *Altar = *AltarItr;
+			Altar->GoddessMesh->SetHiddenInGame(false);
+		}
+
+
+	}
+	else
+	{
+		for (TActorIterator<APSWorldActor> PSActorItr(GetWorld()); PSActorItr; ++PSActorItr)
+		{
+			APSWorldActor *PSActor = *PSActorItr;
+
+			if (PSActor->WorldChangeType == EWorldChangeType::None) continue;
+
+			if (PSActor->WorldChangeType == EWorldChangeType::ToggleComponents)
+			{
+				PSActor->MeshPhysical->SetHiddenInGame(false);
+				PSActor->MeshSpirit->SetHiddenInGame(true);
+			}
+
+			if (PSActor->WorldChangeType == EWorldChangeType::ChangeMaterials)
+			{
+				PSActor->AssignPhysicalMaterials();
+			}
+		}
+
+		for (TActorIterator<AAltar> AltarItr(GetWorld()); AltarItr; ++AltarItr)
+		{
+			AAltar *Altar = *AltarItr;
+			Altar->GoddessMesh->SetHiddenInGame(true);
 		}
 	}
 }
 
+//Siden det er begrenset hvor mange meshes vi skal instantiate, setter jeg en if(bIsSpiritWorld) for hvert element
+//i motsetning til de andre actorene som det kan bli mange flere av. Vil ikke teste midt i der.
 void AWorldSwitchingGameModeBase::ToggleInstanceMeshes()
 {
-
-	UE_LOG(LogTemp, Warning, TEXT("ToggleInstanceMeshes: Called"))
-
-	if (bIsSpiritWorld)
-	{
 		int MeshIndexAccumulator = 0;
 
 		for (int i = 0; i < Meshes.Num(); ++i)
@@ -384,36 +417,12 @@ void AWorldSwitchingGameModeBase::ToggleInstanceMeshes()
 			for (int j = MeshIndexAccumulator - NumberOfMaterials[i]; j < MeshIndexAccumulator; ++j)
 			{
 				if (Meshes[i])
-				Meshes[i]->SetMaterial(MaterialElementIterator, SpiritMaterials[j]);
+
+					if (bIsSpiritWorld) Meshes[i]->SetMaterial(MaterialElementIterator, SpiritMaterials[j]);
+					else Meshes[i]->SetMaterial(MaterialElementIterator, PhysicalMaterials[j]);
 
 				MaterialElementIterator++;
 				UE_LOG(LogTemp, Warning, TEXT("ToggleInstanceMeshes: Assigning material index %i"), j)
 			}
 		}
-	}
-
-	if (!bIsSpiritWorld)
-	{
-		int MeshIndexAccumulator = 0;
-
-		for (int i = 0; i < Meshes.Num(); ++i)
-		{
-			if(NumberOfMaterials[i])
-			MeshIndexAccumulator += NumberOfMaterials[i];
-
-			UE_LOG(LogTemp, Warning, TEXT("MeshIndexAccumulator = %i"), MeshIndexAccumulator)
-
-			int MaterialElementIterator = 0;
-			for (int j = MeshIndexAccumulator - NumberOfMaterials[i]; j < MeshIndexAccumulator; ++j)
-			{	
-				if(Meshes[i])
-				Meshes[i]->SetMaterial(MaterialElementIterator, PhysicalMaterials[j]);
-				else UE_LOG(LogTemp, Warning, TEXT("ToggleInstanceMeshes: NO MESHES FOUND"))
-
-					MaterialElementIterator++;
-					UE_LOG(LogTemp, Warning, TEXT("ToggleInstanceMeshes: Assigning material index %i"), j)
-			}
-		}
-	}
-
 }

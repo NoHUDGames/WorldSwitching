@@ -16,8 +16,6 @@ AAltar::AAltar()
 	ArtifactDropoffCollider->SetupAttachment(RootComponent);
 	ArtifactDropoffCollider->SetSphereRadius(300.f);
 
-	//ArtifactDropoffCollider->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel4);
-	//ArtifactDropoffCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 }
 
 // Called when the game starts or when spawned
@@ -41,7 +39,6 @@ void AAltar::ReceivingArtifacts(int PlayerHoldingArtifacts)
 	GameInstance->SetAltarArtifacts(DroppedOffArtifacts);
 	
 	OpenNewPortals();
-	UE_LOG(LogTemp, Warning, TEXT("Artifacts dropped off at the altar now: %i"), DroppedOffArtifacts)
 }
 
 void AAltar::OpenNewPortals()

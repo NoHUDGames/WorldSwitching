@@ -202,7 +202,8 @@ public:
 	
 	int GetLives() {return Lives;};
 	int GetArtifacts() {return NumberOfHoldingArtifacts;};
-	
+	TArray<int> PickedUpArtifactsIndexes;
+
 	UFUNCTION(BlueprintCallable)
 	int GetShields() { return NumberOfShields; };
 

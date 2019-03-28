@@ -43,6 +43,7 @@ public:
 	FLevelPickupParameters Level_2PickupParameters;
 
 
+
 	
 
 private:
@@ -86,6 +87,7 @@ public:
 
 	void SetPlayerHealth(int PlayerHealth);
 	void SetPlayerArtifacts(int PlayerArtifacts);
+	void SetArtifactPickedUp(int index);
 
 	int GetPlayerHealth();
 	int GetPlayerArtifacts();
