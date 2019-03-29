@@ -393,12 +393,12 @@ void AWorldSwitchingGameModeBase::TogglePhysicalSpiritActors()
 				PSActor->AssignPhysicalMaterials();
 			}
 		}
-
 		for (TActorIterator<AAltar> AltarItr(GetWorld()); AltarItr; ++AltarItr)
 		{
 			AAltar *Altar = *AltarItr;
 			Altar->GoddessMesh->SetHiddenInGame(true);
 		}
+
 	}
 }
 
