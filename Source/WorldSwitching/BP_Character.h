@@ -79,7 +79,7 @@ public:
 	/// end of movement functions
 
 
-	/// All these functions and variables deal with the players kicking
+	/// All these functions and variables deal with the players combat
 	void Kicking();
 	void ResetKickingCombo();
 	
@@ -136,7 +136,10 @@ public:
 	UFUNCTION()
 		void OnKickingTimelineFinished();
 
-	/// end of functions and variables for kicking
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Combat")
+	bool isTargetingEnemy{ false };
+
+	/// end of functions and variables for combat
 
 
 	/// These functions turns on and off the collision with objects that have the Interaction collision channel on them
