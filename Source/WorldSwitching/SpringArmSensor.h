@@ -10,6 +10,7 @@
 #include "PSWorldActor.h"
 #include "PWorldActor.h"
 #include "SWorldActor.h"
+#include "Altar.h"
 #include "SpringArmSensor.generated.h"
 
 UCLASS()
@@ -24,10 +25,10 @@ public:
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* Collider = nullptr;
 
-	TArray<UMaterialInstanceDynamic*> DynamicMaterialsPrimary;
-	TArray<UMaterialInstanceDynamic*> DynamicMaterialsSecondary;
+	UMaterialInstanceDynamic* DynamicMaterial;
 
-	TArray<UMaterialInterface*> OriginalMaterials;
+	TArray<UMaterialInterface*> OriginalMaterialsPrimary;
+	TArray<UMaterialInterface*> OriginalMaterialsSecondary;
 
 	UPROPERTY(EditAnywhere)
 	UMaterialInterface* DummyMaterial = nullptr;
@@ -44,10 +45,10 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void FadeUp();
 
-
-	APSWorldActor* CheckForPSWorldActor(AActor* OtherActor);
-
-	void test();
+	//Return true if Dynamic Materials have been created
+	bool CheckForPSWorldActor(AActor* OtherActor);
+	bool CheckForPWorldActor(AActor* OtherActor);
+	bool CheckForSWorldActor(AActor* OtherActor);
 
 protected:
 	// Called when the game starts or when spawned
