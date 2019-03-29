@@ -3,6 +3,7 @@
 #include "SpringArmSensor.h"
 
 #include "Components/StaticMeshComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ASpringArmSensor::ASpringArmSensor()
@@ -40,7 +41,7 @@ void ASpringArmSensor::FadeDownProxy(UPrimitiveComponent * OverlappedComp, AActo
 {
 	if (CheckForPSWorldActor(OtherActor) || CheckForPWorldActor(OtherActor) || CheckForSWorldActor(OtherActor))
 	{
-
+		FadeDownTrigger();
 	}
 }
 
@@ -167,4 +168,18 @@ bool ASpringArmSensor::CheckForSWorldActor(AActor* OtherActor)
 	}
 	else return false;
 
+}
+
+void ASpringArmSensor::FadeDown(float TimeLine)
+{
+	DynamicMaterial->SetScalarParameterValue("Opacity", UKismetMathLibrary::Lerp(
+		FadeDownStart, FadeDownEnd, TimeLine)
+	);
+}
+
+void ASpringArmSensor::FadeUp(float TimeLine)
+{
+	DynamicMaterial->SetScalarParameterValue("Opacity", UKismetMathLibrary::Lerp(
+		FadeUpStart, FadeUpEnd, TimeLine)
+	);
 }

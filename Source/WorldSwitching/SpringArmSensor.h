@@ -13,6 +13,13 @@
 #include "Altar.h"
 #include "SpringArmSensor.generated.h"
 
+UENUM()
+enum OneOrTwoMeshComponent
+{
+	One,
+	Two
+};
+
 UCLASS()
 class WORLDSWITCHING_API ASpringArmSensor : public AActor
 {
@@ -40,10 +47,23 @@ public:
 	void FadeUpProxy(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void FadeDown();
+		void FadeDownTrigger();
+
+	UFUNCTION(BluePrintCallable)
+		void FadeDown(float TimeLine);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void FadeUp();
+		void FadeUpTrigger();
+
+	UFUNCTION(BluePrintCallable)
+		void FadeUp(float TimeLine);
+
+	float FadeUpStart = 0.f;
+	float FadeUpEnd = 1.f;
+	float FadeDownStart = 1.f;
+	float FadeDownEnd = 0.f;
+
+	void ReapplyOriginalMaterials();
 
 	//Return true if Dynamic Materials have been created
 	bool CheckForPSWorldActor(AActor* OtherActor);
