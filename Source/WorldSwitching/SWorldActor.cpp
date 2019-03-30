@@ -57,7 +57,9 @@ void ASWorldActor::TimeLineLightUp(float TimeLine)
 
 void ASWorldActor::ReapplyOriginalMaterials()
 {
-	SetActorHiddenInGame(true);
+
+	if (bCurrentIsSpiritWorld == GameModeRef->bIsSpiritWorld) SetActorHiddenInGame(true);
+
 	GameModeRef->DecrementLitUpBySensing();
 	for (int i = 0; i < NumberOfMaterials; ++i)
 	{
@@ -68,6 +70,7 @@ void ASWorldActor::ReapplyOriginalMaterials()
 
 void ASWorldActor::LightUpActorWhenSensed()
 {
+	bCurrentIsSpiritWorld = GameModeRef->bIsSpiritWorld;
 	GameModeRef->IncrementLitUpBySensing();
 	ApplyDynamicMaterials();
 	SetActorHiddenInGame(false);

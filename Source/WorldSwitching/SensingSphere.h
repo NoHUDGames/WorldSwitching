@@ -27,7 +27,7 @@ public:
 		UStaticMeshComponent* BallMesh = nullptr;
 
 	FVector Scale = { 1.f, 1.f, 1.f };
-	float SpeedScale = 90;
+	float SpeedScale = 110;
 
 	FTimerHandle KillTimer;
 

@@ -86,7 +86,7 @@ void AWorldSwitchingGameModeBase::ChangeWorldsProxy()
 
 void AWorldSwitchingGameModeBase::ChangeWorlds(bool bShowTransitionEffects)
 {
-	if (LitUpBySensing > 0 || bSphereIsRunning) return;
+	if (bSphereIsRunning) return;
 
 	bIsSpiritWorld = !bIsSpiritWorld;
 	

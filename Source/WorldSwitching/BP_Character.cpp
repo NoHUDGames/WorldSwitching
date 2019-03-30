@@ -452,7 +452,10 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 				Spirit->DecrementingLives();
 			}
 		}
-	
+		if (Spirit->Lives <= 0 && isTargetingEnemy == true)
+		{
+			isTargetingEnemy = false;
+		}
 	}
 
 	else if (OtherActor->IsA(APShamanEnemy::StaticClass()))
@@ -471,6 +474,10 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 				UE_LOG(LogTemp, Warning, TEXT("Double damage"))
 				Shaman->DecrementingLives();
 			}
+		}
+		if (Shaman->Lives <= 0 && isTargetingEnemy == true)
+		{
+			isTargetingEnemy = false;
 		}
 	}
 
@@ -529,6 +536,7 @@ void ABP_Character::RespawnSequence()
 	SetActorEnableCollision(true);
 	SetActorLocation(RespawnLocation);
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
+	isTargetingEnemy = false;
 }
 
 

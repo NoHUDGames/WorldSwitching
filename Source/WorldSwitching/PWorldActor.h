@@ -59,6 +59,7 @@ public:
 		UMaterialInterface* DummyLightUpMaterial = nullptr;
 
 
+	bool bCurrentIsSpiritWorld = false;
 	//MAIN FUNCTION
 	void LightUpActorWhenSensed();
 

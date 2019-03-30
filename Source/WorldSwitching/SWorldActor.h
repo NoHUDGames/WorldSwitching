@@ -51,6 +51,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void ReapplyOriginalMaterials();
 
+	bool bCurrentIsSpiritWorld = false;
+
 	TArray<UMaterialInterface*> OriginalMaterial;
 	TArray<UMaterialInstanceDynamic*> DynamicMaterials;
 
