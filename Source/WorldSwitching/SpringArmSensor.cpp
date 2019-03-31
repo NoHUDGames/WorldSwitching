@@ -21,8 +21,6 @@ ASpringArmSensor::ASpringArmSensor()
 void ASpringArmSensor::BeginPlay()
 {
 	Super::BeginPlay();
-	Collider->OnComponentBeginOverlap.AddDynamic(this, &ASpringArmSensor::FadeDownProxy);
-	Collider->OnComponentEndOverlap.AddDynamic(this, &ASpringArmSensor::FadeUpProxy);
 }
 
 // Called every frame
@@ -32,6 +30,7 @@ void ASpringArmSensor::Tick(float DeltaTime)
 
 }
 
+/*
 void ASpringArmSensor::FadeUpProxy(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	
@@ -44,7 +43,7 @@ void ASpringArmSensor::FadeDownProxy(UPrimitiveComponent * OverlappedComp, AActo
 		FadeDownTrigger();
 	}
 }
-
+*/
 
 bool ASpringArmSensor::CheckForPSWorldActor(AActor* OtherActor)
 {
