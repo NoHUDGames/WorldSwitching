@@ -92,10 +92,12 @@ void AWorldSwitchingGameModeBase::ChangeWorlds(bool bShowTransitionEffects)
 	
 	if (!bIsSpiritWorld && TestPhysicalOverlaps()) return;
 
+	
 	else if (bIsSpiritWorld)
 	{
 		TestSpiritOverlaps();
 	}
+	
 	
 	PlayerPawn->bIsSpiritWorld = bIsSpiritWorld;
 
@@ -417,9 +419,10 @@ void AWorldSwitchingGameModeBase::ToggleInstanceMeshes()
 			for (int j = MeshIndexAccumulator - NumberOfMaterials[i]; j < MeshIndexAccumulator; ++j)
 			{
 				if (Meshes[i])
-
+				{
 					if (bIsSpiritWorld) Meshes[i]->SetMaterial(MaterialElementIterator, SpiritMaterials[j]);
 					else Meshes[i]->SetMaterial(MaterialElementIterator, PhysicalMaterials[j]);
+				}
 
 				MaterialElementIterator++;
 				UE_LOG(LogTemp, Warning, TEXT("ToggleInstanceMeshes: Assigning material index %i"), j)
