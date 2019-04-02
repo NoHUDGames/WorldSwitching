@@ -30,7 +30,7 @@ ASpiritTest::ASpiritTest()
 		IdleAnim = idle_Anim.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimationAsset> attack_Anim
+	static ConstructorHelpers::FObjectFinder<UAnimSequence> attack_Anim
 	(TEXT("AnimSequence'/Game/Meshes/Characters/SpiritEnemy/Animations/Lil_Blub_Attack.Lil_Blub_Attack'"));
 	AttackAnim = attack_Anim.Object;
 

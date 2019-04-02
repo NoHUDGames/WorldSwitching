@@ -9,6 +9,7 @@
 #include "OurEnums.h"
 #include "Engine/StaticMeshActor.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Animation/AnimSequence.h"
 #include "SpiritTest.generated.h"
 
 UCLASS()
@@ -80,12 +81,13 @@ public:
 		UParticleSystemComponent* BlueSmoke = nullptr;
 
 	UFUNCTION(BlueprintCallable)
-		UAnimationAsset* GetAttackAnim() { return AttackAnim; };
+		UAnimSequence* GetAttackAnim() { return AttackAnim; };
+
 
 private:
 	/// Variables that are related to animations
 	UAnimationAsset* IdleAnim;
-	UAnimationAsset* AttackAnim;
+	UAnimSequence* AttackAnim;
 	UAnimationAsset* WalkingAnim;
 	UAnimationAsset* DeathAnim;
 	UAnimationAsset* TakingDamageAnim;
