@@ -24,6 +24,8 @@ class WORLDSWITCHING_API ABP_Character : public ACharacter
 
 	class UTimelineComponent* KickingTimeline;
 	class UTimelineComponent* DashingTimeline;
+	class UTimelineComponent* FloatingHeadTimeline;
+	class UTimelineComponent* SwitchingHeadTimeline;
 
 public:
 	// Sets default values for this character's properties
@@ -218,6 +220,56 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float FallDurationForDeath{ 1.f };
 
+
+	/// Components, variables and functions related to head changing
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WorldSwitching")
+		UStaticMeshComponent* Head {
+		nullptr
+	};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WorldSwitching")
+		UStaticMeshComponent* Mask {
+		nullptr
+	};
+
+	UPROPERTY(EditAnywhere, Category = "WorldSwitching")
+		class UCurveFloat* fFloatingHeadCurve;
+
+	UPROPERTY(EditAnywhere, Category = "WorldSwitching")
+		float HeadFloatOffset;
+
+	/// declare our delegate function to be binded with TimelineFloatReturn()
+	FOnTimelineFloat InterpHeadFloatingFunction{};
+
+	/// Declare our delegate function to be binded with OnTimelineFinished()
+	FOnTimelineEvent HeadFloatingTimelineFinished{};
+
+	UFUNCTION()
+		void FloatingHeadTimelineFloatReturn(float value);
+
+	void SwitchingHead();
+
+	UPROPERTY(EditAnywhere, Category = "WorldSwitching")
+		class UCurveFloat* fHeadSwitchingCurve;
+
+	UPROPERTY(EditAnywhere, Category = "WorldSwitching")
+		float HeadSwitchingOffset;
+
+	/// declare our delegate function to be binded with TimelineFloatReturn()
+	FOnTimelineFloat InterpHeadSwitchingFunction{};
+
+	/// Declare our delegate function to be binded with OnTimelineFinished()
+	FOnTimelineEvent HeadSwitchingTimelineFinished{};
+
+	UFUNCTION()
+		void SwitchingHeadTimelineFloatReturn(float value);
+
+	UFUNCTION()
+		void OnHeadSwitchingTimelineFinished();
+
+	FVector HeadSocketLocation;
+	/// End of components, variable and functions related to head changing
+
 private:
 	
 	/// Variables and enums that are related to animations
@@ -249,4 +301,9 @@ private:
 	
 	float startedFalling;
 	float endedFalling;
+
+	FVector FloatingHeadStartLocation;
+	FVector FloatingHeadGoalLocation;
+
+	FVector SnapToJointLocation;
 };

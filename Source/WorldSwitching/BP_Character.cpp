@@ -24,7 +24,16 @@ ABP_Character::ABP_Character()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	Head = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CharacterHead"));
+	Head->SetupAttachment(GetMesh());
+	Head->SetMobility(EComponentMobility::Movable);
+
+	Mask = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CharacterMask"));
+	Mask->SetupAttachment(GetMesh());
+	Mask->SetMobility(EComponentMobility::Movable);
+
 	// Root component for kicking
+	// will be deleted once the right animations are created and we can connect it to a joint
 	KickingRotation = CreateDefaultSubobject<USceneComponent>(TEXT("KickingRotation"));
 	KickingRotation->SetupAttachment(RootComponent);
 	KickingRotation->Mobility = EComponentMobility::Movable;
@@ -84,6 +93,24 @@ ABP_Character::ABP_Character()
 	WalkingAnim = walking_Anim.Object;
 	/// finished setting up animation variables
 
+
+	/// Sets up the timeline for floating head
+	FloatingHeadTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineForFloatingHead"));
+
+	InterpHeadFloatingFunction.BindUFunction(this, FName("FloatingHeadTimelineFloatReturn"));
+	HeadFloatingTimelineFinished.BindUFunction(this, FName("OnFloatingHeadTimelineFinished"));
+
+	HeadFloatOffset = 20.f;
+	/// finished setting up the timeline for floating head
+
+	/// Sets up the timeline for switching head
+	SwitchingHeadTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineForHeadSwitching"));
+
+	InterpHeadSwitchingFunction.BindUFunction(this, FName("SwitchingHeadTimelineFloatReturn"));
+	HeadSwitchingTimelineFinished.BindUFunction(this, FName("OnHeadSwitchingTimelineFinished"));
+
+	HeadSwitchingOffset = 20.f;
+	/// finished setting up the timeline for switching head
 }
 
 // Called when the game starts or when spawned
@@ -121,8 +148,8 @@ void ABP_Character::BeginPlay()
 	}
 	/// Done setting up the BeginPlay values for the kicking timeline
 
-	/// Sets up the BeginPlay values for the kicking timeline
-	if (fKickingCurve)
+	/// Sets up the BeginPlay values for the dashing timeline
+	if (fDashingCurve)
 	{
 		/// Add the float curve to the timeline and connect it to the interpfunctions delegate
 		DashingTimeline->AddInterpFloat(fDashingCurve, InterpDashingFunction, FName("Alpha"));
@@ -130,11 +157,54 @@ void ABP_Character::BeginPlay()
 		DashingTimeline->SetTimelineFinishedFunc(DashingTimelineFinished);
 
 		/// Setting our timeline settings before we start it
-		KickingTimeline->SetLooping(false);
-		KickingTimeline->SetIgnoreTimeDilation(true);
+		DashingTimeline->SetLooping(false);
+		DashingTimeline->SetIgnoreTimeDilation(true);
 
 	}
-	/// Done setting up the BeginPlay values for the kicking timeline
+	/// Done setting up the BeginPlay values for the dashing timeline
+
+	/// Setting up BeginPlay values for world switching
+	/// Sets up the BeginPlay values for the floating head timeline
+	if (fFloatingHeadCurve)
+	{
+		FloatingHeadTimeline->AddInterpFloat(fFloatingHeadCurve, InterpHeadFloatingFunction, FName("Alpha"));
+
+		FloatingHeadTimeline->SetLooping(true);
+		FloatingHeadTimeline->SetIgnoreTimeDilation(true);
+
+		if (bIsSpiritWorld)
+		{
+			FloatingHeadStartLocation = Head->GetRelativeTransform().GetLocation();
+			Mask->SnapTo(GetMesh(), FName("HeadSocket"));
+		}
+		else
+		{
+			FloatingHeadStartLocation = Mask->GetRelativeTransform().GetLocation();
+			Head->SnapTo(GetMesh(), FName("HeadSocket"));
+		}
+
+		FloatingHeadGoalLocation = FloatingHeadStartLocation + FVector(0.f, 0.f, HeadFloatOffset);
+		
+	}
+	///Finished setting up the BeginPlay values for the floating head timeline
+
+	/// Sets up the BeginPlay values for the switching head timeline
+	if (fHeadSwitchingCurve)
+	{
+		/// Add the float curve to the timeline and connect it to the interpfunctions delegate
+		SwitchingHeadTimeline->AddInterpFloat(fHeadSwitchingCurve, InterpHeadSwitchingFunction, FName("Alpha"));
+		//Add our timeline finished function
+		SwitchingHeadTimeline->SetTimelineFinishedFunc(HeadSwitchingTimelineFinished);
+
+		/// Setting our timeline settings before we start it
+		SwitchingHeadTimeline->SetLooping(false);
+		SwitchingHeadTimeline->SetIgnoreTimeDilation(true);
+	}
+	///Finished setting up the BeginPlay values for the switching head timeline
+
+	HeadSocketLocation = GetMesh()->GetSocketLocation(FName("HeadSocket"));
+	/// Finished setting up the BeginPlay values for world switching
+	
 
 	GameInstance = Cast<UWorldSwitchingGameInstance>(GetWorld()->GetGameInstance());
 	PlayerController = Cast<AOurPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
@@ -155,6 +225,7 @@ void ABP_Character::Tick(float DeltaTime)
 	
 	PlayingAnimations();
 	
+	FloatingHeadTimeline->Play();
 }
 
 void ABP_Character::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
@@ -163,12 +234,10 @@ void ABP_Character::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 
 	if (GetCharacterMovement()->GetMovementName() == "Falling")
 	{
 		startedFalling = UGameplayStatics::GetRealTimeSeconds(GetWorld());
-		UE_LOG(LogTemp, Warning, TEXT("Started falling: %f"), startedFalling)
 	}
 	else if (GetCharacterMovement()->GetMovementName() == "Walking")
 	{
 		endedFalling = UGameplayStatics::GetRealTimeSeconds(GetWorld());	
-		UE_LOG(LogTemp, Warning, TEXT("Ended falling: %f"), endedFalling)
 
 		CalculateFallDuration();
 	}
@@ -249,8 +318,6 @@ void ABP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Interact", IE_Released, this, &ABP_Character::StopInteracting);
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &ABP_Character::Dashing);
 	PlayerInputComponent->BindAction("SenseWorld", IE_Pressed, this, &ABP_Character::SenseWorld);
-
-	
 
 }
 
@@ -347,7 +414,6 @@ void ABP_Character::OnKickingTimelineFinished()
 	
 	if (KickingTimeline->GetPlaybackPosition() != 0.0f)
 	{
-		GLog->Log("REVERSE");
 		KickingTimeline->Reverse();
 	}
 	else
@@ -586,6 +652,61 @@ void ABP_Character::SetArtifacts(int NewArtifacts)
 void ABP_Character::SetbIsSpiritWorld(bool state)
 {
 	bIsSpiritWorld = state;
+}
+
+void ABP_Character::FloatingHeadTimelineFloatReturn(float value)
+{
+	if (bIsSpiritWorld)
+	{
+		Head->SetRelativeLocation(FMath::Lerp(FloatingHeadStartLocation, FloatingHeadGoalLocation, value));
+	}
+	else
+	{
+		Mask->SetRelativeLocation(FMath::Lerp(FloatingHeadStartLocation, FloatingHeadGoalLocation, value));
+	}
+}
+
+void ABP_Character::SwitchingHead()
+{
+	
+	/// SwitchingHeadTimeline->Play();
+	SnapToJointLocation = GetMesh()->GetSocketLocation(FName("HeadSocket"));
+	if (bIsSpiritWorld)
+	{
+		Head->SetRelativeLocation(FloatingHeadStartLocation);
+		Head->SnapTo(GetMesh()); // resets the head and makes it not snap to the socket
+		Mask->SetWorldLocation(SnapToJointLocation);
+		Mask->SnapTo(GetMesh(), FName("HeadSocket"));
+	}
+	else
+	{
+		Mask->SetRelativeLocation(FloatingHeadStartLocation);
+		Mask->SnapTo(GetMesh()); // resets the mask and makes it not snap to the socket
+		Head->SetWorldLocation(SnapToJointLocation);
+		Head->SnapTo(GetMesh(), FName("HeadSocket"));
+	}
+}
+
+
+/// There's something wrong with this function
+void ABP_Character::SwitchingHeadTimelineFloatReturn(float value)
+{
+	
+	if (bIsSpiritWorld)
+	{
+		Head->SetWorldLocation(FMath::Lerp(HeadSocketLocation, FloatingHeadStartLocation, value));
+		Mask->SetWorldLocation(FMath::Lerp(FloatingHeadStartLocation, HeadSocketLocation, value));
+	}
+	else
+	{
+		Mask->SetWorldLocation(FMath::Lerp(HeadSocketLocation, FloatingHeadStartLocation, value));
+		Head->SetWorldLocation(FMath::Lerp(FloatingHeadStartLocation, HeadSocketLocation, value));
+	}
+}
+
+void ABP_Character::OnHeadSwitchingTimelineFinished()
+{
+	SwitchingHeadTimeline->Reverse();
 }
 
 void ABP_Character::Dashing()

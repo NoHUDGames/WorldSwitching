@@ -82,6 +82,9 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 void AWorldSwitchingGameModeBase::ChangeWorldsProxy()
 {
 	ChangeWorlds();
+
+	/// Switches between the head and the mask
+	PlayerPawn->SwitchingHead();
 }
 
 void AWorldSwitchingGameModeBase::ChangeWorlds(bool bShowTransitionEffects)
