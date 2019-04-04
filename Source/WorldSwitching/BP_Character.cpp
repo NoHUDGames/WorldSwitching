@@ -109,7 +109,9 @@ ABP_Character::ABP_Character()
 	InterpHeadSwitchingFunction.BindUFunction(this, FName("SwitchingHeadTimelineFloatReturn"));
 	HeadSwitchingTimelineFinished.BindUFunction(this, FName("OnHeadSwitchingTimelineFinished"));
 
-	HeadSwitchingOffset = 20.f;
+	HeadSwitchingOffset = 50.f;
+
+	
 	/// finished setting up the timeline for switching head
 }
 
@@ -175,12 +177,12 @@ void ABP_Character::BeginPlay()
 		if (bIsSpiritWorld)
 		{
 			FloatingHeadStartLocation = Head->GetRelativeTransform().GetLocation();
-			Mask->SnapTo(GetMesh(), FName("HeadSocket"));
+			Mask->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, EAttachmentRule::KeepRelative, false), FName("HeadSocket"));
 		}
 		else
 		{
 			FloatingHeadStartLocation = Mask->GetRelativeTransform().GetLocation();
-			Head->SnapTo(GetMesh(), FName("HeadSocket"));
+			Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, EAttachmentRule::KeepRelative, false), FName("HeadSocket"));
 		}
 
 		FloatingHeadGoalLocation = FloatingHeadStartLocation + FVector(0.f, 0.f, HeadFloatOffset);
@@ -202,7 +204,18 @@ void ABP_Character::BeginPlay()
 	}
 	///Finished setting up the BeginPlay values for the switching head timeline
 
-	HeadSocketLocation = GetMesh()->GetSocketLocation(FName("HeadSocket"));
+
+	if (bIsSpiritWorld)
+	{
+		HeadSocketLocation = Mask->GetRelativeTransform().GetLocation();
+		TrailingHeadLocation = Head->GetRelativeTransform().GetLocation();
+	}
+	else
+	{
+		HeadSocketLocation = Head->GetRelativeTransform().GetLocation();
+		TrailingHeadLocation = Mask->GetRelativeTransform().GetLocation();
+	}
+
 	/// Finished setting up the BeginPlay values for world switching
 	
 
@@ -669,44 +682,67 @@ void ABP_Character::FloatingHeadTimelineFloatReturn(float value)
 void ABP_Character::SwitchingHead()
 {
 	
-	/// SwitchingHeadTimeline->Play();
-	SnapToJointLocation = GetMesh()->GetSocketLocation(FName("HeadSocket"));
+
 	if (bIsSpiritWorld)
 	{
+		///SwitchingHeadTimeline->Play();
+
+		Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true)); // resets the head and makes it not snap to the socket
+		
 		Head->SetRelativeLocation(FloatingHeadStartLocation);
-		Head->SnapTo(GetMesh()); // resets the head and makes it not snap to the socket
-		Mask->SetWorldLocation(SnapToJointLocation);
-		Mask->SnapTo(GetMesh(), FName("HeadSocket"));
+		Head->SetRelativeRotation(FRotator(0.f,0.f, 0.f));
+
+		Mask->SetRelativeLocation(HeadSocketLocation);
+		Mask->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, true), FName("HeadSocket"));
+		Mask->SetRelativeRotation(FRotator(0.f, 0.f, -90.f));
+
 	}
 	else
 	{
+		///SwitchingHeadTimeline->Reverse();
+
+		Mask->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true)); // resets the mask and makes it not snap to the socket
+		
 		Mask->SetRelativeLocation(FloatingHeadStartLocation);
-		Mask->SnapTo(GetMesh()); // resets the mask and makes it not snap to the socket
-		Head->SetWorldLocation(SnapToJointLocation);
-		Head->SnapTo(GetMesh(), FName("HeadSocket"));
+		Mask->SetRelativeRotation(FRotator(0.f, 0.f, 0.f));
+		
+		Head->SetRelativeLocation(HeadSocketLocation);
+		Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, true), FName("HeadSocket"));
+		Head->SetRelativeRotation(FRotator(0.f, 0.f, -90.f));
+
+		
 	}
+
+	
 }
 
 
 /// There's something wrong with this function
 void ABP_Character::SwitchingHeadTimelineFloatReturn(float value)
 {
+	Head->SetRelativeLocation(FMath::Lerp(HeadSocketLocation, TrailingHeadLocation, value));
+	Mask->SetRelativeLocation(FMath::Lerp(TrailingHeadLocation, HeadSocketLocation, value));
 	
-	if (bIsSpiritWorld)
-	{
-		Head->SetWorldLocation(FMath::Lerp(HeadSocketLocation, FloatingHeadStartLocation, value));
-		Mask->SetWorldLocation(FMath::Lerp(FloatingHeadStartLocation, HeadSocketLocation, value));
-	}
-	else
-	{
-		Mask->SetWorldLocation(FMath::Lerp(HeadSocketLocation, FloatingHeadStartLocation, value));
-		Head->SetWorldLocation(FMath::Lerp(FloatingHeadStartLocation, HeadSocketLocation, value));
-	}
 }
 
 void ABP_Character::OnHeadSwitchingTimelineFinished()
 {
-	SwitchingHeadTimeline->Reverse();
+	if (bIsSpiritWorld)
+	{
+		Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true)); // resets the head and makes it not snap to the socket
+		Head->SetRelativeRotation(FRotator(0.f, 0.f, 0.f));
+		Mask->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, true), FName("HeadSocket"));
+		Mask->SetRelativeRotation(FRotator(0.f, 0.f, -90.f));
+
+	}
+	else
+	{
+		Mask->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true)); // resets the mask and makes it not snap to the socket
+		Mask->SetRelativeRotation(FRotator(0.f, 0.f, 0.f));
+		Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, true), FName("HeadSocket"));
+		Head->SetRelativeRotation(FRotator(0.f, 0.f, -90.f));
+
+	}
 }
 
 void ABP_Character::Dashing()

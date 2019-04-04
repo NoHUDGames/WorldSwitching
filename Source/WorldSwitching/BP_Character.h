@@ -267,7 +267,7 @@ public:
 	UFUNCTION()
 		void OnHeadSwitchingTimelineFinished();
 
-	FVector HeadSocketLocation;
+
 	/// End of components, variable and functions related to head changing
 
 private:
@@ -305,5 +305,6 @@ private:
 	FVector FloatingHeadStartLocation;
 	FVector FloatingHeadGoalLocation;
 
-	FVector SnapToJointLocation;
+	FVector HeadSocketLocation;
+	FVector TrailingHeadLocation;
 };
