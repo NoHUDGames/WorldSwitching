@@ -22,7 +22,7 @@ public:
 	// Sets default values for this actor's properties
 	APSWorldActor();
 
-	
+	UPROPERTY(EditAnywhere)
 	USceneComponent* SceneRoot = nullptr;
 
 	UPROPERTY(EditAnywhere)
