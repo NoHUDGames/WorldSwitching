@@ -32,42 +32,14 @@ ABP_Character::ABP_Character()
 	Mask->SetupAttachment(GetMesh());
 	Mask->SetMobility(EComponentMobility::Movable);
 
-	// Root component for kicking
-	// will be deleted once the right animations are created and we can connect it to a joint
-	KickingRotation = CreateDefaultSubobject<USceneComponent>(TEXT("KickingRotation"));
-	KickingRotation->SetupAttachment(RootComponent);
-	KickingRotation->Mobility = EComponentMobility::Movable;
-
-
-	// Create and position a mesh component so we can see where our sphere is 
-	// DUMMY mesh, only for prototype. Will exchange when we have animation for kicking
-	SphereVisual = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FakeLeg"));
-	SphereVisual->SetupAttachment(KickingRotation);
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereVisualAsset(TEXT("/Engine/BasicShapes/Cube.Cube"));
-	if (SphereVisualAsset.Succeeded())
-	{
-		/// SphereVisual->bVisualizeComponent = true;
-		SphereVisual->SetStaticMesh(SphereVisualAsset.Object);
-		SphereVisual->SetRelativeLocation(FVector(0.0f, 0.0f, 50.0f));
-		SphereVisual->Mobility = EComponentMobility::Movable;
-		SphereVisual->SetWorldScale3D(FVector(0.2f));
-	}
 
 	/// kicking collider, the collision sphere that damages the enemies when kicking
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("FootCollider"));
-	BoxCollider->SetupAttachment(SphereVisual);
+	BoxCollider->SetupAttachment(GetMesh());
 
 	RespawnLocation = { 0.f, 0.f, 0.f };
 	NumberOfHoldingArtifacts = 0;
 
-	/// Sets up the timeline that determines the players ability to kick
-	KickingTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineForKicking"));
-
-	InterpKickingFunction.BindUFunction(this, FName("KickingTimelineFloatReturn"));
-	KickingTimelineFinished.BindUFunction(this, FName("OnKickingTimelineFinished"));
-
-	PitchOffset = 70.f;
-	/// Finished setting up the timeline for kicking movement
 
 	/// Sets up the timeline for dashing
 	DashingTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineForDashing"));
@@ -75,22 +47,28 @@ ABP_Character::ABP_Character()
 	InterpDashingFunction.BindUFunction(this, FName("DashingTimelineFloatReturn"));
 	DashingTimelineFinished.BindUFunction(this, FName("OnDashingTimelineFinished"));
 
-	PitchOffset = 70.f;
 	/// Finished setting up the timeline for dashing
 
 
 	/// Setting up animation variables
+	
+	/*
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> idle_Anim
-	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Character_Turning_Head.Main_Character_Turning_Head'"));
+	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Kick.Main_Kick'"));
 	IdleAnim = idle_Anim.Object;
+	*/
+	
 
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> kicking_Anim
-	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Character_Kick.Main_Character_Kick'"));
+	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Kick.Main_Kick'"));
 	KickingAnim = kicking_Anim.Object;
 
+	/*
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> walking_Anim
-	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Character_Walk_Cycle.Main_Character_Walk_Cycle'"));
+	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Kick.Main_Kick'"));
 	WalkingAnim = walking_Anim.Object;
+	*/
+	
 	/// finished setting up animation variables
 
 
@@ -131,24 +109,9 @@ void ABP_Character::BeginPlay()
 
 	RespawnLocation = GetActorLocation();
 
-	/// Sets up the BeginPlay values for the kicking timeline
-	if (fKickingCurve)
-	{
-		/// Add the float curve to the timeline and connect it to the interpfunctions delegate
-		KickingTimeline->AddInterpFloat(fKickingCurve, InterpKickingFunction, FName("Alpha"));
-		//Add our timeline finished function
-		KickingTimeline->SetTimelineFinishedFunc(KickingTimelineFinished);
-
-		/// Setting vectors
-		StartRotationOfKicking = KickingRotation->GetComponentRotation();
-		EndRotationOfKicking = FRotator(StartRotationOfKicking.Pitch + PitchOffset, StartRotationOfKicking.Yaw, StartRotationOfKicking.Roll);
-
-		/// Setting our timeline settings before we start it
-		KickingTimeline->SetLooping(false);
-		KickingTimeline->SetIgnoreTimeDilation(true);
-		
-	}
-	/// Done setting up the BeginPlay values for the kicking timeline
+	BoxCollider->AttachToComponent(GetMesh(),
+		FAttachmentTransformRules(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepRelative, true),
+		FName("KickingRotation"));
 
 	/// Sets up the BeginPlay values for the dashing timeline
 	if (fDashingCurve)
@@ -177,12 +140,12 @@ void ABP_Character::BeginPlay()
 		if (bIsSpiritWorld)
 		{
 			FloatingHeadStartLocation = Head->GetRelativeTransform().GetLocation();
-			Mask->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, EAttachmentRule::KeepRelative, false), FName("HeadSocket"));
+			Mask->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false), FName("HeadSocket"));
 		}
 		else
 		{
 			FloatingHeadStartLocation = Mask->GetRelativeTransform().GetLocation();
-			Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, EAttachmentRule::KeepRelative, false), FName("HeadSocket"));
+			Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false), FName("HeadSocket"));
 		}
 
 		FloatingHeadGoalLocation = FloatingHeadStartLocation + FVector(0.f, 0.f, HeadFloatOffset);
@@ -268,7 +231,14 @@ void ABP_Character::CalculateFallDuration()
 
 void ABP_Character::PlayingAnimations()
 {
-	if (AnimationStarted[0] == false && RunningAnimations == ABP_Character::IDLE)
+	if (AnimationStarted[4] == false && RunningAnimations == ABP_Character::DASHING)
+	{
+	UE_LOG(LogTemp, Warning, TEXT("Spiller av dashing"))
+		GetMesh()->PlayAnimation(WalkingAnim, true);
+
+	ChangingAnimationStarted(4);
+	}
+	else if (AnimationStarted[0] == false && RunningAnimations == ABP_Character::IDLE)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Spiller av idle"))
 		GetMesh()->PlayAnimation(IdleAnim, true);
@@ -283,6 +253,7 @@ void ABP_Character::PlayingAnimations()
 
 		ChangingAnimationStarted(1);
 	}
+	
 	else if (AnimationStarted[2] == false && RunningAnimations == ABP_Character::WALKINGFORWARD)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Spiller av walking forward"))
@@ -298,13 +269,7 @@ void ABP_Character::PlayingAnimations()
 		ChangingAnimationStarted(3);
 
 	}
-	else if (AnimationStarted[4] == false && RunningAnimations == ABP_Character::DASHING)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Spiller av dashing"))
-		GetMesh()->PlayAnimation(WalkingAnim, true);
-
-		ChangingAnimationStarted(4);
-	}
+	
 }
 
 void ABP_Character::ChangingAnimationStarted(int index)
@@ -400,9 +365,7 @@ void ABP_Character::Kicking()
 		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
 		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Overlap);
 
-		/// Starts the timeline (Can be removed when we connect the BoxCollider to the kickingAnim)
-		KickingTimeline->Play();
-
+		GetWorldTimerManager().SetTimer(KickingDurationTimer, this, &ABP_Character::KickingFinished, 0.875f, false);
 	}
 	
 }
@@ -416,27 +379,12 @@ void ABP_Character::ResetKickingCombo()
 	}	
 }
 
-void ABP_Character::KickingTimelineFloatReturn(float value)
+void ABP_Character::KickingFinished()
 {
-	KickingRotation->SetRelativeRotation(FMath::Lerp(StartRotationOfKicking, EndRotationOfKicking, value));
-
-}
-
-void ABP_Character::OnKickingTimelineFinished()
-{
-	
-	if (KickingTimeline->GetPlaybackPosition() != 0.0f)
-	{
-		KickingTimeline->Reverse();
-	}
-	else
-	{
-		CurrentlyKicking = false;
-		RunningAnimations = IDLE;
-		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
-		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Ignore);
-	}
-	
+	CurrentlyKicking = false;
+	RunningAnimations = IDLE;
+	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
+	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Ignore);
 }
 
 void ABP_Character::Interact()
@@ -685,30 +633,29 @@ void ABP_Character::SwitchingHead()
 
 	if (bIsSpiritWorld)
 	{
-		///SwitchingHeadTimeline->Play();
+		
 
 		Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true)); // resets the head and makes it not snap to the socket
-		
+		///SwitchingHeadTimeline->Play();
+
 		Head->SetRelativeLocation(FloatingHeadStartLocation);
-		Head->SetRelativeRotation(FRotator(0.f,0.f, 0.f));
+
 
 		Mask->SetRelativeLocation(HeadSocketLocation);
 		Mask->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, true), FName("HeadSocket"));
-		Mask->SetRelativeRotation(FRotator(0.f, 0.f, -90.f));
 
 	}
 	else
 	{
-		///SwitchingHeadTimeline->Reverse();
+		
 
 		Mask->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true)); // resets the mask and makes it not snap to the socket
-		
+		///SwitchingHeadTimeline->Reverse();
+
 		Mask->SetRelativeLocation(FloatingHeadStartLocation);
-		Mask->SetRelativeRotation(FRotator(0.f, 0.f, 0.f));
-		
 		Head->SetRelativeLocation(HeadSocketLocation);
+
 		Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, true), FName("HeadSocket"));
-		Head->SetRelativeRotation(FRotator(0.f, 0.f, -90.f));
 
 		
 	}
@@ -729,18 +676,18 @@ void ABP_Character::OnHeadSwitchingTimelineFinished()
 {
 	if (bIsSpiritWorld)
 	{
-		Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true)); // resets the head and makes it not snap to the socket
-		Head->SetRelativeRotation(FRotator(0.f, 0.f, 0.f));
+		///Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true)); // resets the head and makes it not snap to the socket
+
 		Mask->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, true), FName("HeadSocket"));
-		Mask->SetRelativeRotation(FRotator(0.f, 0.f, -90.f));
+
 
 	}
 	else
 	{
-		Mask->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true)); // resets the mask and makes it not snap to the socket
-		Mask->SetRelativeRotation(FRotator(0.f, 0.f, 0.f));
+		///Mask->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true)); // resets the mask and makes it not snap to the socket
+
 		Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, true), FName("HeadSocket"));
-		Head->SetRelativeRotation(FRotator(0.f, 0.f, -90.f));
+
 
 	}
 }
@@ -767,12 +714,15 @@ void ABP_Character::Dashing()
 
 void ABP_Character::DashingTimelineFloatReturn(float value)
 {
-	SetActorLocation(FMath::Lerp(ActorLocation, GoalLocation, value));
+	SetActorLocation(FMath::Lerp(ActorLocation, GoalLocation, value), true);
+
 }
 
 void ABP_Character::OnDashingTimelineFinished()
 {
+	RunningAnimations = ABP_Character::IDLE;
 	GetWorldTimerManager().SetTimer(DashCooldown, this, &ABP_Character::ReverseCurrentlyDashing, 1.0f, false);
+
 }
 
 void ABP_Character::SenseWorld()

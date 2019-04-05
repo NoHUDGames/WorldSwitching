@@ -22,7 +22,6 @@ class WORLDSWITCHING_API ABP_Character : public ACharacter
 {
 	GENERATED_BODY()
 
-	class UTimelineComponent* KickingTimeline;
 	class UTimelineComponent* DashingTimeline;
 	class UTimelineComponent* FloatingHeadTimeline;
 	class UTimelineComponent* SwitchingHeadTimeline;
@@ -102,44 +101,12 @@ public:
 		UBoxComponent* BoxCollider {
 		nullptr
 	};
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kicking")
-		USceneComponent* KickingRotation {
-		nullptr
-	};
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kicking")
-		UStaticMeshComponent* SphereVisual {
-		nullptr
-	};
-
-
-	UPROPERTY(EditAnywhere, Category = "Kicking")
-		class UCurveFloat* fKickingCurve;
-
-	UPROPERTY()
-		FRotator StartRotationOfKicking;
-
-	UPROPERTY()
-		FRotator EndRotationOfKicking;
-
-	UPROPERTY(EditAnywhere, Category = "Kicking")
-		float PitchOffset;
 	
-	/// declare our delegate function to be binded with TimelineFloatReturn()
-	FOnTimelineFloat InterpKickingFunction{};
-
-	/// Declare our delegate function to be binded with OnTimelineFinished()
-	FOnTimelineEvent KickingTimelineFinished{};
-
-	UFUNCTION()
-		void KickingTimelineFloatReturn(float value);
-
-	UFUNCTION()
-		void OnKickingTimelineFinished();
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Combat")
 	bool isTargetingEnemy{ false };
+
+	void KickingFinished();
 
 	/// end of functions and variables for combat
 
