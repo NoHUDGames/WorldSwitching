@@ -63,11 +63,10 @@ ABP_Character::ABP_Character()
 	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Kick.Main_Kick'"));
 	KickingAnim = kicking_Anim.Object;
 
-	/*
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> walking_Anim
-	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Kick.Main_Kick'"));
+	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Walk.Main_Walk'"));
 	WalkingAnim = walking_Anim.Object;
-	*/
+
 	
 	/// finished setting up animation variables
 
@@ -202,6 +201,7 @@ void ABP_Character::Tick(float DeltaTime)
 	PlayingAnimations();
 	
 	FloatingHeadTimeline->Play();
+
 }
 
 void ABP_Character::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
@@ -231,14 +231,8 @@ void ABP_Character::CalculateFallDuration()
 
 void ABP_Character::PlayingAnimations()
 {
-	if (AnimationStarted[4] == false && RunningAnimations == ABP_Character::DASHING)
-	{
-	UE_LOG(LogTemp, Warning, TEXT("Spiller av dashing"))
-		GetMesh()->PlayAnimation(WalkingAnim, true);
-
-	ChangingAnimationStarted(4);
-	}
-	else if (AnimationStarted[0] == false && RunningAnimations == ABP_Character::IDLE)
+	
+	if (AnimationStarted[0] == false && RunningAnimations == EAnimations::IDLE)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Spiller av idle"))
 		GetMesh()->PlayAnimation(IdleAnim, true);
@@ -246,7 +240,7 @@ void ABP_Character::PlayingAnimations()
 		ChangingAnimationStarted(0);
 
 	}
-	else if (AnimationStarted[1] == false && RunningAnimations == ABP_Character::KICKING)
+	else if (AnimationStarted[1] == false && RunningAnimations == EAnimations::ATTACKING)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Spiller av kicking"))
 		GetMesh()->PlayAnimation(KickingAnim, false);
@@ -254,20 +248,26 @@ void ABP_Character::PlayingAnimations()
 		ChangingAnimationStarted(1);
 	}
 	
-	else if (AnimationStarted[2] == false && RunningAnimations == ABP_Character::WALKINGFORWARD)
+	else if (AnimationStarted[2] == false && RunningAnimations == EAnimations::WALKINGFORWARD)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Spiller av walking forward"))
 		GetMesh()->PlayAnimation(WalkingAnim, true);
 
 		ChangingAnimationStarted(2);
 	}
-	else if (AnimationStarted[3] == false && RunningAnimations == ABP_Character::STRIFING)
+	else if (AnimationStarted[3] == false && RunningAnimations == EAnimations::STRIFING)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Spiller av strifing"))
 		GetMesh()->PlayAnimation(WalkingAnim, true);
 
 		ChangingAnimationStarted(3);
+	}
+	else if (AnimationStarted[4] == false && RunningAnimations == EAnimations::DASHING)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Spiller av dashing"))
+			GetMesh()->PlayAnimation(WalkingAnim, true);
 
+		ChangingAnimationStarted(4);
 	}
 	
 }
@@ -315,24 +315,24 @@ void ABP_Character::MoveRight(float AxisValue)
 
 void ABP_Character::MovementAnimationTesting(float AxisValue, float ForwardVector)
 {
-	if (AxisValue != 0 && !CurrentlyKicking)
+	if (AxisValue != 0 && !CurrentlyKicking && RunningAnimations != EAnimations::DASHING)
 	{
 		if (ForwardVector < 0.6f && ForwardVector > -0.6f)
 		{
-			RunningAnimations = ABP_Character::WALKINGFORWARD;
+			RunningAnimations = EAnimations::WALKINGFORWARD;
 		}
 		else
 		{
-			RunningAnimations = ABP_Character::STRIFING;
+			RunningAnimations = EAnimations::STRIFING;
 		}
 
 	}
 	/// if the player aren't moving forward, aren't kicking and aren't strifing, the IdleAnim runs
 	else
 	{
-		if (RunningAnimations != ABP_Character::KICKING && GetVelocity().IsZero())
+		if (RunningAnimations != EAnimations::ATTACKING && GetVelocity().IsZero())
 		{
-			RunningAnimations = ABP_Character::IDLE;
+			RunningAnimations = EAnimations::IDLE;
 		}
 
 	}
@@ -342,7 +342,7 @@ void ABP_Character::MovementAnimationTesting(float AxisValue, float ForwardVecto
 
 void ABP_Character::Kicking()
 {
-	RunningAnimations = KICKING;
+	RunningAnimations = EAnimations::ATTACKING;
 
 	if (!CurrentlyKicking)
 	{
@@ -382,7 +382,7 @@ void ABP_Character::ResetKickingCombo()
 void ABP_Character::KickingFinished()
 {
 	CurrentlyKicking = false;
-	RunningAnimations = IDLE;
+	RunningAnimations = EAnimations::IDLE;
 	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Ignore);
 }
@@ -473,11 +473,22 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 		}
 		else
 		{
+			Spirit->DecrementingLives();
+			/*
+
+			///Code meant for combo ability.
+			///currently makes the game crash because it adds the enemy twice to the pending kill list, 
+			/// depending on if the second life taken is the killing blow or not
+			/// won't work on this until we have an animation for it
 			for (int i{ 0 }; i < 2; ++i)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Double damage"))
 				Spirit->DecrementingLives();
 			}
+			*/
+			
+
+			
 		}
 		if (Spirit->Lives <= 0 && isTargetingEnemy == true)
 		{
@@ -496,11 +507,22 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 		}
 		else
 		{
+			Shaman->DecrementingLives();
+
+			/*
+			///Code meant for combo ability.
+			///currently makes the game crash because it adds the enemy twice to the pending kill list, 
+			/// depending on if the second life taken is the killing blow or not
+			/// won't work on this until we have an animation for it
 			for (int i{ 0 }; i < 2; ++i)
 			{
+
+				
 				UE_LOG(LogTemp, Warning, TEXT("Double damage"))
 				Shaman->DecrementingLives();
 			}
+			*/
+			
 		}
 		if (Shaman->Lives <= 0 && isTargetingEnemy == true)
 		{
@@ -694,8 +716,11 @@ void ABP_Character::OnHeadSwitchingTimelineFinished()
 
 void ABP_Character::Dashing()
 {
+	RunningAnimations = EAnimations::DASHING;
+
 	if (CurrentlyDashing == false)
 	{
+		
 		/// Setting vectors
 		ActorLocation = GetActorLocation();
 
@@ -703,7 +728,7 @@ void ABP_Character::Dashing()
 
 		GoalLocation = ActorLocation + (CharacterAcceleration * DashingDistance);
 
-		RunningAnimations = ABP_Character::DASHING;
+		
 		ReverseCurrentlyDashing();
 
 		DashingTimeline->PlayFromStart();
@@ -720,7 +745,7 @@ void ABP_Character::DashingTimelineFloatReturn(float value)
 
 void ABP_Character::OnDashingTimelineFinished()
 {
-	RunningAnimations = ABP_Character::IDLE;
+	RunningAnimations = EAnimations::IDLE;
 	GetWorldTimerManager().SetTimer(DashCooldown, this, &ABP_Character::ReverseCurrentlyDashing, 1.0f, false);
 
 }

@@ -12,6 +12,7 @@
 #include "WorldSwitchingGameInstance.h"
 #include "OurPlayerController.h"
 #include "SensingSphere.h"
+#include "OurEnums.h"
 #include "BP_Character.generated.h"
 
 class AArtifacts;
@@ -237,6 +238,9 @@ public:
 
 	/// End of components, variable and functions related to head changing
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
+		EAnimations RunningAnimations {EAnimations::IDLE};
+
 private:
 	
 	/// Variables and enums that are related to animations
@@ -247,13 +251,12 @@ private:
 	UAnimationAsset* StrifingAnim;
 
 	/// 0 = IdleAnim, 1 = KickingAnim, 2 = WalkingAnim, 3 = StrifingAnim, 4 = DashingAnim
-	bool AnimationStarted[5] = {false};
+	bool AnimationStarted[5] = { false, false, false, false, false };
 
 	enum Animations {
 		WALKINGFORWARD, STRIFING, KICKING, IDLE, DASHING
 	};
-
-	Animations RunningAnimations{ IDLE };
+	
 	/// end of variable and enums that are related to animations
 
 	int NumberOfShields{ 0 };
