@@ -46,6 +46,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool ActivateMoving;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool MoveBackAndForth;
+
+	void MovingActorWithReverse(float DeltaTime);
 	void MovingActor(float DeltaTime);
 
 	void setIsReverse();
