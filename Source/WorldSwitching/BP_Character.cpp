@@ -52,15 +52,14 @@ ABP_Character::ABP_Character()
 
 	/// Setting up animation variables
 	
-	/*
+
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> idle_Anim
-	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Kick.Main_Kick'"));
+	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Player_Idle.Player_Idle'"));
 	IdleAnim = idle_Anim.Object;
-	*/
-	
+
 
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> kicking_Anim
-	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Kick.Main_Kick'"));
+	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Player_Kick_1.Player_Kick_1'"));
 	KickingAnim = kicking_Anim.Object;
 
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> walking_Anim

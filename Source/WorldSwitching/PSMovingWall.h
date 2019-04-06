@@ -31,7 +31,7 @@ public:
 	UPROPERTY()
 		FVector StartLocation;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere)
 		FVector EndLocation;
 
 	UPROPERTY(EditAnywhere)
@@ -40,10 +40,13 @@ public:
 	UPROPERTY(EditAnywhere)
 		float PauseDuration;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere)
 		FVector MovementDirection;
 
-	void MovingActor();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool ActivateMoving;
+
+	void MovingActor(float DeltaTime);
 
 	void setIsReverse();
 

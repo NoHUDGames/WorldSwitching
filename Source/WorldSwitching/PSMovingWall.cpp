@@ -9,6 +9,8 @@ APSMovingWall::APSMovingWall()
 	PrimaryActorTick.bCanEverTick = true;
 
 	PauseDuration = 1.f;
+
+	ActivateMoving = true;
 }
 
 void APSMovingWall::BeginPlay()
@@ -17,18 +19,24 @@ void APSMovingWall::BeginPlay()
 
 	StartLocation = GetActorLocation();
 	
-	MovementDirection = (EndLocation - StartLocation).GetSafeNormal();
+	EndLocation = (StartLocation + MovementDirection);
 }
 
 void APSMovingWall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	MovingActor();
+	if (ActivateMoving == true)
+	{
+		MovingActor(DeltaTime);
+
+	}
+	
+
 
 }
 
-void APSMovingWall::MovingActor()
+void APSMovingWall::MovingActor(float DeltaTime)
 {
 	if (isReverse == false)
 	{
@@ -41,7 +49,7 @@ void APSMovingWall::MovingActor()
 		}
 		else
 		{
-			SetActorLocation(GetActorLocation() + (MovementDirection * MovementSpeed));
+			SetActorLocation(GetActorLocation() + (MovementDirection * MovementSpeed*DeltaTime));
 		}
 	}
 	else if (isReverse == true)
@@ -58,7 +66,7 @@ void APSMovingWall::MovingActor()
 		}
 		else
 		{
-			SetActorLocation(GetActorLocation() - (MovementDirection * MovementSpeed));
+			SetActorLocation(GetActorLocation() - (MovementDirection * MovementSpeed*DeltaTime));
 		}
 			
 	}
