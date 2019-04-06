@@ -13,9 +13,10 @@
 #include "WorldSwitchingGameModeBase.h"
 #include "LevelCamera.h"
 #include "Camera/CameraComponent.h"
-#include "Components/TimelineComponent.h"
 #include "Curves/CurveFloat.h"
 #include "Sound/SoundBase.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Animation/AnimSequence.h"
 #include "PS_Portal.generated.h"
 
 /**
@@ -44,9 +45,8 @@ public:
 
 	virtual void BeginPlay() override;
 
-	
-		UPROPERTY(EditAnywhere)
-		UStaticMeshComponent* Mesh2 = nullptr;
+	UPROPERTY(EditAnywhere)
+		USkeletalMeshComponent* PortalMesh = nullptr;
 
 		UPROPERTY(EditAnywhere)
 		UBoxComponent* BoxTrigger = nullptr;
@@ -63,11 +63,18 @@ public:
 		UPROPERTY(EditAnywhere)
 		USceneComponent* CameraOuter = nullptr;
 
+		UPROPERTY(EditAnywhere)
+		USceneComponent* EnterCameraInner = nullptr;
+
 		UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UPointLightComponent* PortalLight = nullptr;
 
 		UPROPERTY(EditAnywhere)
 		USoundBase* PortalEnterSound = nullptr;
+
+		UPROPERTY(EditAnywhere, Category = Animation)
+		UAnimSequence* OpenPortal = nullptr;
+
 
 
 		UPROPERTY(EditAnywhere, Category = "ParticleEffectToSpawn")
@@ -100,6 +107,7 @@ public:
 		FVector CameraOuterLoc;
 		FVector CharacterInnerLoc;
 		FVector CharacterOuterLoc;
+		FVector EnterCameraInnerLoc;
 
 
 		
@@ -146,6 +154,15 @@ public:
 		//InOrOut = True: In, False: Out
 		UFUNCTION(BlueprintImplementableEvent)
 		void FadeCamera(bool InOrOut, ALevelCamera* LevelFreeCamera);
+
+		UFUNCTION(BlueprintImplementableEvent)
+			void ActivationMoveCamera_TL();
+
+	
+			void ActivationCameraSequence();
+
+		UFUNCTION(BlueprintCallable)
+			void ActivationMoveCamera(float TimeLine);
 
 		void FadeCameraProxy();
 
