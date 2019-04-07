@@ -228,11 +228,6 @@ void ASpiritTest::HittingPlayer(UPrimitiveComponent * OverlappedComp, AActor * O
 		PlayerCharacter->DecrementingLives();
 
 		BoxCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		if (PlayerCharacter->Lives <= 0)
-		{
-			PlayerCharacter->DeathSequence();
-		}
 	}
 }
 
