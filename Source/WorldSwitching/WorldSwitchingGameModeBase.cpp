@@ -374,7 +374,9 @@ void AWorldSwitchingGameModeBase::TogglePhysicalSpiritActors()
 		for (TActorIterator<AAltar> AltarItr(GetWorld()); AltarItr; ++AltarItr)
 		{
 			AAltar *Altar = *AltarItr;
-			Altar->GoddessMesh->SetHiddenInGame(false);
+
+			Altar->ActivateSpiritGoddess();
+			
 		}
 
 
@@ -401,7 +403,7 @@ void AWorldSwitchingGameModeBase::TogglePhysicalSpiritActors()
 		for (TActorIterator<AAltar> AltarItr(GetWorld()); AltarItr; ++AltarItr)
 		{
 			AAltar *Altar = *AltarItr;
-			Altar->GoddessMesh->SetHiddenInGame(true);
+			Altar->ActivatePhysicalGoddess();
 		}
 
 	}

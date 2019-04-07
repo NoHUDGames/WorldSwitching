@@ -6,6 +6,7 @@
 #include "PSWorldActor.h"
 #include "Components/SphereComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Materials/MaterialInterface.h"
 #include "WorldSwitchingGameInstance.h"
 #include "Altar.generated.h"
 
@@ -42,6 +43,21 @@ public:
 		if(GoddessMesh) UE_LOG(LogTemp, Warning, TEXT("Got GoddessMeshComponent"))
 
 };
+
+	UPROPERTY(EditAnywhere, Category = Goddess)
+	UMaterialInterface* SpiritMaterial = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = Goddess)
+	UMaterialInterface* PhysicalMaterial = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = Goddess)
+		UAnimSequence* SpiritAnimation = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = Goddess)
+		UAnimSequence* PhysicalAnimation = nullptr;
+
+	void ActivatePhysicalGoddess();
+	void ActivateSpiritGoddess();
 
 	UWorldSwitchingGameInstance* GameInstance = nullptr;
 

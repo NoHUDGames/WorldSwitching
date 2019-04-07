@@ -55,3 +55,21 @@ void AAltar::OpenNewPortals()
 		}
 	}
 }
+
+void AAltar::ActivatePhysicalGoddess()
+{
+	if (GoddessMesh)
+	{
+		GoddessMesh->SetMaterial(0, PhysicalMaterial);
+		GoddessMesh->PlayAnimation(PhysicalAnimation, false);
+	}
+}
+
+void AAltar::ActivateSpiritGoddess()
+{
+	if (GoddessMesh)
+	{
+		GoddessMesh->SetMaterial(0, SpiritMaterial);
+		GoddessMesh->PlayAnimation(SpiritAnimation, true);
+	}
+}
