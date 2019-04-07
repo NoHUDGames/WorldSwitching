@@ -91,6 +91,8 @@ public:
 	FTimerHandle ComboDurationTimer;
 	FTimerHandle DeathSequenceTimer;
 	FTimerHandle DashCooldown;
+	FTimerHandle DeathAnimationTimer;
+	FTimerHandle ActivatingDeathSmokeTimer;
 
 	bool CurrentlyKicking{ false };
 
@@ -127,6 +129,9 @@ public:
 
 
 	void RespawnSequence();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UParticleSystemComponent* DeathSmoke = nullptr;
 
 	class AWorldSwitchingGameModeBase* GameModeRef = nullptr;
 
@@ -171,6 +176,8 @@ public:
 
 	//Is set from PS_SavePoint
 	FVector RespawnLocation;
+
+	void ActivateDeathSmoke();
 
 	
 	int GetLives() {return Lives;};
@@ -249,9 +256,10 @@ private:
 	UAnimationAsset* WalkingAnim;
 	UAnimationAsset* DashingAnim;
 	UAnimationAsset* StrifingAnim;
+	UAnimationAsset* DyingAnim;
 
-	/// 0 = IdleAnim, 1 = KickingAnim, 2 = WalkingAnim, 3 = StrifingAnim, 4 = DashingAnim
-	bool AnimationStarted[5] = { false, false, false, false, false };
+	/// 0 = IdleAnim, 1 = KickingAnim, 2 = WalkingAnim, 3 = StrifingAnim, 4 = DashingAnim, 5 = DyingAnim
+	bool AnimationStarted[6] = { false };
 
 	enum Animations {
 		WALKINGFORWARD, STRIFING, KICKING, IDLE, DASHING

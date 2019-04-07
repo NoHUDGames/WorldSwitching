@@ -36,6 +36,7 @@ ABP_Character::ABP_Character()
 	/// kicking collider, the collision sphere that damages the enemies when kicking
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("FootCollider"));
 	BoxCollider->SetupAttachment(GetMesh());
+	BoxCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	RespawnLocation = { 0.f, 0.f, 0.f };
 	NumberOfHoldingArtifacts = 0;
@@ -66,6 +67,10 @@ ABP_Character::ABP_Character()
 	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Walk.Main_Walk'"));
 	WalkingAnim = walking_Anim.Object;
 
+	static ConstructorHelpers::FObjectFinder<UAnimationAsset> death_Anim
+	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Player_Death.Player_Death'"));
+	DyingAnim = death_Anim.Object;
+
 	
 	/// finished setting up animation variables
 
@@ -89,6 +94,9 @@ ABP_Character::ABP_Character()
 
 	
 	/// finished setting up the timeline for switching head
+
+	DeathSmoke = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("BlueSmokeOnDeath"));
+	DeathSmoke->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -268,13 +276,21 @@ void ABP_Character::PlayingAnimations()
 
 		ChangingAnimationStarted(4);
 	}
+	else if (AnimationStarted[5] == false && RunningAnimations == EAnimations::DYING)
+	{
+
+		UE_LOG(LogTemp, Warning, TEXT("Spiller av dying"))
+			GetMesh()->PlayAnimation(DyingAnim, false);
+
+		ChangingAnimationStarted(5);
+	}
 	
 }
 
 void ABP_Character::ChangingAnimationStarted(int index)
 {
 	AnimationStarted[index] = true;
-	for (int i{ 0 }; i < 5; ++i)
+	for (int i{ 0 }; i < 6; ++i)
 	{
 		if (i != index)
 		{
@@ -329,7 +345,7 @@ void ABP_Character::MovementAnimationTesting(float AxisValue, float ForwardVecto
 	/// if the player aren't moving forward, aren't kicking and aren't strifing, the IdleAnim runs
 	else
 	{
-		if (RunningAnimations != EAnimations::ATTACKING && GetVelocity().IsZero())
+		if (RunningAnimations != EAnimations::ATTACKING && GetVelocity().IsZero() && RunningAnimations != EAnimations::DYING)
 		{
 			RunningAnimations = EAnimations::IDLE;
 		}
@@ -361,6 +377,7 @@ void ABP_Character::Kicking()
 		}
 
 		/// Turns on overlapping with other pawns for the kick box collider
+		BoxCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
 		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Overlap);
 
@@ -382,6 +399,7 @@ void ABP_Character::KickingFinished()
 {
 	CurrentlyKicking = false;
 	RunningAnimations = EAnimations::IDLE;
+	BoxCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Ignore);
 }
@@ -406,13 +424,15 @@ void ABP_Character::DecrementingLives()
 	{
 		--NumberOfShields;
 	}
-	else if (GetLives() > 0)
+	else
 	{
 		--Lives;
 
 		if (Lives <= 0)
 		{
-			DeathSequence();
+			RunningAnimations = EAnimations::DYING;
+			GetWorldTimerManager().SetTimer(ActivatingDeathSmokeTimer, this, &ABP_Character::ActivateDeathSmoke, 1.f, false);
+			GetWorldTimerManager().SetTimer(DeathAnimationTimer, this, &ABP_Character::DeathSequence, 2.f, false);
 		}
 	}
 }
@@ -528,7 +548,7 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 			isTargetingEnemy = false;
 		}
 	}
-
+	BoxCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Ignore);
 }
@@ -536,6 +556,7 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 
 void ABP_Character::DeathSequence()
 {
+	DeathSmoke->Activate();
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
 
@@ -585,6 +606,9 @@ void ABP_Character::RespawnSequence()
 	SetActorLocation(RespawnLocation);
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	isTargetingEnemy = false;
+
+	RunningAnimations = EAnimations::IDLE;
+	DeathSmoke->Deactivate();
 }
 
 
@@ -620,6 +644,11 @@ void ABP_Character::SetRespawnLocation(FVector NewSaveLocation)
 {
 	RespawnLocation = NewSaveLocation;
 
+}
+
+void ABP_Character::ActivateDeathSmoke()
+{
+	DeathSmoke->Activate();
 }
 
 void ABP_Character::SetLives(int NewHealth)

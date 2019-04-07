@@ -162,11 +162,6 @@ void APShamanEnemy::HittingPlayer(UPrimitiveComponent * OverlappedComp, AActor *
 		PlayerCharacter->DecrementingLives();
 
 		BoxCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		if (PlayerCharacter->Lives <= 0)
-		{
-			PlayerCharacter->DeathSequence();
-		}
 	}
 
 
