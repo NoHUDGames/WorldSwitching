@@ -14,19 +14,21 @@ EComingOrGoing  APS_Portal::ComingOrGoing;
 APS_Portal::APS_Portal()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	Mesh2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh2"));
+	PortalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("PortalMesh"));
 	BoxTrigger = CreateDefaultSubobject<UBoxComponent>(TEXT("Boxtrigger"));
 	CharacterInner = CreateDefaultSubobject<USceneComponent>(TEXT("CharacterInner"));
 	CharacterOuter = CreateDefaultSubobject<USceneComponent>(TEXT("CharacterOuter"));
 	CameraInner = CreateDefaultSubobject<USceneComponent>(TEXT("CameraInner"));
 	CameraOuter = CreateDefaultSubobject<USceneComponent>(TEXT("CameraOuter"));
+	EnterCameraInner = CreateDefaultSubobject<USceneComponent>(TEXT("EnterCameraInner"));
 	PortalLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("PortalLight"));
-	Mesh2->SetupAttachment(RootComponent);
+	PortalMesh->SetupAttachment(RootComponent);
 	BoxTrigger->SetupAttachment(RootComponent);
 	CharacterInner->SetupAttachment(RootComponent);
 	CharacterOuter->SetupAttachment(RootComponent);
 	CameraInner->SetupAttachment(RootComponent);
 	CameraOuter->SetupAttachment(RootComponent);
+	EnterCameraInner->SetupAttachment(RootComponent);
 	PortalLight->SetupAttachment(RootComponent);
 }
 
@@ -78,7 +80,7 @@ void APS_Portal::BeginPlay()
 
 	else if (LevelCamera) UE_LOG(LogTemp, Warning, TEXT("PORTAL: GOT LEVEL CAMERA"))
 	else if (!LevelCamera) UE_LOG(LogTemp, Warning, TEXT("PORTAL: DID NOT GET LEVEL CAMERA"))
-	// Enter Level through Portal
+
 }
 
 void APS_Portal::FadeCameraProxy()
@@ -96,14 +98,14 @@ void APS_Portal::TL_MovePlayerIntoPortal(float MovePlayer, float MoveCamera)
 			));
 
 	else if (ComingOrGoing == COMING)
-
-	LevelCamera->SetActorLocation(FMath::Lerp(CameraInnerLoc, CharacterOuterLoc, MoveCamera
+	LevelCamera->SetActorLocation(FMath::Lerp(EnterCameraInnerLoc, CharacterOuterLoc, MoveCamera
 			));
 
 }
 
 void APS_Portal::Activate(bool WithOpeningSequence)
 {
+
 	FVector SpawnLocation = GetActorLocation();
 	FRotator SpawnRotation = GetActorRotation();
 	AParticleEffectActor* Particle = GetWorld()->SpawnActor<AParticleEffectActor>(
@@ -113,6 +115,7 @@ void APS_Portal::Activate(bool WithOpeningSequence)
 	BoxTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	bIsActive = true;
 	PortalLight->SetIntensity(20000);
+	PortalMesh->PlayAnimation(OpenPortal, false);
 }
 void APS_Portal::TL_EnterLevelSequence(float CameraTimeLine, float PlayerTimel, float FadeCamera)
 {
@@ -267,6 +270,7 @@ void APS_Portal::SetupNavigationPoints()
 		CameraOuterLoc = PortalToEnterFrom->CameraOuter->GetComponentLocation();
 		CharacterInnerLoc = PortalToEnterFrom->CharacterInner->GetComponentLocation();
 		CharacterOuterLoc = PortalToEnterFrom->CharacterOuter->GetComponentLocation();
+		EnterCameraInnerLoc = PortalToEnterFrom->EnterCameraInner->GetComponentLocation();
 	}
 
 	else if (ComingOrGoing == GOING)
@@ -334,4 +338,19 @@ void APS_Portal::SetLevelCamera()
 		if (Camera->CameraType == ECameraActor::FreeLevel)
 			LevelCamera = Camera;
 	}
+}
+
+void APS_Portal::ActivationCameraSequence()
+{
+	FRotator CameraLookat = UKismetMathLibrary::FindLookAtRotation(
+		CameraOuterLoc, CameraInnerLoc);
+
+	LevelCamera->SetActorRotation(PlayerLookAt);
+	LevelCamera->SetActorLocation(CameraOuterLoc);
+	Cast<APlayerController>(PlayerPawn->GetController())->SetViewTargetWithBlend(LevelCamera,1);
+}
+
+void APS_Portal::ActivationMoveCamera(float TimeLine)
+{
+
 }
