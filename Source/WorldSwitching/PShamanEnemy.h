@@ -51,6 +51,9 @@ public:
 		nullptr
 	};
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UStaticMeshComponent* Spear { nullptr };
+
 	/// End of variables and functions for the enemy attack
 
 	int Lives{ 3 };

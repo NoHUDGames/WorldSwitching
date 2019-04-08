@@ -25,6 +25,9 @@ APShamanEnemy::APShamanEnemy()
 		WeaponVisual->SetWorldScale3D(FVector(0.2f));
 	}
 
+	Spear = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SpearWeapon"));
+	Spear->SetupAttachment(GetMesh());
+
 	/// Weapon collider, the collision sphere that damages the player when using the weapon
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponCollider"));
 	BoxCollider->SetupAttachment(WeaponVisual);
@@ -57,6 +60,10 @@ APShamanEnemy::APShamanEnemy()
 void APShamanEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Spear->AttachToComponent(GetMesh(), 
+		FAttachmentTransformRules(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepRelative, true),
+		FName("WeaponRotation"));
 
 	BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &APShamanEnemy::HittingPlayer);
 }
