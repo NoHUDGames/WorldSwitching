@@ -48,7 +48,7 @@ void APSMovingWall::MovingActorWithReverse(float DeltaTime)
 	{
 		
 
-		if (GetActorLocation().Equals(EndLocation, 10.f))
+		if (GetActorLocation().Equals(EndLocation, 15.f))
 		{
 			setIsReverse();
 			
@@ -62,7 +62,7 @@ void APSMovingWall::MovingActorWithReverse(float DeltaTime)
 	{
 		
 
-		if (GetActorLocation().Equals(StartLocation, 10.f))
+		if (GetActorLocation().Equals(StartLocation, 15.f))
 		{
 			if (TimerRunning == false)
 			{

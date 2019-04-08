@@ -98,7 +98,8 @@ void AWorldSwitchingGameModeBase::ChangeWorlds(bool bShowTransitionEffects)
 	
 	else if (bIsSpiritWorld)
 	{
-		TestSpiritOverlaps();
+		//Needed to comment out to prevent mysterious bug
+		//TestSpiritOverlaps();
 	}
 	
 	
