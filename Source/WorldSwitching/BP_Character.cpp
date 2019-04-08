@@ -420,7 +420,7 @@ void ABP_Character::StopInteracting()
 
 void ABP_Character::DecrementingLives()
 {
-	UGameplayStatics::PlayWorldCameraShake(GetWorld(), TakingDamageCameraShake, GetActorLocation(), 10.f, 1100.f);
+	UGameplayStatics::PlayWorldCameraShake(GetWorld(), TakingDamageCameraShake, GetActorLocation(), 10.f, 1300.f);
 	if (GetShields() > 0)
 	{
 		--NumberOfShields;
