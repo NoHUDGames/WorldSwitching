@@ -453,8 +453,6 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 
 		++NumberOfHoldingArtifacts;
 
-		UE_LOG(LogTemp, Warning, TEXT("Number of Artifacts is now: %i "), NumberOfHoldingArtifacts)
-
 		PickedUpArtifactsIndexes.Add(PickedUpActor->GetArrayIndex());
 
 		if (PickedUpActor->bKeepTrackOf)
