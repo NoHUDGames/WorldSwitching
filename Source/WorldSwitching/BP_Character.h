@@ -125,8 +125,9 @@ public:
 	void SenseWorld();
 
 	UFUNCTION(BlueprintCallable)
-	void DeathSequence();
+	void DeathSequence(bool bWithArtifactLoss = true);
 
+	void DeathSequenceProxy();
 
 	void RespawnSequence();
 

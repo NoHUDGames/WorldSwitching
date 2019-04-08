@@ -232,7 +232,8 @@ void ABP_Character::CalculateFallDuration()
 
 	if (TimeFalled > FallDurationForDeath)
 	{
-		DeathSequence();
+
+		DeathSequence(false);
 	}
 }
 
@@ -432,7 +433,7 @@ void ABP_Character::DecrementingLives()
 		{
 			RunningAnimations = EAnimations::DYING;
 			GetWorldTimerManager().SetTimer(ActivatingDeathSmokeTimer, this, &ABP_Character::ActivateDeathSmoke, 1.f, false);
-			GetWorldTimerManager().SetTimer(DeathAnimationTimer, this, &ABP_Character::DeathSequence, 2.f, false);
+			GetWorldTimerManager().SetTimer(DeathAnimationTimer, this, &ABP_Character::DeathSequenceProxy, 2.f, false);
 		}
 	}
 }
@@ -451,6 +452,9 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 		UE_LOG(LogTemp, Warning, TEXT("You're colliding with an artifact."))
 
 		++NumberOfHoldingArtifacts;
+
+		UE_LOG(LogTemp, Warning, TEXT("Number of Artifacts is now: %i "), NumberOfHoldingArtifacts)
+
 		PickedUpArtifactsIndexes.Add(PickedUpActor->GetArrayIndex());
 
 		if (PickedUpActor->bKeepTrackOf)
@@ -554,46 +558,53 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 }
 
 
-void ABP_Character::DeathSequence()
+void ABP_Character::DeathSequence(bool bWithArtifactLoss)
 {
 	DeathSmoke->Activate();
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
 
-	UWorld* World = GetWorld();
-
-	FVector ArtifactSpawnArea = GetActorLocation();
-
-
-	for (int i = 0; i < NumberOfHoldingArtifacts; ++i)
+	if (bWithArtifactLoss)
 	{
-		AArtifacts* SpawnedArtifact = nullptr;
-		ArtifactSpawnArea.X += FMath::RandRange(-200.f, 200.f);
-		ArtifactSpawnArea.Y += FMath::RandRange(-200.f, 200.f);
+		UWorld* World = GetWorld();
 
-		SpawnedArtifact = World->SpawnActor<AArtifacts>(ArtifactsToSpawn, ArtifactSpawnArea, FRotator(0.f, 0.f, 0.f));
-		if (PickedUpArtifactsIndexes.IsValidIndex(i))
+		FVector ArtifactSpawnArea = GetActorLocation();
+
+		for (int i = 0; i < NumberOfHoldingArtifacts; ++i)
 		{
-			SpawnedArtifact->SetArrayIndex(PickedUpArtifactsIndexes[i]);
-			UE_LOG(LogTemp, Warning, TEXT("PickedUpArtifactsIndex is valid with content %i"), PickedUpArtifactsIndexes[i])
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("PickedUpArtifactsIndex is NOT valid"))
-			UE_LOG(LogTemp, Warning, TEXT("PickedUpArtifactsIndex contains %i elements"), PickedUpArtifactsIndexes.Num())
+			AArtifacts* SpawnedArtifact = nullptr;
+			ArtifactSpawnArea.X += FMath::RandRange(-200.f, 200.f);
+			ArtifactSpawnArea.Y += FMath::RandRange(-200.f, 200.f);
+
+			SpawnedArtifact = World->SpawnActor<AArtifacts>(ArtifactsToSpawn, ArtifactSpawnArea, FRotator(0.f, 0.f, 0.f));
+			if (PickedUpArtifactsIndexes.IsValidIndex(i))
+			{
+				SpawnedArtifact->SetArrayIndex(PickedUpArtifactsIndexes[i]);
+				UE_LOG(LogTemp, Warning, TEXT("PickedUpArtifactsIndex is valid with content %i"), PickedUpArtifactsIndexes[i])
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("PickedUpArtifactsIndex is NOT valid"))
+					UE_LOG(LogTemp, Warning, TEXT("PickedUpArtifactsIndex contains %i elements"), PickedUpArtifactsIndexes.Num())
+
+			}
+
+			SpawnedArtifact->bKeepTrackOf = true;
+			//GameInstance->SetArtifactPickedUp(PickedUpArtifactsIndexes[i]);
 
 		}
+		NumberOfHoldingArtifacts = 0;
+		PickedUpArtifactsIndexes.Empty();
 
-		SpawnedArtifact->bKeepTrackOf = true;
-		//GameInstance->SetArtifactPickedUp(PickedUpArtifactsIndexes[i]);
-		
+		//PlayerController->Artifacts = 0;
 	}
-	NumberOfHoldingArtifacts = 0;
-	PickedUpArtifactsIndexes.Empty();
-
-	PlayerController->Artifacts = 0;
 
 	GetWorldTimerManager().SetTimer(DeathSequenceTimer, this, &ABP_Character::RespawnSequence, 3.f, false);
+}
+
+void ABP_Character::DeathSequenceProxy()
+{
+	DeathSequence();
 }
 
 void ABP_Character::RespawnSequence()
