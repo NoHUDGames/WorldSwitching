@@ -77,7 +77,8 @@ enum class EAnimations : uint8
 	ATTACKING			UMETA(DisplayName = "Attacking"),
 	DYING				UMETA(DisplayName = "Dying"),
 	DASHING				UMETA(DisplayName = "Dashing"),
-	TAKINGDAMAGE		UMETA(DisplayName = "TakingDamage")
+	TAKINGDAMAGE		UMETA(DisplayName = "TakingDamage"),
+	MOVEMENT			UMETA(DisplayName = "Movement")
 };
 
 UENUM(BlueprintType)

@@ -16,6 +16,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "WorldSwitchingGameModeBase.h"
+#include "Animation/AnimSingleNodeInstance.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
@@ -52,24 +53,23 @@ ABP_Character::ABP_Character()
 
 
 	/// Setting up animation variables
-	
-
-	static ConstructorHelpers::FObjectFinder<UAnimationAsset> idle_Anim
-	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Player_Idle.Player_Idle'"));
-	IdleAnim = idle_Anim.Object;
 
 
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> kicking_Anim
 	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Player_Kick_1.Player_Kick_1'"));
 	KickingAnim = kicking_Anim.Object;
 
-	static ConstructorHelpers::FObjectFinder<UAnimationAsset> walking_Anim
-	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_Walk.Main_Walk'"));
-	WalkingAnim = walking_Anim.Object;
-
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> death_Anim
 	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Player_Death.Player_Death'"));
 	DyingAnim = death_Anim.Object;
+
+	static ConstructorHelpers::FObjectFinder<UAnimationAsset> dashing_Anim
+	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Player_Dash.Player_Dash'"));
+	DashingAnim = dashing_Anim.Object;
+
+	static ConstructorHelpers::FObjectFinder<UBlendSpace> movement_BlendSpace
+	(TEXT("BlendSpace'/Game/Meshes/Characters/PlayerCharacter/Animations/BS_Movement.BS_Movement'"));
+	MovementAnimBlendSpace = movement_BlendSpace.Object;
 
 	
 	/// finished setting up animation variables
@@ -204,7 +204,7 @@ void ABP_Character::BeginPlay()
 void ABP_Character::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+
 	PlayingAnimations();
 	
 	FloatingHeadTimeline->Play();
@@ -240,15 +240,8 @@ void ABP_Character::CalculateFallDuration()
 void ABP_Character::PlayingAnimations()
 {
 	
-	if (AnimationStarted[0] == false && RunningAnimations == EAnimations::IDLE)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Spiller av idle"))
-		GetMesh()->PlayAnimation(IdleAnim, true);
-
-		ChangingAnimationStarted(0);
-
-	}
-	else if (AnimationStarted[1] == false && RunningAnimations == EAnimations::ATTACKING)
+	
+	if (AnimationStarted[1] == false && RunningAnimations == EAnimations::ATTACKING)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Spiller av kicking"))
 		GetMesh()->PlayAnimation(KickingAnim, false);
@@ -256,34 +249,28 @@ void ABP_Character::PlayingAnimations()
 		ChangingAnimationStarted(1);
 	}
 	
-	else if (AnimationStarted[2] == false && RunningAnimations == EAnimations::WALKINGFORWARD)
+	else if (AnimationStarted[0] == false && RunningAnimations == EAnimations::MOVEMENT)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Spiller av walking forward"))
-		GetMesh()->PlayAnimation(WalkingAnim, true);
+
+		GetMesh()->PlayAnimation(MovementAnimBlendSpace, true);
+
+		ChangingAnimationStarted(0);
+	}
+	else if (AnimationStarted[2] == false && RunningAnimations == EAnimations::DASHING)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Spiller av dashing"))
+			GetMesh()->PlayAnimation(DashingAnim, false);
 
 		ChangingAnimationStarted(2);
 	}
-	else if (AnimationStarted[3] == false && RunningAnimations == EAnimations::STRIFING)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Spiller av strifing"))
-		GetMesh()->PlayAnimation(WalkingAnim, true);
-
-		ChangingAnimationStarted(3);
-	}
-	else if (AnimationStarted[4] == false && RunningAnimations == EAnimations::DASHING)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Spiller av dashing"))
-			GetMesh()->PlayAnimation(WalkingAnim, true);
-
-		ChangingAnimationStarted(4);
-	}
-	else if (AnimationStarted[5] == false && RunningAnimations == EAnimations::DYING)
+	else if (AnimationStarted[3] == false && RunningAnimations == EAnimations::DYING)
 	{
 
 		UE_LOG(LogTemp, Warning, TEXT("Spiller av dying"))
 			GetMesh()->PlayAnimation(DyingAnim, false);
 
-		ChangingAnimationStarted(5);
+		ChangingAnimationStarted(3);
 	}
 	
 }
@@ -291,7 +278,7 @@ void ABP_Character::PlayingAnimations()
 void ABP_Character::ChangingAnimationStarted(int index)
 {
 	AnimationStarted[index] = true;
-	for (int i{ 0 }; i < 6; ++i)
+	for (int i{ 0 }; i < 4; ++i)
 	{
 		if (i != index)
 		{
@@ -326,33 +313,28 @@ void ABP_Character::MoveRight(float AxisValue)
 {//0.f, 50.f, 0.f
 	AddMovementInput(FVector(0.f, 50.f, 0.f), AxisValue);
 
+	
+
 	MovementAnimationTesting(AxisValue, UKismetMathLibrary::GetForwardVector(GetActorRotation()).X);
 }
 
 void ABP_Character::MovementAnimationTesting(float AxisValue, float ForwardVector)
 {
+
 	if (AxisValue != 0 && !CurrentlyKicking && RunningAnimations != EAnimations::DASHING)
 	{
-		if (ForwardVector < 0.6f && ForwardVector > -0.6f)
-		{
-			RunningAnimations = EAnimations::WALKINGFORWARD;
-		}
-		else
-		{
-			RunningAnimations = EAnimations::STRIFING;
-		}
-
+		RunningAnimations = EAnimations::MOVEMENT;
 	}
-	/// if the player aren't moving forward, aren't kicking and aren't strifing, the IdleAnim runs
-	else
-	{
-		if (RunningAnimations != EAnimations::ATTACKING && GetVelocity().IsZero() && RunningAnimations != EAnimations::DYING)
-		{
-			RunningAnimations = EAnimations::IDLE;
-		}
 
-	}
-	/// end of if statement that determines what animation should be run
+	UE_LOG(LogTemp, Warning, TEXT("ForwardVector: %f"), GetActorForwardVector().X)
+	
+
+	/// Parameters that determines the blend properties for the Movement animation
+	/// X-parameter defines the direction you move, so if the character should strafe or walk forward
+	/// Y-Parameter defines the speed of the character, so whether or not the idle animation should run
+	FVector BlendParams(Direction, GetVelocity().Size(), 0.f);
+	GetMesh()->GetSingleNodeInstance()->SetBlendSpaceInput(BlendParams);
+	
 }
 
 
@@ -399,7 +381,7 @@ void ABP_Character::ResetKickingCombo()
 void ABP_Character::KickingFinished()
 {
 	CurrentlyKicking = false;
-	RunningAnimations = EAnimations::IDLE;
+	RunningAnimations = EAnimations::MOVEMENT;
 	BoxCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Ignore);
@@ -616,7 +598,7 @@ void ABP_Character::RespawnSequence()
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	isTargetingEnemy = false;
 
-	RunningAnimations = EAnimations::IDLE;
+	RunningAnimations = EAnimations::MOVEMENT;
 	DeathSmoke->Deactivate();
 }
 
@@ -782,7 +764,7 @@ void ABP_Character::DashingTimelineFloatReturn(float value)
 
 void ABP_Character::OnDashingTimelineFinished()
 {
-	RunningAnimations = EAnimations::IDLE;
+	RunningAnimations = EAnimations::MOVEMENT;
 	GetWorldTimerManager().SetTimer(DashCooldown, this, &ABP_Character::ReverseCurrentlyDashing, 1.0f, false);
 
 }

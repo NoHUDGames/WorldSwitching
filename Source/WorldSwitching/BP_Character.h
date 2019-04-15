@@ -13,6 +13,7 @@
 #include "OurPlayerController.h"
 #include "SensingSphere.h"
 #include "OurEnums.h"
+#include "Animation/BlendSpace.h"
 #include "BP_Character.generated.h"
 
 class AArtifacts;
@@ -247,20 +248,21 @@ public:
 	/// End of components, variable and functions related to head changing
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-		EAnimations RunningAnimations {EAnimations::IDLE};
+		EAnimations RunningAnimations {EAnimations::MOVEMENT};
+		
+	float Direction;
 
 private:
 	
 	/// Variables and enums that are related to animations
-	UAnimationAsset* IdleAnim;
 	UAnimationAsset* KickingAnim;
-	UAnimationAsset* WalkingAnim;
 	UAnimationAsset* DashingAnim;
-	UAnimationAsset* StrifingAnim;
 	UAnimationAsset* DyingAnim;
 
-	/// 0 = IdleAnim, 1 = KickingAnim, 2 = WalkingAnim, 3 = StrifingAnim, 4 = DashingAnim, 5 = DyingAnim
-	bool AnimationStarted[6] = { false };
+	UBlendSpace* MovementAnimBlendSpace;
+
+	/// 0 = MovementAnimBlendSpace, 1 = KickingAnim, 2 = DashingAnim, 3 = DyingAnim
+	bool AnimationStarted[4] = { false };
 
 	enum Animations {
 		WALKINGFORWARD, STRIFING, KICKING, IDLE, DASHING
