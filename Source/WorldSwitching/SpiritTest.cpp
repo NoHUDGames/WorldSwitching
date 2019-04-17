@@ -8,6 +8,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Animation/AnimInstance.h"
+#include "Runtime/Engine/Classes/Animation/AnimSingleNodeInstance.h"
 #include "Engine/Engine.h"
 
 
@@ -23,6 +25,12 @@ ASpiritTest::ASpiritTest()
 
 
 	/// Setting up animation variables
+
+	static ConstructorHelpers::FObjectFinder<UBlendSpace1D> movementAnim_BlendSpace
+	(TEXT("BlendSpace1D'/Game/Meshes/Characters/SpiritEnemy/Animations/SpiritMovementBlendSpace.SpiritMovementBlendSpace'"));
+	MovementAnimBlendSpace = movementAnim_BlendSpace.Object;
+
+
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> idle_Anim
 	(TEXT("AnimSequence'/Game/Meshes/Characters/SpiritEnemy/Animations/Lil_Blub_Idle_V2.Lil_Blub_Idle_V2'"));
 	if (idle_Anim.Object)
@@ -90,28 +98,21 @@ void ASpiritTest::BeginPlay()
 void ASpiritTest::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	///MovementAnimationTesting();
 	PlayingAnimations();
-
+	
 }
 
 void ASpiritTest::PlayingAnimations()
 {
 
-	if (AnimationStarted[0] == false && RunningAnimations == EAnimations::IDLE && GetVelocity() == FVector(0.f, 0.f, 0.f))
-	{
-
-		GetMesh()->PlayAnimation(IdleAnim, true);
-
-		ChangingAnimationStarted(0);
-
-	}
-	else if (AnimationStarted[4] == false && RunningAnimations == EAnimations::TAKINGDAMAGE)
+	
+	if (AnimationStarted[0] == false && RunningAnimations == EAnimations::TAKINGDAMAGE)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Running TakingDamageAnim"));
 		GetMesh()->PlayAnimation(TakingDamageAnim, false);
 
-		ChangingAnimationStarted(4);
+		ChangingAnimationStarted(0);
 
 		/// The waiting time set for when the function should run is based on the duration of the animation
 		GetWorldTimerManager().SetTimer(TakingDamageTimerHandler, this, &ASpiritTest::TurnOffTakingDamageAnim, 0.766667f, false);
@@ -123,25 +124,18 @@ void ASpiritTest::PlayingAnimations()
 
 		ChangingAnimationStarted(1);
 	}
-	else if (AnimationStarted[2] == false && RunningAnimations == EAnimations::WALKINGFORWARD)
+	else if (AnimationStarted[2] == false && RunningAnimations == EAnimations::MOVEMENT)
 	{
-		GetMesh()->PlayAnimation(WalkingAnim, true);
+		GetMesh()->PlayAnimation(MovementAnimBlendSpace, true);
 
 		ChangingAnimationStarted(2);
-	}
-	else if (AnimationStarted[3] == false && RunningAnimations == EAnimations::DYING)
-	{
-		GetMesh()->PlayAnimation(WalkingAnim, true);
-
-		ChangingAnimationStarted(3);
-
 	}
 }
 
 void ASpiritTest::ChangingAnimationStarted(int index)
 {
 	AnimationStarted[index] = true;
-	for (int i{ 0 }; i < 4; ++i)
+	for (int i{ 0 }; i < 3; ++i)
 	{
 		if (i != index)
 		{
@@ -201,7 +195,7 @@ void ASpiritTest::DestroyActor()
 
 void ASpiritTest::TurnOffTakingDamageAnim()
 {
-	RunningAnimations = EAnimations::IDLE;
+	RunningAnimations = EAnimations::MOVEMENT;
 
 	AnimationStarted[4] = false;
 }
@@ -211,6 +205,20 @@ void ASpiritTest::KnockbackEffect(FVector KnockbackDirection)
 	StartKnockbackLocation = GetActorLocation();
 	EndKnockbackLocation = StartKnockbackLocation + KnockbackDirection;
 	KnockbackTimeline->PlayFromStart();
+}
+
+void ASpiritTest::MovementAnimationTesting()
+{
+	/// SetBlendSpaceInput faar spillet til aa krasje av en eller annen fucka grunn. 
+	/// Gjor akkurat det samme i spillerklassen og der funekr det
+	if (RunningAnimations == EAnimations::MOVEMENT)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Velocity: %f"), GetVelocity().Size())
+		FVector BlendParam(GetVelocity().Size(), 0.f, 0.f);
+		GetMesh()->GetSingleNodeInstance()->SetBlendSpaceInput(BlendParam);
+	}
+	
+
 }
 
 void ASpiritTest::KnockbackTimelineFloatReturn(float value)

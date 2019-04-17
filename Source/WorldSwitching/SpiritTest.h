@@ -11,6 +11,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Animation/AnimSequence.h"
 #include "Components/TimelineComponent.h"
+#include "Animation/BlendSpace1D.h"
 #include "SpiritTest.generated.h"
 
 UCLASS()
@@ -66,11 +67,11 @@ public:
 	void PlayingAnimations();
 	void ChangingAnimationStarted(int index);
 
-	/// 0 = IdleAnim, 1 = AttackAnim, 2 = WalkingAnim, 3 = DeathAnim, 4 = TakingDamageAnim
-	bool AnimationStarted[5] = { false };
+	/// 0 = TakingDamageAnim, 1 = AttackAnim, 2 = MovementAnim,
+	bool AnimationStarted[3] = { false };
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-		EAnimations RunningAnimations = EAnimations::IDLE;
+		EAnimations RunningAnimations = EAnimations::MOVEMENT;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UStaticMeshComponent* HeadAfterDeath {nullptr};
@@ -102,14 +103,17 @@ private:
 	UAnimationAsset* IdleAnim;
 	UAnimSequence* AttackAnim;
 	UAnimationAsset* WalkingAnim;
-	UAnimationAsset* DeathAnim;
 	UAnimationAsset* TakingDamageAnim;
+
+	UBlendSpace1D* MovementAnimBlendSpace;
 
 	FTimerHandle TakingDamageTimerHandler;
 	void TurnOffTakingDamageAnim();
 	/// end of variables that are related to animations
 
 	void KnockbackEffect(FVector KnockbackDirection);
+
+	void MovementAnimationTesting();
 
 	FVector StartKnockbackLocation;
 	FVector EndKnockbackLocation;

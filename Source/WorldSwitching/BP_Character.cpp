@@ -304,7 +304,7 @@ void ABP_Character::MoveUp(float AxisValue)
 {//50.f, 0.f, 0.f
 	AddMovementInput(FVector(50.f, 0.f, 0.f), AxisValue);
 	
-	MovementAnimationTesting(AxisValue, UKismetMathLibrary::GetForwardVector(GetActorRotation()).Y);
+	MovementAnimationTesting(AxisValue);
 }
 
 void ABP_Character::MoveRight(float AxisValue)
@@ -313,10 +313,10 @@ void ABP_Character::MoveRight(float AxisValue)
 
 	
 
-	MovementAnimationTesting(AxisValue, UKismetMathLibrary::GetForwardVector(GetActorRotation()).X);
+	MovementAnimationTesting(AxisValue);
 }
 
-void ABP_Character::MovementAnimationTesting(float AxisValue, float ForwardVector)
+void ABP_Character::MovementAnimationTesting(float AxisValue)
 {
 
 	if (AxisValue != 0 && !CurrentlyKicking && RunningAnimations != EAnimations::DASHING)

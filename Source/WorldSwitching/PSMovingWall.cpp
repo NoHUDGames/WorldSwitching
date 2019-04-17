@@ -18,15 +18,13 @@ void APSMovingWall::BeginPlay()
 {
 	Super::BeginPlay();
 
-	StartLocation = GetActorLocation();
-	
+	StartLocation = GetRootComponent()->GetRelativeTransform().GetLocation();
 	EndLocation = (StartLocation + MovementDirection);
 }
 
 void APSMovingWall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
 	if (ActivateMoving)
 	{
 		if (MoveBackAndForth)
@@ -47,23 +45,23 @@ void APSMovingWall::MovingActorWithReverse(float DeltaTime)
 	if (isReverse == false)
 	{
 		
-
-		if (GetActorLocation().Equals(EndLocation, 15.f))
+		if(GetRootComponent()->GetRelativeTransform().GetLocation().Equals(EndLocation, 10.f))
 		{
+			GetRootComponent()->SetRelativeLocation(EndLocation);
 			setIsReverse();
 			
 		}
 		else
 		{
-			SetActorLocation(GetActorLocation() + (MovementDirection * MovementSpeed * DeltaTime));
+			GetRootComponent()->SetRelativeLocation(GetRootComponent()->GetRelativeTransform().GetLocation() + (MovementDirection * MovementSpeed * DeltaTime));
 		}
 	}
 	else if (isReverse == true)
 	{
 		
-
-		if (GetActorLocation().Equals(StartLocation, 15.f))
+		if (GetRootComponent()->GetRelativeTransform().GetLocation().Equals(StartLocation, 10.f))
 		{
+			GetRootComponent()->SetRelativeLocation(StartLocation);
 			if (TimerRunning == false)
 			{
 				TimerRunning = true;
@@ -72,7 +70,7 @@ void APSMovingWall::MovingActorWithReverse(float DeltaTime)
 		}
 		else
 		{
-			SetActorLocation(GetActorLocation() - (MovementDirection * MovementSpeed * DeltaTime));
+			GetRootComponent()->SetRelativeLocation(GetRootComponent()->GetRelativeTransform().GetLocation() - (MovementDirection * MovementSpeed * DeltaTime));
 		}
 	}
 	
@@ -80,11 +78,13 @@ void APSMovingWall::MovingActorWithReverse(float DeltaTime)
 
 void APSMovingWall::MovingActor(float DeltaTime)
 {
-	if (GetActorLocation().Equals(EndLocation, 10.f))
+	if (GetRootComponent()->GetRelativeTransform().GetLocation().Equals(EndLocation, 10.f))
 	{
+		GetRootComponent()->SetRelativeLocation(EndLocation);
 		ActivateMoving = false;
 	}
-	SetActorLocation(GetActorLocation() + (MovementDirection * MovementSpeed * DeltaTime));
+
+	GetRootComponent()->SetRelativeLocation(GetRootComponent()->GetRelativeTransform().GetLocation() + (MovementDirection * MovementSpeed * DeltaTime));
 }
 
 void APSMovingWall::setIsReverse()

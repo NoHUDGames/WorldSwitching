@@ -264,10 +264,6 @@ private:
 
 	/// 0 = MovementAnimBlendSpace, 1 = KickingAnim, 2 = DashingAnim, 3 = DyingAnim
 	bool AnimationStarted[4] = { false };
-
-	enum Animations {
-		WALKINGFORWARD, STRIFING, KICKING, IDLE, DASHING
-	};
 	
 	/// end of variable and enums that are related to animations
 
@@ -276,7 +272,7 @@ private:
 	bool CurrentlyDashing{ false };
 	float DashingDistance{ 500.f };
 
-	void MovementAnimationTesting(float AxisValue, float ForwardVector);
+	void MovementAnimationTesting(float AxisValue);
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TSubclassOf<UCameraShake> TakingDamageCameraShake;
