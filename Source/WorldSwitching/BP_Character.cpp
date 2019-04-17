@@ -16,6 +16,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "WorldSwitchingGameModeBase.h"
+#include "Animation/AnimInstance.h"
 #include "Animation/AnimSingleNodeInstance.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -145,16 +146,14 @@ void ABP_Character::BeginPlay()
 
 		if (bIsSpiritWorld)
 		{
-			FloatingHeadStartLocation = Head->GetRelativeTransform().GetLocation();
 			Mask->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false), FName("HeadSocket"));
 		}
 		else
 		{
-			FloatingHeadStartLocation = Mask->GetRelativeTransform().GetLocation();
 			Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false), FName("HeadSocket"));
 		}
 
-		FloatingHeadGoalLocation = FloatingHeadStartLocation + FVector(0.f, 0.f, HeadFloatOffset);
+		TrailingHeadGoalLocation = TrailingHeadLocation + FVector(0.f, 0.f, HeadFloatOffset);
 		
 	}
 	///Finished setting up the BeginPlay values for the floating head timeline
@@ -176,13 +175,13 @@ void ABP_Character::BeginPlay()
 
 	if (bIsSpiritWorld)
 	{
-		HeadSocketLocation = Mask->GetRelativeTransform().GetLocation();
-		TrailingHeadLocation = Head->GetRelativeTransform().GetLocation();
+		Mask->SetRelativeLocation(HeadSocketLocation);
+		Head->SetRelativeLocation(TrailingHeadLocation);
 	}
 	else
 	{
-		HeadSocketLocation = Head->GetRelativeTransform().GetLocation();
-		TrailingHeadLocation = Mask->GetRelativeTransform().GetLocation();
+		Mask->SetRelativeLocation(TrailingHeadLocation);
+		Head->SetRelativeLocation(HeadSocketLocation);
 	}
 
 	/// Finished setting up the BeginPlay values for world switching
@@ -208,7 +207,6 @@ void ABP_Character::Tick(float DeltaTime)
 	PlayingAnimations();
 	
 	FloatingHeadTimeline->Play();
-
 }
 
 void ABP_Character::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
@@ -325,14 +323,14 @@ void ABP_Character::MovementAnimationTesting(float AxisValue, float ForwardVecto
 	{
 		RunningAnimations = EAnimations::MOVEMENT;
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("ForwardVector: %f"), GetActorForwardVector().X)
 	
+	float rotationDegreeAngle = 
+		GetMesh()->GetSingleNodeInstance()->CalculateDirection(GetVelocity(), GetActorRotation());
 
 	/// Parameters that determines the blend properties for the Movement animation
 	/// X-parameter defines the direction you move, so if the character should strafe or walk forward
 	/// Y-Parameter defines the speed of the character, so whether or not the idle animation should run
-	FVector BlendParams(Direction, GetVelocity().Size(), 0.f);
+	FVector BlendParams(rotationDegreeAngle, GetVelocity().Size(), 0.f);
 	GetMesh()->GetSingleNodeInstance()->SetBlendSpaceInput(BlendParams);
 	
 }
@@ -472,11 +470,11 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 
 		if (NumberOfKicks <= 2)
 		{
-			Spirit->DecrementingLives();
+			Spirit->DecrementingLives(GetActorForwardVector()*KnockbackForce);
 		}
 		else
 		{
-			Spirit->DecrementingLives();
+			Spirit->DecrementingLives(GetActorForwardVector()*KnockbackForce);
 			/*
 
 			///Code meant for combo ability.
@@ -490,9 +488,8 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 			}
 			*/
 			
-
-			
 		}
+			
 		if (Spirit->Lives <= 0 && isTargetingEnemy == true)
 		{
 			isTargetingEnemy = false;
@@ -506,11 +503,11 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 			APShamanEnemy* Shaman = Cast<APShamanEnemy>(OtherActor);
 		if (NumberOfKicks <= 2)
 		{
-			Shaman->DecrementingLives();
+			Shaman->DecrementingLives(GetActorForwardVector()*KnockbackForce);
 		}
 		else
 		{
-			Shaman->DecrementingLives();
+			Shaman->DecrementingLives(GetActorForwardVector()*KnockbackForce);
 
 			/*
 			///Code meant for combo ability.
@@ -660,11 +657,11 @@ void ABP_Character::FloatingHeadTimelineFloatReturn(float value)
 {
 	if (bIsSpiritWorld)
 	{
-		Head->SetRelativeLocation(FMath::Lerp(FloatingHeadStartLocation, FloatingHeadGoalLocation, value));
+		Head->SetRelativeLocation(FMath::Lerp(TrailingHeadLocation, TrailingHeadGoalLocation, value));
 	}
 	else
 	{
-		Mask->SetRelativeLocation(FMath::Lerp(FloatingHeadStartLocation, FloatingHeadGoalLocation, value));
+		Mask->SetRelativeLocation(FMath::Lerp(TrailingHeadLocation, TrailingHeadGoalLocation, value));
 	}
 }
 
@@ -679,7 +676,7 @@ void ABP_Character::SwitchingHead()
 		Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true)); // resets the head and makes it not snap to the socket
 		///SwitchingHeadTimeline->Play();
 
-		Head->SetRelativeLocation(FloatingHeadStartLocation);
+		Head->SetRelativeLocation(TrailingHeadLocation);
 
 
 		Mask->SetRelativeLocation(HeadSocketLocation);
@@ -693,7 +690,7 @@ void ABP_Character::SwitchingHead()
 		Mask->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true)); // resets the mask and makes it not snap to the socket
 		///SwitchingHeadTimeline->Reverse();
 
-		Mask->SetRelativeLocation(FloatingHeadStartLocation);
+		Mask->SetRelativeLocation(TrailingHeadLocation);
 		Head->SetRelativeLocation(HeadSocketLocation);
 
 		Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, true), FName("HeadSocket"));

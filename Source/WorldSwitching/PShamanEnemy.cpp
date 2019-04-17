@@ -55,6 +55,11 @@ APShamanEnemy::APShamanEnemy()
 	WalkingAnim = walking_Anim.Object;
 	/// finished setting up animation variables
 
+	/// Sets up the timeline for knockback effect
+	KnockbackTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineForKnockbackEffect"));
+
+	InterpKnockbackFunction.BindUFunction(this, FName("KnockbackTimelineFloatReturn"));
+	/// finished setting up the timeline for knockback effect
 }
 
 void APShamanEnemy::BeginPlay()
@@ -66,6 +71,19 @@ void APShamanEnemy::BeginPlay()
 		FName("WeaponRotation"));
 
 	BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &APShamanEnemy::HittingPlayer);
+
+	/// Sets up the BeginPlay values for the knockback timeline
+	if (fKnockbackCurve)
+	{
+		/// Add the float curve to the timeline and connect it to the interpfunctions delegate
+		KnockbackTimeline->AddInterpFloat(fKnockbackCurve, InterpKnockbackFunction, FName("Alpha"));
+
+		/// Setting our timeline settings before we start it
+		KnockbackTimeline->SetLooping(false);
+		KnockbackTimeline->SetIgnoreTimeDilation(true);
+
+	}
+	/// Done setting up the BeginPlay values for the knockback timeline
 }
 
 void APShamanEnemy::Tick(float DeltaTime)
@@ -128,13 +146,14 @@ void APShamanEnemy::SetupPlayerInputComponent(UInputComponent * PlayerInputCompo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-void APShamanEnemy::DecrementingLives()
+void APShamanEnemy::DecrementingLives(FVector KnockbackDirection)
 {
 	if (Lives > 0)
 	{
 		--Lives;
 		UE_LOG(LogTemp, Warning, TEXT("Enemy has %i lives left"), Lives)
 
+		KnockbackEffect(KnockbackDirection);
 	}
 	KillingEnemy();
 }
@@ -174,5 +193,15 @@ void APShamanEnemy::HittingPlayer(UPrimitiveComponent * OverlappedComp, AActor *
 
 }
 
+void APShamanEnemy::KnockbackEffect(FVector KnockbackDirection)
+{
+	StartKnockbackLocation = GetActorLocation();
+	EndKnockbackLocation = StartKnockbackLocation + KnockbackDirection;
+	KnockbackTimeline->PlayFromStart();
+}
 
+void APShamanEnemy::KnockbackTimelineFloatReturn(float value)
+{
+	SetActorLocation(FMath::Lerp(StartKnockbackLocation, EndKnockbackLocation, value));
+}
 	

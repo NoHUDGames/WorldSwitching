@@ -52,6 +52,12 @@ ASpiritTest::ASpiritTest()
 	
 	BlueSmoke = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("BlueSmokeOnDeath"));
 	BlueSmoke->SetupAttachment(RootComponent);
+
+	/// Sets up the timeline for knockback effect
+	KnockbackTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineForKnockbackEffect"));
+
+	InterpKnockbackFunction.BindUFunction(this, FName("KnockbackTimelineFloatReturn"));
+	/// finished setting up the timeline for knockback effect
 }
 
 // Called when the game starts or when spawned
@@ -65,6 +71,19 @@ void ASpiritTest::BeginPlay()
 	BoxCollider->AttachToComponent(GetMesh(), 
 		FAttachmentTransformRules(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepRelative, true),
 		SocketName);
+
+	/// Sets up the BeginPlay values for the knockback timeline
+	if (fKnockbackCurve)
+	{
+		/// Add the float curve to the timeline and connect it to the interpfunctions delegate
+		KnockbackTimeline->AddInterpFloat(fKnockbackCurve, InterpKnockbackFunction, FName("Alpha"));
+
+		/// Setting our timeline settings before we start it
+		KnockbackTimeline->SetLooping(false);
+		KnockbackTimeline->SetIgnoreTimeDilation(true);
+
+	}
+	/// Done setting up the BeginPlay values for the knockback timeline
 }
 
 // Called every frame
@@ -187,16 +206,30 @@ void ASpiritTest::TurnOffTakingDamageAnim()
 	AnimationStarted[4] = false;
 }
 
-void ASpiritTest::DecrementingLives()
+void ASpiritTest::KnockbackEffect(FVector KnockbackDirection)
+{
+	StartKnockbackLocation = GetActorLocation();
+	EndKnockbackLocation = StartKnockbackLocation + KnockbackDirection;
+	KnockbackTimeline->PlayFromStart();
+}
+
+void ASpiritTest::KnockbackTimelineFloatReturn(float value)
+{
+	SetActorLocation(FMath::Lerp(StartKnockbackLocation, EndKnockbackLocation, value));
+}
+
+void ASpiritTest::DecrementingLives(FVector KnockbackDirection)
 {
 	if (Lives > 0)
 	{
 		--Lives;
 		UE_LOG(LogTemp, Warning, TEXT("Enemy has %i lives left"), Lives)
 
-			RunningAnimations = EAnimations::TAKINGDAMAGE;
+		RunningAnimations = EAnimations::TAKINGDAMAGE;
+		KnockbackEffect(KnockbackDirection);
 	}
 	KillingEnemy();	
+	
 }
 
 void ASpiritTest::DamageOverTimeAttack()

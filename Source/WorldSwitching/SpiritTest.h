@@ -10,6 +10,7 @@
 #include "Engine/StaticMeshActor.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Animation/AnimSequence.h"
+#include "Components/TimelineComponent.h"
 #include "SpiritTest.generated.h"
 
 UCLASS()
@@ -17,6 +18,7 @@ class WORLDSWITCHING_API ASpiritTest : public ACharacter
 {
 	GENERATED_BODY()
 
+	class UTimelineComponent* KnockbackTimeline;
 public:
 	// Sets default values for this character's properties
 	ASpiritTest();
@@ -38,7 +40,7 @@ public:
 
 	void KillingEnemy();
 
-	void DecrementingLives();
+	void DecrementingLives(FVector KnockbackDirection = FVector(0.f, 0.f, 0.f));
 
 	FTimerHandle DamageOverTimeHandler;
 	bool bCanPerformNextDamageOverTime{ true };
@@ -83,6 +85,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 		UAnimSequence* GetAttackAnim() { return AttackAnim; };
 
+	/// functions and variables for knockback timeline
+	UPROPERTY(EditAnywhere, Category = "Combat")
+		class UCurveFloat* fKnockbackCurve;
+
+	/// declare our delegate function to be binded with TimelineFloatReturn()
+	FOnTimelineFloat InterpKnockbackFunction{};
+
+	UFUNCTION()
+		void KnockbackTimelineFloatReturn(float value);
+
+	/// end of functions and variables for knockback timeline
 
 private:
 	/// Variables that are related to animations
@@ -95,5 +108,11 @@ private:
 	FTimerHandle TakingDamageTimerHandler;
 	void TurnOffTakingDamageAnim();
 	/// end of variables that are related to animations
+
+	void KnockbackEffect(FVector KnockbackDirection);
+
+	FVector StartKnockbackLocation;
+	FVector EndKnockbackLocation;
+	
 
 };

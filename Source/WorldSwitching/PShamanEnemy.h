@@ -20,6 +20,8 @@ class WORLDSWITCHING_API APShamanEnemy : public APWorldCharacter
 {
 	GENERATED_BODY()
 
+	class UTimelineComponent* KnockbackTimeline;
+
 public:
 	// Sets default values for this character's properties
 	APShamanEnemy();
@@ -58,7 +60,7 @@ public:
 
 	int Lives{ 3 };
 
-	void DecrementingLives();
+	void DecrementingLives(FVector KnockbackDirection = FVector(0.f, 0.f, 0.f));
 
 	void KillingEnemy();
 
@@ -77,6 +79,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 		EAnimations RunningAnimations = EAnimations::IDLE;
 
+	/// functions and variables for knockback timeline
+	UPROPERTY(EditAnywhere, Category = "Combat")
+		class UCurveFloat* fKnockbackCurve;
+
+	/// declare our delegate function to be binded with TimelineFloatReturn()
+	FOnTimelineFloat InterpKnockbackFunction{};
+
+	UFUNCTION()
+		void KnockbackTimelineFloatReturn(float value);
+
+	/// end of functions and variables for knockback timeline
+
 private:
 	/// Variables and enums that are related to animations
 	UAnimationAsset* IdleAnim;
@@ -85,4 +99,9 @@ private:
 	UAnimationAsset* DeathAnim;
 
 	/// end of variable and enums that are related to animations
+
+	void KnockbackEffect(FVector KnockbackDirection);
+
+	FVector StartKnockbackLocation;
+	FVector EndKnockbackLocation;
 };

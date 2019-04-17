@@ -250,7 +250,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 		EAnimations RunningAnimations {EAnimations::MOVEMENT};
 		
-	float Direction;
+	UPROPERTY(EditAnywhere, Category = "Combat")
+		float KnockbackForce{200.f};
 
 private:
 	
@@ -283,9 +284,8 @@ private:
 	float startedFalling;
 	float endedFalling;
 
-	FVector FloatingHeadStartLocation;
-	FVector FloatingHeadGoalLocation;
+	FVector TrailingHeadGoalLocation;
 
-	FVector HeadSocketLocation;
-	FVector TrailingHeadLocation;
+	FVector HeadSocketLocation = FVector(0.f, 0.f, 0.f);
+	FVector TrailingHeadLocation = FVector(0.f, -43.f, 120.f);
 };
