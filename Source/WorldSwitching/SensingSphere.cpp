@@ -2,6 +2,8 @@
 
 #include "SensingSphere.h"
 #include "WorldSwitchingGameModeBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "BP_Character.h"
 
 
 // Sets default values
@@ -24,6 +26,7 @@ void ASensingSphere::BeginPlay()
 	SphereCollider->OnComponentBeginOverlap.AddDynamic(this, &ASensingSphere::OverlapsWithActors);
 	SetActorTickEnabled(false);
 	GameMode = Cast<AWorldSwitchingGameModeBase>(GetWorld()->GetAuthGameMode());
+	PlayerPawn = Cast<ABP_Character>(UGameplayStatics::GetPlayerPawn(GetWorld(),0));
 
 	GameMode->SetSphereIsRunning(true);
 
@@ -62,6 +65,7 @@ void ASensingSphere::TurnOnOtherActorCollisions()
 {
 	if (GameMode->bIsSpiritWorld)
 	{
+		PlayerPawn->GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Ignore);
 		for (TActorIterator<APWorldActor> PActorItr(GetWorld()); PActorItr; ++PActorItr)
 		{
 			APWorldActor* Actor = *PActorItr;
@@ -83,6 +87,7 @@ void ASensingSphere::TurnOnOtherActorCollisions()
 
 	else
 	{
+		PlayerPawn->GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 		for (TActorIterator<ASWorldActor> SActorItr(GetWorld()); SActorItr; ++SActorItr)
 		{
 			ASWorldActor* Actor = *SActorItr;
@@ -110,6 +115,7 @@ void ASensingSphere::TurnOffOtherActorCollisions()
 {
 	if (GameMode->bIsSpiritWorld)
 	{
+		PlayerPawn->GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
 		for (TActorIterator<APWorldActor> PActorItr(GetWorld()); PActorItr; ++PActorItr)
 		{
 			APWorldActor* Actor = *PActorItr;
@@ -129,6 +135,7 @@ void ASensingSphere::TurnOffOtherActorCollisions()
 
 	else
 	{
+		PlayerPawn->GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
 		for (TActorIterator<ASWorldActor> SActorItr(GetWorld()); SActorItr; ++SActorItr)
 		{
 			ASWorldActor* Actor = *SActorItr;

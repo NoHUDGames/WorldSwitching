@@ -26,6 +26,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* BallMesh = nullptr;
 
+	UPROPERTY(EditAnywhere)
+		class ABP_Character* PlayerPawn = nullptr;
+
 	FVector Scale = { 1.f, 1.f, 1.f };
 	float SpeedScale = 110;
 

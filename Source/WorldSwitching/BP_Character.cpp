@@ -422,6 +422,7 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 	UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	//Sent to GameMode for testing before physical reentry
+	if(OtherActor->IsA(APWorldActor::StaticClass()) || OtherActor->IsA(ASWorldActor::StaticClass()))
 	OtherActorForPhysicalTest = OtherActor;
 
 	if (Cast<AArtifacts>(OtherActor))
