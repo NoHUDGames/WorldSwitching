@@ -161,6 +161,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WorldChanging")
 	bool bIsSpiritWorld{ false };
+
+	bool bLastCheckpointWasOnSpiritGround{ false };
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	int Lives{ 3 };

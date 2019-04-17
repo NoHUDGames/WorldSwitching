@@ -30,7 +30,7 @@ public:
 		class ABP_Character* PlayerPawn = nullptr;
 
 	FVector Scale = { 1.f, 1.f, 1.f };
-	float SpeedScale = 110;
+	float SpeedScale = 150;
 
 	FTimerHandle KillTimer;
 

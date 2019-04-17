@@ -23,6 +23,9 @@ public:
 
 		UPROPERTY(EditAnywhere)
 		UBoxComponent* BoxCollision = nullptr;
+
+		UPROPERTY(EditAnywhere)
+		bool bIsLocatedOnSpiritGround = false;
 	
 		UFUNCTION()
 		void SetPlayerRespawnLocation(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
