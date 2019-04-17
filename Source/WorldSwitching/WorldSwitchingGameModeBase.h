@@ -47,10 +47,10 @@ public:
 	void ChangeWorldsProxy();
 
 	//Returns true if collision occurred
-	bool TestPhysicalOverlaps();
+	bool TestWorldChangeOverlaps();
 
 	//Not going to deny reentry if colliding with Spirit Objects.
-	void TestSpiritOverlaps();
+	//void TestSpiritOverlaps();
 
 	bool bIsSpiritWorld;
 	

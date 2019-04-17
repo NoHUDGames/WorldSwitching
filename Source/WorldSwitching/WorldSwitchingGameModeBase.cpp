@@ -93,16 +93,8 @@ void AWorldSwitchingGameModeBase::ChangeWorlds(bool bShowTransitionEffects)
 
 	bIsSpiritWorld = !bIsSpiritWorld;
 	
-	if (!bIsSpiritWorld && TestPhysicalOverlaps()) return;
-
-	
-	else if (bIsSpiritWorld)
-	{
-		//Needed to comment out to prevent mysterious bug
-		//TestSpiritOverlaps();
-	}
-	
-	
+	if (TestWorldChangeOverlaps()) return;
+		
 	PlayerPawn->bIsSpiritWorld = bIsSpiritWorld;
 
 	if (bShowTransitionEffects) WorldTransitionEffects();
@@ -120,37 +112,62 @@ void AWorldSwitchingGameModeBase::ToggleAll()
 	ToggleInstanceMeshes();
 }
 
-bool AWorldSwitchingGameModeBase::TestPhysicalOverlaps()
+bool AWorldSwitchingGameModeBase::TestWorldChangeOverlaps()
 {
 		//Momentarily test for overlap with Actors
 
+	if (bIsSpiritWorld)
+	{
+		PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
+		ToggleSpiritWorldActors();
+	}
+	else
+	{
 		PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Overlap);
 		TogglePhysicalWorldActors();
+	}
 
-		OtherActorPhysicalTest = PlayerPawn->GetOtherActorForPhysicalTest();
+	OtherActorPhysicalTest = PlayerPawn->GetOtherActorForPhysicalTest();
 
-		if (OtherActorPhysicalTest)
-		{
-			if (OtherActorPhysicalTest->IsA(APWorldActor::StaticClass()) && !OtherActorPhysicalTest->IsA(AArtifacts::StaticClass()))
+	if (OtherActorPhysicalTest && !OtherActorPhysicalTest->IsA(AArtifacts::StaticClass()))
+	{
+
+			/// UE_LOG(LogTemp, Warning, TEXT("Overlapped with PhysicalActor %s"), *OtherActorPhysicalTest->GetActorLabel())
+			UGameplayStatics::PlaySound2D(GetWorld(), CannotReturnToPhysical);
+			DeniedPhysicalReentryEffects();
+
+			if (bIsSpiritWorld)				{
+
+				UE_LOG(LogTemp, Warning, TEXT("GAME MODE: DETECTED SPIRIT OVERLAP"))
+
+				//Stuck in Physical World
+				bIsSpiritWorld = false;
+				ToggleSpiritWorldActors();
+				PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
+			}
+
+			else
 			{
-				/// UE_LOG(LogTemp, Warning, TEXT("Overlapped with PhysicalActor %s"), *OtherActorPhysicalTest->GetActorLabel())
-				UGameplayStatics::PlaySound2D(GetWorld(), CannotReturnToPhysical);
-				DeniedPhysicalReentryEffects();
+				UE_LOG(LogTemp, Warning, TEXT("GAME MODE: DETECTED PHYSICAL OVERLAP"))
 
 				//Stuck in Spirit World
 				bIsSpiritWorld = true;
 				TogglePhysicalWorldActors();
-				LightUpCollidingActor();
 				PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
-				
-				return true;
 			}
-	}
+
+			LightUpCollidingActor();
+			return true;
+		}
 	UE_LOG(LogTemp, Warning, TEXT("Did NOT Overlap with PhysicalActor"));
+
+	PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
 	PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
+
 	return false;
 }
 
+/*
 void AWorldSwitchingGameModeBase::TestSpiritOverlaps()
 {
 	PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
@@ -163,6 +180,7 @@ void AWorldSwitchingGameModeBase::TestSpiritOverlaps()
 		PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
 	}
 }
+*/
 
 void AWorldSwitchingGameModeBase::GatherLevelCameras()
 {
