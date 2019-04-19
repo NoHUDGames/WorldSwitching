@@ -738,11 +738,11 @@ void ABP_Character::OnHeadSwitchingTimelineFinished()
 
 void ABP_Character::Dashing()
 {
-	RunningAnimations = EAnimations::DASHING;
+	
 
 	if (CurrentlyDashing == false)
 	{
-		
+		RunningAnimations = EAnimations::DASHING;
 		/// Setting vectors
 		ActorLocation = GetActorLocation();
 
