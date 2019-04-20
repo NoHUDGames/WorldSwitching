@@ -52,6 +52,7 @@ public:
 	//Not going to deny reentry if colliding with Spirit Objects.
 	//void TestSpiritOverlaps();
 
+	UPROPERTY(BlueprintReadOnly)
 	bool bIsSpiritWorld;
 	
 	
