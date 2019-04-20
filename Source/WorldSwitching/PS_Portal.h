@@ -173,7 +173,7 @@ public:
 		UFUNCTION(BlueprintCallable)
 		void TL_MovePlayerIntoPortal(float MovePlayer, float MoveCamera);
 	
-
+		UFUNCTION(BlueprintCallable)
 		void Activate(bool WithOpeningSequence = false);
 
 		void ExitLevel();

@@ -51,15 +51,22 @@ void APS_Portal::BeginPlay()
 	SetLevelCamera();
 	
 
-	if (!bBeginActivated)
+	if (ArtifactsNeededToUse == 0 && !bBeginActivated)
 	{
-		PortalLight->SetIntensity(0);
-		BoxTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//StayClosed
 	}
-	else	Activate();
+	else
+	{
+		if (!bBeginActivated)
+		{
+			PortalLight->SetIntensity(0);
+			BoxTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+		else	Activate();
 
-	if (GameInstance->GetAltarArtifacts() >= ArtifactsNeededToUse) Activate();
 
+		if (GameInstance->GetAltarArtifacts() >= ArtifactsNeededToUse) Activate();
+	}
 	
 	
 	// Enter Level through Portal

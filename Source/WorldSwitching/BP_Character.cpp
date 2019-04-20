@@ -196,7 +196,6 @@ void ABP_Character::BeginPlay()
 		GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	}
 
-	
 }
 
 // Called every frame
