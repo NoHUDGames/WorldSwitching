@@ -578,11 +578,12 @@ void ABP_Character::DeathSequence(bool bWithArtifactLoss)
 		if ((bLastCheckpointWasOnSpiritGround && !bIsSpiritWorld) ||
 		(!bLastCheckpointWasOnSpiritGround && bIsSpiritWorld))
 	{
-			GameModeRef->ChangeWorlds();
-	}
+			GameModeRef->ChangeWorlds(false);
+	}	
 
 	GetWorldTimerManager().SetTimer(DeathSequenceTimer, this, &ABP_Character::RespawnSequence, 3.f, false);
 }
+
 
 void ABP_Character::DeathSequenceProxy()
 {
@@ -594,7 +595,6 @@ void ABP_Character::RespawnSequence()
 
 	Lives = 3;
 	SetShields(0);
-	PlayerController->SetHealth(3);
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 	SetActorLocation(RespawnLocation);
