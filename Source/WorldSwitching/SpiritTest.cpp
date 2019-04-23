@@ -98,7 +98,7 @@ void ASpiritTest::BeginPlay()
 void ASpiritTest::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	///MovementAnimationTesting();
+	MovementAnimationTesting();
 	PlayingAnimations();
 	
 }
@@ -215,7 +215,8 @@ void ASpiritTest::MovementAnimationTesting()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Velocity: %f"), GetVelocity().Size())
 		FVector BlendParam(GetVelocity().Size(), 0.f, 0.f);
-		GetMesh()->GetSingleNodeInstance()->SetBlendSpaceInput(BlendParam);
+		if (GetMesh() != nullptr && GetMesh()->GetSingleNodeInstance() != nullptr)
+			GetMesh()->GetSingleNodeInstance()->SetBlendSpaceInput(BlendParam);
 	}
 	
 
