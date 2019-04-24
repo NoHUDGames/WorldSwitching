@@ -213,7 +213,6 @@ void ASpiritTest::MovementAnimationTesting()
 	/// Gjor akkurat det samme i spillerklassen og der funekr det
 	if (RunningAnimations == EAnimations::MOVEMENT)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Velocity: %f"), GetVelocity().Size())
 		FVector BlendParam(GetVelocity().Size(), 0.f, 0.f);
 		if (GetMesh() != nullptr && GetMesh()->GetSingleNodeInstance() != nullptr)
 			GetMesh()->GetSingleNodeInstance()->SetBlendSpaceInput(BlendParam);
