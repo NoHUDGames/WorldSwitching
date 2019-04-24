@@ -187,13 +187,11 @@ void UWorldSwitchingGameInstance::SpawnPickups()
 
 	for (int i = 0; i < NumberOfArtifactsToSpawn; ++i)
 	{
-
 		if (!LevelPickupParameters[Level]->ArtifactPickedUp[i])
 		{
 			AArtifacts* Artifact = World->SpawnActor<AArtifacts>(ArtifactToSpawn, LevelPickupParameters[Level]->ArtifactLocations[i], FRotator(0));
 			Artifact->bKeepTrackOf = true;
 			Artifact->SetArrayIndex(i);
-
 		}
 	}
 	int NumberOfShieldsToSpawn = LevelPickupParameters[Level]->ShieldLocations.Num();
@@ -209,7 +207,7 @@ void UWorldSwitchingGameInstance::SpawnPickups()
 	}
 }
 
-void UWorldSwitchingGameInstance::RegisterPickUp(int index, AActor* OtherActor)
+void UWorldSwitchingGameInstance::RegisterPickedUp(int index, AActor* OtherActor)
 {
 	if (Cast<AArtifacts>(OtherActor))
 	LevelPickupParameters[Level]->ArtifactPickedUp[index] = true;

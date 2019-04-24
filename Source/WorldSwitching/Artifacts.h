@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "PWorldActor.h"
 #include "OurEnums.h"
+#include "SpawnHelper.h"
 #include "Artifacts.generated.h"
 
 /**
@@ -22,11 +23,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void PickupFeedback();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = BelongsToLevel)
-		EArtifactBelongsToLevel BelongsToLevel;
-
 	//Determines if the index is sent back to GameInstance for registering as picked up
-	UPROPERTY(EditAnywhere)
 	bool bKeepTrackOf = true;
 
 	virtual void Tick(float DeltaTime) override;
@@ -34,7 +31,7 @@ public:
 	void SetArrayIndex(int index);
 	int GetArrayIndex();
 
-
+	ASpawnHelper* SpawnedBy = nullptr;
 	
 private:
 	

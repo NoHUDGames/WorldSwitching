@@ -422,9 +422,11 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 	UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	//Sent to GameMode for testing before physical reentry
-	if(!OtherActor->IsA(AArtifacts::StaticClass()) && !OtherActor->IsA(AS_PickupShield::StaticClass()) &&
-		!OtherActor->IsA(APS_Portal::StaticClass()))
-	OtherActorForPhysicalTest = OtherActor;
+	if ((OtherActor->IsA(ASWorldActor::StaticClass()) || OtherActor->IsA(APWorldActor::StaticClass())) &&
+		(!OtherActor->IsA(AArtifacts::StaticClass()) && !OtherActor->IsA(AS_PickupShield::StaticClass())))
+	{
+		OtherActorForPhysicalTest = OtherActor;
+	}
 
 	if (Cast<AArtifacts>(OtherActor))
 	{
@@ -438,7 +440,7 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 		PickedUpArtifactsIndexes.Add(PickedUpActor->GetArrayIndex());
 
 		if (PickedUpActor->bKeepTrackOf)
-		GameInstance->RegisterPickUp(PickedUpActor->GetArrayIndex(), OtherActor);
+		GameInstance->RegisterPickedUp(PickedUpActor->GetArrayIndex(), OtherActor);
 
 		PickedUpActor->PickupFeedback();
 		
@@ -451,7 +453,7 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 		AS_PickupShield* PickedUpActor = Cast<AS_PickupShield>(OtherActor);
 
 		if (PickedUpActor->bKeepTrackOf)
-		GameInstance->RegisterPickUp(PickedUpActor->GetArrayIndex(), OtherActor);;
+		GameInstance->RegisterPickedUp(PickedUpActor->GetArrayIndex(), OtherActor);;
 
 		PickedUpActor->PickupFeedback();
 		++NumberOfShields;

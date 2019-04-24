@@ -7,6 +7,7 @@
 #include "OurEnums.h"
 #include "Artifacts.h"
 #include "S_PickupShield.h"
+#include "SpawnHelper.h"
 #include "WorldSwitchingGameInstance.generated.h"
 
 /**
@@ -35,6 +36,14 @@ public:
 
 	UWorldSwitchingGameInstance();
 
+	//------ START of system that keeps track of which pickups have been picked up between levels-------//
+	//Its essentially an Array (LevelPickupParameters), of structs (Level_#_PickupParameters), 
+	//containing 4 arrays (Location and bool PickedUpStates for each pickup type and level).
+	//SpawnHelpers only provide location for where to spawn PickUps, otherwise there is no relationship between them. 
+	//Pickups are matched to location and bool PickedUp arrays based on index given to them at spawn time. 
+	//Enter a level, get some pickups, exit and reenter level, and only pickups that have not already been taken are allowed to spawn again. 
+	//Only Pickups spawned in this way can be kept track of.
+
 	UPROPERTY(EditAnywhere)
 	int NumberOfLevelsWithSpawnHelpers;
 
@@ -42,11 +51,26 @@ public:
 	FLevelPickupParameters Level_1_PickupParameters;
 	FLevelPickupParameters Level_2_PickupParameters;
 
-
 	int NumberOfArtifactsLevel1{0};
 	int NumberOfArtifactsLevel2{0};
 	int NumberOfShieldsLevel1{0};
 	int NumberOfShieldsLevel2{0};
+
+
+	void ProcessPickupParameters();
+	void CountSpawnHelpersInLevel();
+
+	//Initialize all arrays in Level PickupParameters structs in one go, so we don't add one by one later to arrays inside struct,
+	//Minimizing relocation of struct with 4 arrays
+	void InitializePickupParameters();
+	void AssignPickupParameters();
+
+	void ManageLevelPickups();
+	void GetCurrentLevel();
+	void SpawnPickups();
+	void RegisterPickedUp(int index, AActor* OtherActor);
+	//------ END of system that keeps track of which pickups have been picked up between levels-------//
+
 
 private:
 
@@ -78,22 +102,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AS_PickupShield> ShieldToSpawn;
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void AttachPickupToSpawnHelper(AActor* Child, AActor* Parent);
 
 
-	void ProcessPickupParameters();
-	void CountSpawnHelpersInLevel();
-
-	//Initialize first, so we don't add one by one later to arrays inside struct
-	void InitializePickupParameters();
-	void AssignPickupParameters();
-
-
-	void ManageLevelPickups();
-	void GetCurrentLevel();
-	void SpawnPickups();
-	void RegisterPickUp(int index, AActor* OtherActor);
 
 	void SetPlayerHealth(int PlayerHealth);
 	void SetPlayerArtifacts(int PlayerArtifacts);
