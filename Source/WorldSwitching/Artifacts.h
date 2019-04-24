@@ -33,6 +33,8 @@ public:
 
 	void SetArrayIndex(int index);
 	int GetArrayIndex();
+
+
 	
 private:
 	

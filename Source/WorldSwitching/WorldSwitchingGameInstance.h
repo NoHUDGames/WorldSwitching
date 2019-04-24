@@ -39,12 +39,14 @@ public:
 	int NumberOfLevelsWithSpawnHelpers;
 
 	TArray<FLevelPickupParameters*> LevelPickupParameters;
-	FLevelPickupParameters Level_1PickupParameters;
-	FLevelPickupParameters Level_2PickupParameters;
+	FLevelPickupParameters Level_1_PickupParameters;
+	FLevelPickupParameters Level_2_PickupParameters;
 
 
-
-	
+	int NumberOfArtifactsLevel1{0};
+	int NumberOfArtifactsLevel2{0};
+	int NumberOfShieldsLevel1{0};
+	int NumberOfShieldsLevel2{0};
 
 private:
 
@@ -76,9 +78,17 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AS_PickupShield> ShieldToSpawn;
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void AttachPickupToSpawnHelper(AActor* Child, AActor* Parent);
 
 
-	void GatherSpawnLocations();
+	void ProcessPickupParameters();
+	void CountSpawnHelpersInLevel();
+
+	//Initialize first, so we don't add one by one later to arrays inside struct
+	void InitializePickupParameters();
+	void AssignPickupParameters();
+
 
 	void ManageLevelPickups();
 	void GetCurrentLevel();

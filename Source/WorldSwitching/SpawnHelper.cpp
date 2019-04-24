@@ -26,6 +26,5 @@ void ASpawnHelper::BeginPlay()
 void ASpawnHelper::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 

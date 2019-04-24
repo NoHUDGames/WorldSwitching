@@ -34,100 +34,179 @@ void UWorldSwitchingGameInstance::ManageLevelPickups()
 {
 	GetCurrentLevel();
 
-	if (CurrentLoadedLevel == ECurrentLoadedLevel::Non_Game) return;
+	if (CurrentLoadedLevel == ECurrentLoadedLevel::Non_Game ||
+		CurrentLoadedLevel == ECurrentLoadedLevel::Hub) return;
 
 	if ((CurrentLoadedLevel == ECurrentLoadedLevel::Level_1 && bIsFirsTimeLoadingLevelOne) ||
 		(CurrentLoadedLevel == ECurrentLoadedLevel::Level_2 && bIsFirsTimeLoadingLevelTwo))
 	{
-		GatherSpawnLocations();
+		ProcessPickupParameters();
 		SpawnPickups();
 		return;
 	}
 
-	if (CurrentLoadedLevel == ECurrentLoadedLevel::Hub) return;
-
-
-
 	SpawnPickups();
 }
 
-void UWorldSwitchingGameInstance::GatherSpawnLocations()
+void UWorldSwitchingGameInstance::ProcessPickupParameters()
 {
-	for (TActorIterator<ASpawnHelper> SpawnHelperItr(GetWorld()); SpawnHelperItr; ++SpawnHelperItr)
-	{
-		ASpawnHelper *SpawnHelper = *SpawnHelperItr;
+	//countsPicku
+	CountSpawnHelpersInLevel();
 
-		if (SpawnHelper->SpawnHelperType == ESpawnHelperType::Artifact)
+	//Initialize PickupParameters in Arrays in Struct, using above counts, so we dont add one by one later to arrays, 
+	//avoiding reallocation of whole struct with many arrays
+	InitializePickupParameters();
+
+	AssignPickupParameters();
+}
+
+void UWorldSwitchingGameInstance::CountSpawnHelpersInLevel()
+{
+	if (CurrentLoadedLevel == ECurrentLoadedLevel::Level_1)
+	{
+		for (TActorIterator<ASpawnHelper> SpawnHelperItr(GetWorld()); SpawnHelperItr; ++SpawnHelperItr)
 		{
-			
-			if (CurrentLoadedLevel == ECurrentLoadedLevel::Level_1)
+			ASpawnHelper *SpawnHelper = *SpawnHelperItr;
+
+			if (SpawnHelper->SpawnHelperType == ESpawnHelperType::Artifact)
 			{
-				Level_1PickupParameters.ArtifactLocations.Add(SpawnHelper->GetActorLocation());
-				Level_1PickupParameters.ArtifactPickedUp.Add(false);
+				NumberOfArtifactsLevel1++;
 			}
-			else if (CurrentLoadedLevel == ECurrentLoadedLevel::Level_2)
+
+			else if (SpawnHelper->SpawnHelperType == ESpawnHelperType::Shield)
 			{
-				Level_2PickupParameters.ArtifactLocations.Add(SpawnHelper->GetActorLocation());
-				Level_2PickupParameters.ArtifactPickedUp.Add(false);
+				NumberOfShieldsLevel1++;
 			}
 		}
-		else if (SpawnHelper->SpawnHelperType == ESpawnHelperType::Shield)
+		UE_LOG(LogTemp,Warning, TEXT("NumberOfArtifacts in level: %i"), NumberOfArtifactsLevel1)
+	}
+
+	if (CurrentLoadedLevel == ECurrentLoadedLevel::Level_2)
+	{
+		for (TActorIterator<ASpawnHelper> SpawnHelperItr(GetWorld()); SpawnHelperItr; ++SpawnHelperItr)
 		{
-			if (CurrentLoadedLevel == ECurrentLoadedLevel::Level_1)
+			ASpawnHelper *SpawnHelper = *SpawnHelperItr;
+
+			if (SpawnHelper->SpawnHelperType == ESpawnHelperType::Artifact)
 			{
-				Level_1PickupParameters.ShieldLocations.Add(SpawnHelper->GetActorLocation());
-				Level_1PickupParameters.ShieldPickedUp.Add(false);
+				NumberOfArtifactsLevel2++;
 			}
-			else if (CurrentLoadedLevel == ECurrentLoadedLevel::Level_2)
+
+			else if (SpawnHelper->SpawnHelperType == ESpawnHelperType::Shield)
 			{
-				Level_2PickupParameters.ShieldLocations.Add(SpawnHelper->GetActorLocation());
-				Level_2PickupParameters.ShieldPickedUp.Add(false);
+				NumberOfShieldsLevel2++;
 			}
 		}
 	}
-	
+}
+
+void UWorldSwitchingGameInstance::InitializePickupParameters()
+{
 	if (CurrentLoadedLevel == ECurrentLoadedLevel::Level_1)
 	{
-		LevelPickupParameters[Level] = &Level_1PickupParameters;
+		Level_1_PickupParameters.ArtifactLocations.Init(FVector(0, 0, 0), NumberOfArtifactsLevel1);
+		Level_1_PickupParameters.ArtifactPickedUp.Init(false, NumberOfArtifactsLevel1);
+
+		Level_1_PickupParameters.ShieldLocations.Init(FVector(0, 0, 0), NumberOfShieldsLevel1);
+		Level_1_PickupParameters.ShieldPickedUp.Init(false, NumberOfShieldsLevel1);
+
+		LevelPickupParameters[Level] = &Level_1_PickupParameters;
 		bIsFirsTimeLoadingLevelOne = false;
+	}
+
+	if (CurrentLoadedLevel == ECurrentLoadedLevel::Level_2)
+	{
+		Level_2_PickupParameters.ArtifactLocations.Init(FVector(0, 0, 0), NumberOfArtifactsLevel2);
+		Level_2_PickupParameters.ArtifactPickedUp.Init(false, NumberOfArtifactsLevel2);
+
+		Level_2_PickupParameters.ShieldLocations.Init(FVector(0, 0, 0), NumberOfShieldsLevel2);
+		Level_2_PickupParameters.ShieldPickedUp.Init(false, NumberOfShieldsLevel2);
+
+		LevelPickupParameters[Level] = &Level_2_PickupParameters;
+		bIsFirsTimeLoadingLevelTwo = false;
+	}
+
+}
+
+void UWorldSwitchingGameInstance::AssignPickupParameters()
+{
+	if (CurrentLoadedLevel == ECurrentLoadedLevel::Level_1)
+	{
+		int ArtifactIndex{ 0 };
+		int ShieldIndex{ 0 };
+
+		for (TActorIterator<ASpawnHelper> SpawnHelperItr(GetWorld()); SpawnHelperItr; ++SpawnHelperItr)
+		{
+			ASpawnHelper *SpawnHelper = *SpawnHelperItr;
+
+			if (SpawnHelper->SpawnHelperType == ESpawnHelperType::Artifact)
+			{
+				Level_1_PickupParameters.ArtifactLocations[ArtifactIndex] = SpawnHelper->GetActorLocation();
+				ArtifactIndex++;
+			}
+
+			else if (SpawnHelper->SpawnHelperType == ESpawnHelperType::Shield)
+			{
+				Level_1_PickupParameters.ShieldLocations[ShieldIndex] = SpawnHelper->GetActorLocation();
+
+				ShieldIndex++;
+			}
+		}
 	}
 
 	else if (CurrentLoadedLevel == ECurrentLoadedLevel::Level_2)
 	{
-		LevelPickupParameters[Level] = &Level_2PickupParameters;
-		bIsFirsTimeLoadingLevelTwo = false;
+		int ArtifactIndex{ 0 };
+		int ShieldIndex{ 0 };
+
+		for (TActorIterator<ASpawnHelper> SpawnHelperItr(GetWorld()); SpawnHelperItr; ++SpawnHelperItr)
+		{
+			ASpawnHelper *SpawnHelper = *SpawnHelperItr;
+
+			if (SpawnHelper->SpawnHelperType == ESpawnHelperType::Artifact)
+			{
+				Level_2_PickupParameters.ArtifactLocations[ArtifactIndex] = SpawnHelper->GetActorLocation();
+				ArtifactIndex++;
+			}
+
+			else if (SpawnHelper->SpawnHelperType == ESpawnHelperType::Shield)
+			{
+				Level_2_PickupParameters.ShieldLocations[ShieldIndex] = SpawnHelper->GetActorLocation();
+				ShieldIndex++;
+			}
+		}
 	}
 }
-
-//SpawnPickups som man mister når man dør
-//Må addes både i Locations og bool og gis en index samt skrus på bKeepTrackOf
 
 
 void UWorldSwitchingGameInstance::SpawnPickups()
 {
 	UWorld* World = GetWorld();
 
-		int NumberOfArtifactsToSpawn = LevelPickupParameters[Level]->ArtifactLocations.Num();
+	int NumberOfArtifactsToSpawn = LevelPickupParameters[Level]->ArtifactLocations.Num();
 
-		for (int i = 0; i < NumberOfArtifactsToSpawn; ++i)
-		{
-			if (!LevelPickupParameters[Level]->ArtifactPickedUp[i])
-			{
-				AArtifacts* Artifact = World->SpawnActor<AArtifacts>(ArtifactToSpawn, LevelPickupParameters[Level]->ArtifactLocations[i], FRotator(0));
-				Artifact->bKeepTrackOf = true;
-				Artifact->SetArrayIndex(i);
-			}
-		}
-		int NumberOfShieldsToSpawn = LevelPickupParameters[Level]->ShieldLocations.Num();
+	for (int i = 0; i < NumberOfArtifactsToSpawn; ++i)
+	{
 
-		for (int i = 0; i < NumberOfShieldsToSpawn; ++i)
+		if (!LevelPickupParameters[Level]->ArtifactPickedUp[i])
 		{
-			if (!LevelPickupParameters[Level]->ShieldPickedUp[i])
-			{
-				AS_PickupShield* Shield = World->SpawnActor<AS_PickupShield>(ShieldToSpawn, LevelPickupParameters[Level]->ShieldLocations[i], FRotator(0));
-				Shield->SetArrayIndex(i);
-			}
+			AArtifacts* Artifact = World->SpawnActor<AArtifacts>(ArtifactToSpawn, LevelPickupParameters[Level]->ArtifactLocations[i], FRotator(0));
+			Artifact->bKeepTrackOf = true;
+			Artifact->SetArrayIndex(i);
+
 		}
+	}
+	int NumberOfShieldsToSpawn = LevelPickupParameters[Level]->ShieldLocations.Num();
+
+	for (int i = 0; i < NumberOfShieldsToSpawn; ++i)
+	{
+		if (!LevelPickupParameters[Level]->ShieldPickedUp[i])
+		{
+			AS_PickupShield* Shield = World->SpawnActor<AS_PickupShield>(ShieldToSpawn, LevelPickupParameters[Level]->ShieldLocations[i], FRotator(0));
+			Shield->bKeepTrackOf = true;
+			Shield->SetArrayIndex(i);
+		}
+	}
 }
 
 void UWorldSwitchingGameInstance::RegisterPickUp(int index, AActor* OtherActor)
@@ -140,23 +219,19 @@ void UWorldSwitchingGameInstance::RegisterPickUp(int index, AActor* OtherActor)
 
 }
 
-// Hva hvis man tar med artifacts fra ett level og dør i et annet?
-// Lage en variabel PickedUpInLevel, og hvis den kommer fra et annet level, gi den en ny index,
-// ny PickedUpInLevel verdi, og legge den til i Arrayene / Lage en ny TArray som lagrer posisjon.
-// Vi skal antageligvis ikke kunne ta med seg artifacts til et nytt level
 
 void UWorldSwitchingGameInstance::SetArtifactPickedUp(int index)
 {
 	if (GetWorld()->GetMapName().Contains("1"))
 	{
 
-		Level_1PickupParameters.ArtifactPickedUp[index] = false;
+		Level_1_PickupParameters.ArtifactPickedUp[index] = false;
 	}
 
 	if (GetWorld()->GetMapName().Contains("2"))
 	{
 
-		Level_2PickupParameters.ArtifactPickedUp[index] = false;
+		Level_2_PickupParameters.ArtifactPickedUp[index] = false;
 	}
 }
 

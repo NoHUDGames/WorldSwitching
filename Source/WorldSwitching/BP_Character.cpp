@@ -19,6 +19,7 @@
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimSingleNodeInstance.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "PS_Portal.h"
 
 // Sets default values
 ABP_Character::ABP_Character()
@@ -421,7 +422,8 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 	UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	//Sent to GameMode for testing before physical reentry
-	if(OtherActor->IsA(APWorldActor::StaticClass()) || OtherActor->IsA(ASWorldActor::StaticClass()))
+	if(!OtherActor->IsA(AArtifacts::StaticClass()) && !OtherActor->IsA(AS_PickupShield::StaticClass()) &&
+		!OtherActor->IsA(APS_Portal::StaticClass()))
 	OtherActorForPhysicalTest = OtherActor;
 
 	if (Cast<AArtifacts>(OtherActor))

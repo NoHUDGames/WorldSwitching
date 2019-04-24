@@ -18,6 +18,12 @@ public:
 	// Sets default values for this actor's properties
 	ASpawnHelper();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void AttachPickupToThis(AActor* Pickup);
+
+	UPROPERTY(EditAnywhere)
+	bool bAttachPickupToThis = false;
+
 	USceneComponent* SceneComponent = nullptr;
 
 	UPROPERTY(EditAnywhere)
