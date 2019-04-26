@@ -6,8 +6,11 @@
 #include "PSWorldActor.h"
 #include "Components/SphereComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/SceneComponent.h"
 #include "Materials/MaterialInterface.h"
 #include "WorldSwitchingGameInstance.h"
+#include "Camera/CameraActor.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "Altar.generated.h"
 
 /**
@@ -36,6 +39,15 @@ public:
 
 	USkeletalMeshComponent* GoddessMesh = nullptr;
 
+	UPROPERTY(EditAnywhere)
+	USceneComponent* Level1PortalLookatStart = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	USceneComponent* Level2PortalLookatStart = nullptr;
+
+
+	FVector ActivationSequenceCameraPoint;
+
 	UFUNCTION(BlueprintCallable)
 		void SetGoddessMeshComponent(USkeletalMeshComponent* ComponentToGet) {
 		GoddessMesh = ComponentToGet;
@@ -61,9 +73,36 @@ public:
 
 	UWorldSwitchingGameInstance* GameInstance = nullptr;
 
+	UPROPERTY(BlueprintReadWrite)
+	ACameraActor* m_FreeLevelCamera;
+
+	class APS_Portal* PortalToOpen = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UParticleSystemComponent* ActivationBeam = nullptr;
+
 	void ReceivingArtifacts(int PlayerHoldingArtifacts);
 
+	UFUNCTION(BlueprintCallable)
+	void SetFreeLevelCamera(ACameraActor* FreeLevelCamera) { m_FreeLevelCamera = FreeLevelCamera; }
+
 	void OpenNewPortals();
+
+	void PortalActivationSequence();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void SetBeamTarget(FVector Target);
+	
+	FTimerHandle ActivateBeamHandle;
+	FTimerHandle ActivatePortalHandle;
+	FTimerHandle EndSequenceHandle;
+
+	void ActivateBeam();
+	void ActivatePortal();
+	void EndSequence();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void LerpCamera(ACameraActor* FreeCamera, class APS_Portal* Portal, FVector Start, FVector End);
 
 	UPROPERTY(BlueprintReadWrite)
 	int DroppedOffArtifacts = 0;

@@ -4,6 +4,9 @@
 #include "BP_Character.h"
 #include "PS_Portal.h"
 #include "EngineUtils.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "TimerManager.h"
 
 // Sets default values
 AAltar::AAltar()
@@ -16,6 +19,15 @@ AAltar::AAltar()
 	ArtifactDropoffCollider->SetupAttachment(RootComponent);
 	ArtifactDropoffCollider->SetSphereRadius(300.f);
 
+	ActivationBeam = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ActivationBeamParticle"));
+	Level1PortalLookatStart = CreateDefaultSubobject<USceneComponent>(TEXT("Level1 Portal lookat start"));
+	Level2PortalLookatStart = CreateDefaultSubobject<USceneComponent>(TEXT("Level2 Portal lookat start"));
+
+
+
+	Level1PortalLookatStart->SetupAttachment(RootComponent);
+	Level2PortalLookatStart->SetupAttachment(RootComponent);
+	ActivationBeam->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -48,12 +60,58 @@ void AAltar::OpenNewPortals()
 		APS_Portal *Portal = *PortalItr;
 		if (DroppedOffArtifacts >= Portal->GetArtifactsNeededToUse() && !Portal->bIsActive)
 		{
-			Portal->Activate();
-
+			
 			if (Portal->PortalIndex == EPortalIndex::HubLevel_2)
+			{
+				
 				GameInstance->SetHubPortalLevel2Open(true);
+				ActivationSequenceCameraPoint = Level2PortalLookatStart->GetComponentLocation();
+				UE_LOG(LogTemp, Warning, TEXT("ALTAR: Inside test for Level 2 Portal. LookaAtStart: %s"), *Level2PortalLookatStart->GetComponentLocation().ToString())
+				PortalToOpen = Portal;
+			}
+
+			PortalActivationSequence();
+			
 		}
 	}
+}
+
+void AAltar::PortalActivationSequence()
+{
+
+	UGameplayStatics::GetPlayerPawn(GetWorld(),0)->DisableInput(UGameplayStatics::GetPlayerController(GetWorld(),0));
+	m_FreeLevelCamera->SetActorLocation(ActivationSequenceCameraPoint);
+	m_FreeLevelCamera->SetActorRotation(FRotator(UKismetMathLibrary::FindLookAtRotation(ActivationSequenceCameraPoint, 
+		PortalToOpen->GetActorLocation())));
+
+	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetViewTargetWithBlend(m_FreeLevelCamera, 1.f);
+
+	LerpCamera(m_FreeLevelCamera, PortalToOpen, ActivationSequenceCameraPoint + FVector(0, 0, -400.f), ActivationSequenceCameraPoint + FVector(0, 230, 400));
+
+	SetBeamTarget(PortalToOpen->GetActorLocation());
+
+	GetWorldTimerManager().SetTimer(ActivateBeamHandle, this, &AAltar::ActivateBeam, 1.5, false);
+	GetWorldTimerManager().SetTimer(ActivatePortalHandle, this, &AAltar::ActivatePortal, 2.5f, false);
+	GetWorldTimerManager().SetTimer(EndSequenceHandle, this, &AAltar::EndSequence, 6.f, false);
+
+
+}
+
+void AAltar::ActivateBeam()
+{
+	ActivationBeam->Activate();
+}
+
+void AAltar::ActivatePortal()
+{
+	PortalToOpen->Activate();
+}
+
+void AAltar::EndSequence()
+{
+	UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->EnableInput(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetViewTargetWithBlend(UGameplayStatics::GetPlayerPawn(GetWorld(), 0), 2.f);
+	ActivationBeam->Deactivate();
 }
 
 void AAltar::ActivatePhysicalGoddess()
