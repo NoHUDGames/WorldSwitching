@@ -88,7 +88,7 @@ void AAltar::PortalActivationSequence()
 
 	LerpCamera(m_FreeLevelCamera, PortalToOpen, ActivationSequenceCameraPoint + FVector(0, 0, -400.f), ActivationSequenceCameraPoint + FVector(0, 230, 400));
 
-	SetBeamTarget(PortalToOpen->GetActorLocation());
+	
 
 	GetWorldTimerManager().SetTimer(ActivateBeamHandle, this, &AAltar::ActivateBeam, 1.5, false);
 	GetWorldTimerManager().SetTimer(ActivatePortalHandle, this, &AAltar::ActivatePortal, 2.5f, false);
@@ -99,6 +99,7 @@ void AAltar::PortalActivationSequence()
 
 void AAltar::ActivateBeam()
 {
+	SpawnBeam(PortalToOpen->GetActorLocation() + FVector(0,0,150));
 	ActivationBeam->Activate();
 }
 
@@ -111,7 +112,6 @@ void AAltar::EndSequence()
 {
 	UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->EnableInput(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetViewTargetWithBlend(UGameplayStatics::GetPlayerPawn(GetWorld(), 0), 2.f);
-	ActivationBeam->Deactivate();
 }
 
 void AAltar::ActivatePhysicalGoddess()

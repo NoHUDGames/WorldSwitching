@@ -45,7 +45,6 @@ public:
 	UPROPERTY(EditAnywhere)
 	USceneComponent* Level2PortalLookatStart = nullptr;
 
-
 	FVector ActivationSequenceCameraPoint;
 
 	UFUNCTION(BlueprintCallable)
@@ -91,7 +90,11 @@ public:
 	void PortalActivationSequence();
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void SetBeamTarget(FVector Target);
+	void SpawnBeam(FVector Target);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void KillBeam();
+
 	
 	FTimerHandle ActivateBeamHandle;
 	FTimerHandle ActivatePortalHandle;
