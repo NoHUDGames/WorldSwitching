@@ -73,6 +73,9 @@ ABP_Character::ABP_Character()
 	(TEXT("BlendSpace'/Game/Meshes/Characters/PlayerCharacter/Animations/BS_Movement.BS_Movement'"));
 	MovementAnimBlendSpace = movement_BlendSpace.Object;
 
+	static ConstructorHelpers::FObjectFinder<UAnimationAsset> idle_Anim
+	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Player_Idle.Player_Idle'"));
+	IdleAnim = idle_Anim.Object;
 	
 	/// finished setting up animation variables
 
@@ -99,6 +102,7 @@ ABP_Character::ABP_Character()
 
 	DeathSmoke = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("BlueSmokeOnDeath"));
 	DeathSmoke->SetupAttachment(RootComponent);
+	
 }
 
 // Called when the game starts or when spawned
@@ -270,13 +274,21 @@ void ABP_Character::PlayingAnimations()
 
 		ChangingAnimationStarted(3);
 	}
+	else if (AnimationStarted[4] == false && RunningAnimations == EAnimations::IDLE)
+	{
+		/// The idle animation is usually played through MovementAnimBlendSpace,
+		/// but the blendspace didn't work properly when you ride an elevator
+		GetMesh()->PlayAnimation(IdleAnim, true);
+
+		ChangingAnimationStarted(4);
+	}
 	
 }
 
 void ABP_Character::ChangingAnimationStarted(int index)
 {
 	AnimationStarted[index] = true;
-	for (int i{ 0 }; i < 4; ++i)
+	for (int i{ 0 }; i < 5; ++i)
 	{
 		if (i != index)
 		{
@@ -330,8 +342,15 @@ void ABP_Character::MovementAnimationTesting(float AxisValue)
 	/// Parameters that determines the blend properties for the Movement animation
 	/// X-parameter defines the direction you move, so if the character should strafe or walk forward
 	/// Y-Parameter defines the speed of the character, so whether or not the idle animation should run
+	
+	
+
 	FVector BlendParams(rotationDegreeAngle, GetVelocity().Size(), 0.f);
+
 	GetMesh()->GetSingleNodeInstance()->SetBlendSpaceInput(BlendParams);
+
+	
+	
 	
 }
 
@@ -444,7 +463,8 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 
 		PickedUpActor->PickupFeedback();
 		
-		UE_LOG(LogTemp,Warning, TEXT("We have %i artifacts"), NumberOfHoldingArtifacts)
+		UE_LOG(LogTemp, Warning, TEXT("We have %i artifacts"), NumberOfHoldingArtifacts)
+
 	}
 
 	else if (Cast<AS_PickupShield>(OtherActor) && GetShields() < 3)

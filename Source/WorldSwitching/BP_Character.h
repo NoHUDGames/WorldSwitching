@@ -14,6 +14,7 @@
 #include "SensingSphere.h"
 #include "OurEnums.h"
 #include "Animation/BlendSpace.h"
+#include "Runtime/UMG/Public/Blueprint/UserWidget.h"
 #include "BP_Character.generated.h"
 
 class AArtifacts;
@@ -157,6 +158,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Collecting")
 	int NumberOfHoldingArtifacts;
 
+	/*UPROPERTY(EditAnywhere, Category = "Collecting")
+		TSubclassOf<class UUserWidget> ArtifactPickupHUD;*/
 	/// End of function and variables dealing with artifact picking
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WorldChanging")
@@ -261,11 +264,12 @@ private:
 	UAnimationAsset* KickingAnim;
 	UAnimationAsset* DashingAnim;
 	UAnimationAsset* DyingAnim;
+	UAnimationAsset* IdleAnim;
 
 	UBlendSpace* MovementAnimBlendSpace;
 
-	/// 0 = MovementAnimBlendSpace, 1 = KickingAnim, 2 = DashingAnim, 3 = DyingAnim
-	bool AnimationStarted[4] = { false };
+	/// 0 = MovementAnimBlendSpace, 1 = KickingAnim, 2 = DashingAnim, 3 = DyingAnim, 4 = IdleAnim
+	bool AnimationStarted[5] = { false };
 	
 	/// end of variable and enums that are related to animations
 
