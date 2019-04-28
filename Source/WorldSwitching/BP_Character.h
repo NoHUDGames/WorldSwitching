@@ -95,6 +95,7 @@ public:
 	FTimerHandle DashCooldown;
 	FTimerHandle DeathAnimationTimer;
 	FTimerHandle ActivatingDeathSmokeTimer;
+	FTimerHandle ArtifactDisplayResetTimer;
 
 	bool CurrentlyKicking{ false };
 
@@ -258,6 +259,18 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 		float KnockbackForce{200.f};
 
+	UPROPERTY(EditAnywhere, Category = "Collecting")
+	TSubclassOf<class UUserWidget> ArtifactWidget;
+	UUserWidget* ArtifactDisplay;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collecting")
+		bool PickedUpArtifact = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collecting")
+		float LastTimePickedUpArtifact;
+
+	/// This function makes sure that the display retracts back to ouside the viewport
+	void ResetArtifactDisplayValues();
 private:
 	
 	/// Variables and enums that are related to animations

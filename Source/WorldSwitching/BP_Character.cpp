@@ -102,6 +102,7 @@ ABP_Character::ABP_Character()
 
 	DeathSmoke = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("BlueSmokeOnDeath"));
 	DeathSmoke->SetupAttachment(RootComponent);
+
 	
 }
 
@@ -201,6 +202,8 @@ void ABP_Character::BeginPlay()
 		GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	}
 
+	ArtifactDisplay = CreateWidget<UUserWidget>(GameInstance, ArtifactWidget);
+	ArtifactDisplay->AddToViewport();
 }
 
 // Called every frame
@@ -326,6 +329,12 @@ void ABP_Character::MoveRight(float AxisValue)
 	
 
 	MovementAnimationTesting(AxisValue);
+}
+
+void ABP_Character::ResetArtifactDisplayValues()
+{
+	LastTimePickedUpArtifact = UGameplayStatics::GetRealTimeSeconds(GetWorld());
+	PickedUpArtifact = false;
 }
 
 void ABP_Character::MovementAnimationTesting(float AxisValue)
@@ -465,6 +474,13 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 		
 		UE_LOG(LogTemp, Warning, TEXT("We have %i artifacts"), NumberOfHoldingArtifacts)
 
+		if (PickedUpArtifact == false)
+		{
+			LastTimePickedUpArtifact = UGameplayStatics::GetRealTimeSeconds(GetWorld());
+			PickedUpArtifact = true;
+		}
+		
+		GetWorldTimerManager().SetTimer(ArtifactDisplayResetTimer, this, &ABP_Character::ResetArtifactDisplayValues, 3.f, false);
 	}
 
 	else if (Cast<AS_PickupShield>(OtherActor) && GetShields() < 3)
