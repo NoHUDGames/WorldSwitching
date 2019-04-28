@@ -54,29 +54,22 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 	
 	if (GameInstance)
 	{
-		bool bIsFirstTimeStartingGame = GameInstance->GetbIsFirstTimeStartingGame();
-		if (bIsFirstTimeStartingGame)
+		if (GameInstance->GetbIsFirstTimeStartingGame())
 		{
 			GameInstance->SetbIsFirstTimeStartingGame(false);
+
 			GameInstance->BeginGame();
 			GameInstance->ManageLevelPickups();
 			ChangeWorlds(false);
 		}
 
-		if (!bIsFirstTimeStartingGame)
+		else
 		{
 			GameInstance->ManageLevelPickups();
 			ToggleAll();
 		}
-
-		if (GameInstance->GetHubPortalLevel2Open())
-		{
-			for (TActorIterator<APWorldActor> PActorItr(GetWorld()); PActorItr; ++PActorItr)
-			{
-
-			}
-		}
 	}
+
 }
 
 void AWorldSwitchingGameModeBase::ChangeWorldsProxy()

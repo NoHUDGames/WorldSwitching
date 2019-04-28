@@ -273,3 +273,13 @@ void UWorldSwitchingGameInstance::SetAltarArtifacts(int Number)
 {
 	GI_AltarArtifacts = Number;
 }
+
+void UWorldSwitchingGameInstance::ResetGameVariables()
+{
+	bIsFirstTimeStartingGame = true;
+	bIsFirsTimeLoadingLevelOne = true;
+	bIsFirsTimeLoadingLevelTwo = true;
+	GI_AltarArtifacts = 0;
+	GI_PlayerArtifacts = 0;
+	GI_PlayerHealth = 3;
+}

@@ -124,6 +124,9 @@ public:
 		bool ComingIn = false;
 		bool GoingOut = false;
 
+		UPROPERTY(EditAnywhere)
+		bool bIsMainMenuPortal = false;
+
 		int GetArtifactsNeededToUse() { return ArtifactsNeededToUse; }
 
 		UPROPERTY(EditAnywhere)

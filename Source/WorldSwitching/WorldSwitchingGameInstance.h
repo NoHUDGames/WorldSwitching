@@ -40,7 +40,7 @@ public:
 	//Its essentially an Array (LevelPickupParameters), of structs (Level_#_PickupParameters), 
 	//containing 4 arrays (Location and bool PickedUpStates for each pickup type and level).
 	//SpawnHelpers only provide location for where to spawn PickUps, otherwise there is no relationship between them. 
-	//Pickups are matched to location and bool PickedUp arrays based on index given to them at spawn time. 
+	//Pickups are matched to bool PickedUp arrays based on index given to them at spawn time. 
 	//Enter a level, get some pickups, exit and reenter level, and only pickups that have not already been taken are allowed to spawn again. 
 	//Only Pickups spawned in this way can be kept track of.
 
@@ -94,7 +94,6 @@ private:
 
 public:
 
-	bool bIsFirstTimeLoadingGame = true;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AArtifacts> ArtifactToSpawn;
@@ -124,5 +123,8 @@ public:
 	void SetHubPortalLevel2Open(bool State) { HubPortalToLevel2 = State; }
 
 	void BeginGame();
+
+	UFUNCTION(BlueprintCallable)
+	void ResetGameVariables();
 
 };

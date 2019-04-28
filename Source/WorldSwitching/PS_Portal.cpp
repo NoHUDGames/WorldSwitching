@@ -69,10 +69,17 @@ void APS_Portal::BeginPlay()
 	}
 	
 	
+	if (!GameInstance->GetbIsFirstTimeStartingGame()) UE_LOG(LogTemp, Warning, TEXT("Portal: IsFirstTimeStartingGame is false"))
+	else UE_LOG(LogTemp, Warning, TEXT("IsFirstTimeStartingGame is true"))
+
+
 	// Enter Level through Portal
 	CurrentMapName = GetWorld()->GetMapName();
 	if (!GameInstance->GetbIsFirstTimeStartingGame() && SetPortalToEnterFrom() && LevelCamera)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("PORTAL: Entered enter level sequence"))
+
+
 		ComingOrGoing = COMING;
 		PortalToEnterFrom->BoxTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		SetupNavigationPoints();
@@ -84,9 +91,6 @@ void APS_Portal::BeginPlay()
 
 		TL_TriggerEnterLevelSequence();
 	}
-
-	else if (LevelCamera) UE_LOG(LogTemp, Warning, TEXT("PORTAL: GOT LEVEL CAMERA"))
-	else if (!LevelCamera) UE_LOG(LogTemp, Warning, TEXT("PORTAL: DID NOT GET LEVEL CAMERA"))
 
 }
 
@@ -264,6 +268,8 @@ bool APS_Portal::SetPortalToEnterFrom()
 			}
 		}
 	}
+
+
 	return false;
 }
 
