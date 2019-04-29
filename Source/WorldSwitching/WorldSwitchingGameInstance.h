@@ -87,7 +87,8 @@ private:
 
 	bool bIsFirsTimeLoadingLevelOne = true;
 	bool bIsFirsTimeLoadingLevelTwo = true;
-	bool bIsFirstTimeStartingGame = true;
+
+	
 
 	bool HubPortalToLevel2 = false;
 	
@@ -101,6 +102,12 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AS_PickupShield> ShieldToSpawn;
 
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsFirstTimeStartingGame = true;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bStartWithIntroDialogue = true;
 
 
 
