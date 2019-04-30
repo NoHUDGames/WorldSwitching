@@ -17,6 +17,15 @@ void AArtifacts::Tick(float DeltaTime)
 
 }
 
+void AArtifacts::BeginPlay()
+{
+	if (bCanBeSensed) TriggerSetMeshRef();
+	if (MeshRef)
+	{
+		GetOriginalMaterials();
+	}
+}
+
 
 void AArtifacts::SetArrayIndex(int index)
 {

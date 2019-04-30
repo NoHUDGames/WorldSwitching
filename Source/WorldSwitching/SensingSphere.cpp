@@ -128,7 +128,7 @@ void ASensingSphere::TurnOffOtherActorCollisions()
 					MeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 					UE_LOG(LogTemp, Warning, TEXT("TurnOffOtherActorCollisions/Physical: Got MeshComponent in actor iterator. Set to QueryAndPhysics"))
 				}
-				else UE_LOG(LogTemp, Warning, TEXT("TurnOffOtherActorCollisions/Physical: DID NOT GET MeshComponent in actor iterator."))
+				else UE_LOG(LogTemp, Warning, TEXT("TurnOffOtherActorCollisions/Physical: DID NOT GET MeshComponent in actor: %s"), *Actor->GetActorLabel())
 			}
 		}
 	}
@@ -187,5 +187,4 @@ void ASensingSphere::OverlapsWithActors(UPrimitiveComponent * OverlappedComp, AA
 		Cast<APWorldActor>(OtherActor)->LightUpActorWhenSensed();
 
 	}
-
 }

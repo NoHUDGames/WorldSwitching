@@ -74,9 +74,7 @@ public:
 
 private:
 
-	ECurrentLoadedLevel CurrentLoadedLevel;
-	int Level;
-	FString CurrentMapName;
+	
 
 
 	//GameInstance_
@@ -94,6 +92,14 @@ private:
 	
 
 public:
+
+	ECurrentLoadedLevel CurrentLoadedLevel;
+
+	UPROPERTY(BlueprintReadOnly)
+	int Level;
+
+
+	FString CurrentMapName;
 
 
 	UPROPERTY(EditAnywhere)

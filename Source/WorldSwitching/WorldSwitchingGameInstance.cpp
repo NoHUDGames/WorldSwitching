@@ -282,4 +282,5 @@ void UWorldSwitchingGameInstance::ResetGameVariables()
 	GI_AltarArtifacts = 0;
 	GI_PlayerArtifacts = 0;
 	GI_PlayerHealth = 3;
+	bStartWithIntroDialogue = true;
 }
