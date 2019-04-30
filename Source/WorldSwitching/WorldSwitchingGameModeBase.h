@@ -120,7 +120,7 @@ public:
 	}
 	void DecrementLitUpBySensing() 
 	{ 
-		if(LitUpBySensing > 0) --LitUpBySensing;
+		--LitUpBySensing; 
 		UE_LOG(LogTemp, Warning, TEXT("GAME MODE: Objects Lit up: %i"), LitUpBySensing)
 	}
 

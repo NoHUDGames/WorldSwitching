@@ -60,7 +60,6 @@ public:
 
 
 	bool bCurrentIsSpiritWorld = false;
-
 	//MAIN FUNCTION
 	void LightUpActorWhenSensed();
 

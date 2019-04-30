@@ -23,15 +23,10 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void PickupFeedback();
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void ArtifactLightupWhenSensed();
-
 	//Determines if the index is sent back to GameInstance for registering as picked up
 	bool bKeepTrackOf = false;
 
 	virtual void Tick(float DeltaTime) override;
-
-	virtual void BeginPlay() override;
 
 	void SetArrayIndex(int index);
 	int GetArrayIndex();

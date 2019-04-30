@@ -2,7 +2,6 @@
 
 #include "PWorldActor.h"
 #include "WorldSwitchingGameModeBase.h"
-#include "Artifacts.h"
 
 // Sets default values
 APWorldActor::APWorldActor()
@@ -83,9 +82,9 @@ void APWorldActor::LightUpActorWhenSensed()
 		}
 	}
 
-	if (Cast<AArtifacts>(this)) Cast<AArtifacts>(this)->ArtifactLightupWhenSensed();
+	TimeLineLightUpTrigger();
 
-	else TimeLineLightUpTrigger();
+
 }
 
 void APWorldActor::ApplyDynamicMaterials()
