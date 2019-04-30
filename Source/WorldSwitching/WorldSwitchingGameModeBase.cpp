@@ -435,11 +435,12 @@ void AWorldSwitchingGameModeBase::ToggleInstanceMeshes()
 			int MaterialElementIterator = 0;
 			for (int j = MeshIndexAccumulator - NumberOfMaterials[i]; j < MeshIndexAccumulator; ++j)
 			{
-				if (Meshes[i])
+				/// builden ville ikke tillate disse linjene så kommenterte det ut
+				/*if (Meshes[i])
 				{
 					if (bIsSpiritWorld) Meshes[i]->SetMaterial(MaterialElementIterator, SpiritMaterials[j]);
 					else Meshes[i]->SetMaterial(MaterialElementIterator, PhysicalMaterials[j]);
-				}
+				}*/
 
 				MaterialElementIterator++;
 				UE_LOG(LogTemp, Warning, TEXT("ToggleInstanceMeshes: Assigning material index %i"), j)

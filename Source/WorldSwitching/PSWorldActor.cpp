@@ -30,7 +30,7 @@ void APSWorldActor::BeginPlay()
 	if (SpiritMaterials.Num() == PhysicalMaterials.Num()) NumberOfMaterials = SpiritMaterials.Num();
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UNEQUAL NUMBER OF MATERIALS IN  %s"), *GetActorLabel())
+		///UE_LOG(LogTemp, Warning, TEXT("UNEQUAL NUMBER OF MATERIALS IN  %s"), *GetActorLabel())
 		Destroy();
 	}
 
