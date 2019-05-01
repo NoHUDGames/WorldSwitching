@@ -147,6 +147,10 @@ public:
 
 	void ToggleInstanceMeshes();
 
+	UPROPERTY(EditAnywhere, Category = EnemyMaterials)
+	TArray<UMaterialInterface*> SpiritEnemyPhysicalWorldMaterials;
+	UPROPERTY(EditAnywhere, Category = EnemyMaterials)
+	TArray<UMaterialInterface*> SpiritEnemySpiritWorldMaterials;
 
 };
 
