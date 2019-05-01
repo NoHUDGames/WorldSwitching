@@ -143,8 +143,7 @@ void APS_Portal::ExitLevelSequence(UPrimitiveComponent* OverlappedComponent, AAc
 	
 	PlayerCameFrom = PortalIndex;
 
-	if (GameMode && !GameMode->bIsSpiritWorld) return;
-	else SetActorEnableCollision(false);
+	SetActorEnableCollision(false);
 
 	if (PlayerPawn && GameInstance && LevelCamera)
 	{

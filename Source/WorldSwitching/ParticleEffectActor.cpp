@@ -20,7 +20,6 @@ AParticleEffectActor::AParticleEffectActor()
 
 	PhysicalFireColor = { 1.f, 0.376471, 0.f };
 	SpiritFireColor = { 0.f, 0.536935f, 1.f };
-
 }
 
 // Called when the game starts or when spawned

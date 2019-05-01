@@ -160,20 +160,6 @@ bool AWorldSwitchingGameModeBase::TestWorldChangeOverlaps()
 	return false;
 }
 
-/*
-void AWorldSwitchingGameModeBase::TestSpiritOverlaps()
-{
-	PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
-	ToggleSpiritWorldActors();
-	OtherActorPhysicalTest = PlayerPawn->GetOtherActorForPhysicalTest();
-
-	if (!OtherActorPhysicalTest)
-	{
-		//Will be set to block again OnComponentEndOverlap from blueprint 
-		PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
-	}
-}
-*/
 
 void AWorldSwitchingGameModeBase::GatherLevelCameras()
 {
