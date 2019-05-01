@@ -33,6 +33,9 @@ public:
 		//Set true to run dynamic change to DynamicBothWorlds component
 	bool bIsDynamicFire;
 
+
+	//Tested against in GameMode during world toggling function for this type
+	UPROPERTY(EditAnywhere, Category = WorldChange)
 	bool bOptOutOfWorldChangeEffect = false;
 
 	FVector PhysicalFireColor;

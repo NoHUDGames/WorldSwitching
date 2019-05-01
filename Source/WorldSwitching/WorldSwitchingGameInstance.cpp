@@ -279,7 +279,9 @@ void UWorldSwitchingGameInstance::ResetGameVariables()
 	bIsFirstTimeStartingGame = true;
 	bIsFirsTimeLoadingLevelOne = true;
 	bIsFirsTimeLoadingLevelTwo = true;
+	bStartWithIntroDialogue = true;
 	GI_AltarArtifacts = 0;
 	GI_PlayerArtifacts = 0;
 	GI_PlayerHealth = 3;
+
 }

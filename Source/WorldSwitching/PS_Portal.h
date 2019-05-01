@@ -76,7 +76,7 @@ public:
 		UAnimSequence* OpenPortal = nullptr;
 
 
-
+		//I did this before I learned about ChildActorComponents. That would have been better
 		UPROPERTY(EditAnywhere, Category = "ParticleEffectToSpawn")
 		TSubclassOf<AParticleEffectActor> ParticleEffectToSpawn;
 
