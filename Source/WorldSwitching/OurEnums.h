@@ -13,8 +13,10 @@
 UENUM(BlueprintType)
 enum class ESpawnHelperType : uint8
 {
-	Artifact	UMETA(DisplayName="Artifact"),
-	Shield		UMETA(DisplayName="Shield")
+	Artifact				UMETA(DisplayName="Artifact"),
+	Shield					UMETA(DisplayName="Shield"),
+	GoddessWidgetCapture	UMETA(DisplayName = "GoddessWidgetCapture"),
+	ArtifactsWidgetCapture	UMETA(DisplayName = "ArtifactWidgetCapture")
 };
 
 UENUM(BlueprintType)
