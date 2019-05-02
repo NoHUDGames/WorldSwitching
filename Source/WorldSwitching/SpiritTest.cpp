@@ -61,6 +61,9 @@ ASpiritTest::ASpiritTest()
 	BlueSmoke = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("BlueSmokeOnDeath"));
 	BlueSmoke->SetupAttachment(RootComponent);
 
+	FireFlies = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("FireFliesInPhysicalWorld"));
+	FireFlies->SetupAttachment(RootComponent);
+
 	/// Sets up the timeline for knockback effect
 	KnockbackTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineForKnockbackEffect"));
 
@@ -101,6 +104,10 @@ void ASpiritTest::Tick(float DeltaTime)
 	MovementAnimationTesting();
 	PlayingAnimations();
 	
+	if (FireFlies->IsActive())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("It is active"))
+	}
 }
 
 void ASpiritTest::PlayingAnimations()
@@ -109,7 +116,6 @@ void ASpiritTest::PlayingAnimations()
 	
 	if (AnimationStarted[0] == false && RunningAnimations == EAnimations::TAKINGDAMAGE)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Running TakingDamageAnim"));
 		GetMesh()->PlayAnimation(TakingDamageAnim, false);
 
 		ChangingAnimationStarted(0);

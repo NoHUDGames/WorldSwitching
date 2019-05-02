@@ -251,7 +251,14 @@ void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
 		{
 			ASpiritTest *SpiritTest = *SpiritItr;
 			SpiritItr->SetActorEnableCollision(true);
-			SpiritItr->SetActorHiddenInGame(false);
+			///SpiritItr->SetActorHiddenInGame(false);
+
+			SpiritItr->FireFlies->Deactivate();
+
+			for (int MaterialIndex{ 0 }; MaterialIndex < SpiritEnemySpiritWorldMaterials.Num(); ++MaterialIndex)
+			{
+				SpiritItr->GetMesh()->SetMaterial(MaterialIndex, SpiritEnemySpiritWorldMaterials[MaterialIndex]);
+			}
 		}
 
 	}
@@ -277,7 +284,15 @@ void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
 		{
 			ASpiritTest *SpiritTest = *SpiritItr;
 			SpiritItr->SetActorEnableCollision(false);
-			SpiritItr->SetActorHiddenInGame(true);
+			///SpiritItr->SetActorHiddenInGame(true);
+
+			SpiritItr->FireFlies->Activate();
+
+			for (int MaterialIndex{ 0 }; MaterialIndex < SpiritEnemyPhysicalWorldMaterials.Num(); ++MaterialIndex)
+			{
+				SpiritItr->GetMesh()->SetMaterial(MaterialIndex, SpiritEnemyPhysicalWorldMaterials[MaterialIndex]);
+			}
+			
 		}
 	}
 }

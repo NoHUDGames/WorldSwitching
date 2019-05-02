@@ -80,8 +80,13 @@ public:
 	FTimerHandle SpawningHeadTimerHandler;
 	FTimerHandle DestroyingActorTimerHandler;
 
+	/// Particle system intended for when the character dies
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UParticleSystemComponent* BlueSmoke = nullptr;
+
+	/// Particle system intended for showing that the character isn't in the physical world
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UParticleSystemComponent* FireFlies = nullptr;
 
 	UFUNCTION(BlueprintCallable)
 		UAnimSequence* GetAttackAnim() { return AttackAnim; };
