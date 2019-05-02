@@ -60,8 +60,9 @@ public:
 
 
 	bool bCurrentIsSpiritWorld = false;
+
 	//MAIN FUNCTION
-	void LightUpActorWhenSensed();
+	virtual void LightUpActorWhenSensed();
 
 	void ApplyDynamicMaterials();
 
@@ -74,5 +75,9 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+private:
+
+	
 
 };

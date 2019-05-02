@@ -44,6 +44,10 @@ public:
 
 	void TurnOnOtherActorCollisions();
 
+	void PrepareArtifactForSensing(AActor* ArtifactActor);
+
+	void ResetArtifactAfterSensing(AActor* ArtifactActor);
+
 	void TurnOffOtherActorCollisions();
 
 	void AdjustSphereColliderForWorldType();
