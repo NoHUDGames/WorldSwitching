@@ -283,7 +283,7 @@ void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
 		for (TActorIterator<ASpiritTest> SpiritItr(GetWorld()); SpiritItr; ++SpiritItr)
 		{
 			ASpiritTest *SpiritTest = *SpiritItr;
-			SpiritItr->SetActorEnableCollision(false);
+			///SpiritItr->SetActorEnableCollision(false);
 			///SpiritItr->SetActorHiddenInGame(true);
 
 			SpiritItr->FireFlies->Activate();
