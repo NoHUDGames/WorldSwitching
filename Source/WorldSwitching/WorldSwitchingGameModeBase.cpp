@@ -250,7 +250,7 @@ void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
 		for (TActorIterator<ASpiritTest> SpiritItr(GetWorld()); SpiritItr; ++SpiritItr)
 		{
 			ASpiritTest *SpiritTest = *SpiritItr;
-			SpiritItr->SetActorEnableCollision(true);
+			SpiritItr->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 			///SpiritItr->SetActorHiddenInGame(false);
 
 			SpiritItr->FireFlies->Deactivate();
@@ -283,6 +283,7 @@ void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
 		for (TActorIterator<ASpiritTest> SpiritItr(GetWorld()); SpiritItr; ++SpiritItr)
 		{
 			ASpiritTest *SpiritTest = *SpiritItr;
+			SpiritItr->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 			///SpiritItr->SetActorEnableCollision(false);
 			///SpiritItr->SetActorHiddenInGame(true);
 
