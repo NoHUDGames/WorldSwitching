@@ -102,6 +102,7 @@ ABP_Character::ABP_Character()
 
 	DeathSmoke = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("BlueSmokeOnDeath"));
 	DeathSmoke->SetupAttachment(RootComponent);
+	
 
 	
 }
@@ -204,6 +205,8 @@ void ABP_Character::BeginPlay()
 
 	ArtifactDisplay = CreateWidget<UUserWidget>(GameInstance, ArtifactWidget);
 	ArtifactDisplay->AddToViewport();
+
+	DeathSmoke->Deactivate();
 }
 
 // Called every frame
@@ -358,9 +361,6 @@ void ABP_Character::MovementAnimationTesting(float AxisValue)
 
 	GetMesh()->GetSingleNodeInstance()->SetBlendSpaceInput(BlendParams);
 
-	
-	
-	
 }
 
 
@@ -428,7 +428,7 @@ void ABP_Character::StopInteracting()
 
 void ABP_Character::DecrementingLives()
 {
-	UGameplayStatics::PlayWorldCameraShake(GetWorld(), TakingDamageCameraShake, GetActorLocation(), 10.f, 1300.f);
+	UGameplayStatics::PlayWorldCameraShake(GetWorld(), TakingDamageCameraShake, GetActorLocation(), 10.f, 1500.f);
 	if (GetShields() > 0)
 	{
 		--NumberOfShields;
@@ -439,6 +439,8 @@ void ABP_Character::DecrementingLives()
 
 		if (Lives <= 0)
 		{
+			DisableInput(GetWorld()->GetFirstPlayerController());
+			
 			RunningAnimations = EAnimations::DYING;
 			GetWorldTimerManager().SetTimer(ActivatingDeathSmokeTimer, this, &ABP_Character::ActivateDeathSmoke, 1.f, false);
 			GetWorldTimerManager().SetTimer(DeathAnimationTimer, this, &ABP_Character::DeathSequenceProxy, 2.f, false);
@@ -577,9 +579,11 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 
 void ABP_Character::DeathSequence(bool bWithArtifactLoss)
 {
-	DeathSmoke->Activate();
-	SetActorHiddenInGame(true);
+	GetMesh()->SetHiddenInGame(true);
+	Head->SetHiddenInGame(true);
+	Mask->SetHiddenInGame(true);
 	SetActorEnableCollision(false);
+	DeathSmoke->Deactivate();
 
 	if (bWithArtifactLoss)
 	{
@@ -634,14 +638,16 @@ void ABP_Character::RespawnSequence()
 
 	Lives = 3;
 	SetShields(0);
-	SetActorHiddenInGame(false);
+	GetMesh()->SetHiddenInGame(false);
+	Head->SetHiddenInGame(false);
+	Mask->SetHiddenInGame(false);
 	SetActorEnableCollision(true);
 	SetActorLocation(RespawnLocation);
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	isTargetingEnemy = false;
-
+	EnableInput(GetWorld()->GetFirstPlayerController());
 	RunningAnimations = EAnimations::MOVEMENT;
-	DeathSmoke->Deactivate();
+	
 }
 
 

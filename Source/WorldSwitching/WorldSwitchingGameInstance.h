@@ -47,6 +47,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	int NumberOfLevelsWithSpawnHelpers;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool FinishedTutorial{false};
+
 	TArray<FLevelPickupParameters*> LevelPickupParameters;
 	FLevelPickupParameters Level_1_PickupParameters;
 	FLevelPickupParameters Level_2_PickupParameters;

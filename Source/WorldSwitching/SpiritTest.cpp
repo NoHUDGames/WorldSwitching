@@ -105,11 +105,6 @@ void ASpiritTest::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	MovementAnimationTesting();
 	PlayingAnimations();
-	
-	if (FireFlies->IsActive())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("It is active"))
-	}
 }
 
 void ASpiritTest::PlayingAnimations()
@@ -261,7 +256,11 @@ void ASpiritTest::CallingPlayerDecrementLivesFunction()
 {
 	ABP_Character * PlayerCharacter = Cast<ABP_Character>(GetWorld()->GetFirstPlayerController()->GetPawn());
 
-	PlayerCharacter->DecrementingLives();
+	if (PlayerCharacter->bIsSpiritWorld == false && PlayerCharacter->Lives > 0)
+	{
+		PlayerCharacter->DecrementingLives();
+	}
+	
 	bCanPerformNextDamageOverTime = true;
 	
 }
