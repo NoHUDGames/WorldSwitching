@@ -49,12 +49,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetSphereColliderReference(USphereComponent* SphereToGet) { SphereCollider = SphereToGet; }
 
-	UFUNCTION(BlueprintCallable)
-	void SetDynamicMaterialForSensing(UMaterialInstanceDynamic* ToGet) { 
-
-
-		ArtifactDynamicMaterial = ToGet; 
-	}
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PickupFeedback();

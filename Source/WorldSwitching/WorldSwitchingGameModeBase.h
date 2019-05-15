@@ -75,6 +75,9 @@ public:
 
 	UWorldSwitchingGameInstance* GameInstance = nullptr;
 
+	UWorld* CurrentWorld = nullptr;
+	FString CurrentMapName;
+
 
 
 	UPROPERTY(EditAnywhere, Category ="Error Sound")
@@ -107,6 +110,13 @@ public:
 	void ToggleParticleEffects();
 
 	void TogglePhysicalSpiritActors();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ToggleLandscapes();
+
+	//Landscape variables are in the blueprint. Unreal wound not allow BlueprintReadWriteable ALandscape*
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetLandscapesReferences();
 
 	
 
