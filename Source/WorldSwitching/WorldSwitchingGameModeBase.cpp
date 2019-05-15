@@ -30,6 +30,9 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 	GatherLevelCameras();
+	CurrentWorld = GetWorld();
+	CurrentMapName = CurrentWorld->GetMapName();
+	SetLandscapesReferences();
 
 	EAutoReceiveInput::Player0;
 
@@ -103,6 +106,8 @@ void AWorldSwitchingGameModeBase::ToggleAll()
 	ToggleParticleEffects();
 	ToggleLastingCameraEffects();
 	ToggleInstanceMeshes();
+	
+	if (!CurrentMapName.Contains("2"))	ToggleLandscapes();
 }
 
 bool AWorldSwitchingGameModeBase::TestWorldChangeOverlaps()

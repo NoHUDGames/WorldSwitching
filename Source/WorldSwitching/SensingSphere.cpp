@@ -4,6 +4,7 @@
 #include "WorldSwitchingGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Artifacts.h"
+#include "S_PickupShield.h"
 #include "BP_Character.h"
 
 
@@ -87,10 +88,30 @@ void ASensingSphere::PrepareArtifactForSensing(AActor* ArtifactActor)
 
 }
 
-void ASensingSphere::ResetArtifactAfterSensing(AActor* ArtifactActor)
+void ASensingSphere::PrepareShieldForSensing(AActor* ShieldActor)
 {
-	AArtifacts* Artifact = Cast<AArtifacts>(ArtifactActor);
+	AS_PickupShield* Shield = nullptr;
+
+	if (Cast<AS_PickupShield>(ShieldActor))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Prepareartifactforsensing: Object is a shield"))
+			Shield = Cast<AS_PickupShield>(ShieldActor);
+	}
+
+	else UE_LOG(LogTemp, Warning, TEXT("Prepareartifactforsensing: Object is not an artifact"))
+
+
+
+		//Ignore Pawn in case player is overlapping artifact in other world
+
+		if (Shield)
+		{
+			Shield->SphereCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+			Shield->SetActorEnableCollision(true);
+		}
+		else UE_LOG(LogTemp, Warning, TEXT("SensingSphere: WE DO NOT HAVE SHIELD POINTER"))
 }
+
 
 //Set other actors to be be able to overlap with sphere but not block player if moving
 void ASensingSphere::TurnOnOtherActorCollisions()
@@ -102,7 +123,7 @@ void ASensingSphere::TurnOnOtherActorCollisions()
 		{
 			APWorldActor* Actor = *PActorItr;
 
-			//Artifacts need a little different treatment because they use a SphereCollider
+			//Artifacts need a little different treatment because they use a SphereCollider added from blueprint
 			if (Cast<AArtifacts>(Actor))
 			{
 				PrepareArtifactForSensing(Actor);
@@ -132,6 +153,13 @@ void ASensingSphere::TurnOnOtherActorCollisions()
 		for (TActorIterator<ASWorldActor> SActorItr(GetWorld()); SActorItr; ++SActorItr)
 		{
 			ASWorldActor* Actor = *SActorItr;
+
+			if (Cast<AS_PickupShield>(Actor))
+			{
+				PrepareShieldForSensing(Actor);
+				continue;
+			}
+
 			if (Actor->bCanBeSensed)
 			{
 				Actor->SetActorEnableCollision(true);
@@ -162,11 +190,13 @@ void ASensingSphere::TurnOffOtherActorCollisions()
 		{
 			APWorldActor* Actor = *PActorItr;
 
+			/*
 			if (Cast<AArtifacts>(Actor))
 			{
 				ResetArtifactAfterSensing(Actor);
 				continue;
 			}
+			*/
 
 
 			if (Actor->bCanBeSensed)
@@ -214,7 +244,7 @@ void ASensingSphere::AdjustSphereColliderForWorldType()
 		SphereCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Overlap);
 
 		//Overlap with Artifacts(Channel GeneralOverlap)
-		SphereCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel3, ECollisionResponse::ECR_Overlap);
+		//SphereCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel3, ECollisionResponse::ECR_Overlap);
 
 
 	}
@@ -223,28 +253,31 @@ void ASensingSphere::AdjustSphereColliderForWorldType()
 	{	//Vice versa
 		SphereCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
 		SphereCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Ignore);
-		SphereCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel3, ECollisionResponse::ECR_Ignore);
+		//SphereCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel3, ECollisionResponse::ECR_Ignore);
 	}
 }
 
 void ASensingSphere::OverlapsWithActors(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
 	UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
-	if (OtherActor->IsA(ASWorldActor::StaticClass()) && Cast<ASWorldActor>(OtherActor)->bCanBeSensed)
+	if (!GameMode->bIsSpiritWorld)
 	{
-		OtherActor->SetActorEnableCollision(false);
+		if (OtherActor->IsA(ASWorldActor::StaticClass()) && Cast<ASWorldActor>(OtherActor)->bCanBeSensed)
+		{
+			OtherActor->SetActorEnableCollision(false);
 
-		
-		Cast<ASWorldActor>(OtherActor)->LightUpActorWhenSensed();
-	}
-	
-
-	if (OtherActor->IsA(APWorldActor::StaticClass()) && Cast<APWorldActor>(OtherActor)->bCanBeSensed)
-	{
-		OtherActor->SetActorEnableCollision(false);
-
-		Cast<APWorldActor>(OtherActor)->LightUpActorWhenSensed();;
-		
+			Cast<ASWorldActor>(OtherActor)->LightUpActorWhenSensed();
+		}
 	}
 
+	else
+	{
+		if (OtherActor->IsA(APWorldActor::StaticClass()) && Cast<APWorldActor>(OtherActor)->bCanBeSensed)
+		{
+			OtherActor->SetActorEnableCollision(false);
+
+			Cast<APWorldActor>(OtherActor)->LightUpActorWhenSensed();;
+
+		}
+	}
 }

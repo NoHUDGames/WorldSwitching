@@ -63,7 +63,7 @@ public:
 	
 
 	//MAIN FUNCTION
-	void LightUpActorWhenSensed();
+	virtual void LightUpActorWhenSensed();
 
 	void ApplyDynamicMaterials();
 

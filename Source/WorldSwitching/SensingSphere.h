@@ -45,8 +45,8 @@ public:
 	void TurnOnOtherActorCollisions();
 
 	void PrepareArtifactForSensing(AActor* ArtifactActor);
+	void PrepareShieldForSensing(AActor* ArtifactActor);
 
-	void ResetArtifactAfterSensing(AActor* ArtifactActor);
 
 	void TurnOffOtherActorCollisions();
 
