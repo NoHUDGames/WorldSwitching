@@ -88,7 +88,7 @@ void AWorldSwitchingGameModeBase::ChangeWorldsProxy()
 
 void AWorldSwitchingGameModeBase::ChangeWorlds(bool bShowTransitionEffects)
 {
-	if (bSphereIsRunning) return;
+	if (bSphereIsRunning || bIsLightUpEffectRunning) return;
 
 	bIsSpiritWorld = !bIsSpiritWorld;
 	
@@ -130,7 +130,7 @@ bool AWorldSwitchingGameModeBase::TestWorldChangeOverlaps()
 
 	OtherActorPhysicalTest = PlayerPawn->GetOtherActorForPhysicalTest();
 
-	if (OtherActorPhysicalTest && !OtherActorPhysicalTest->IsA(AArtifacts::StaticClass()))
+	if (OtherActorPhysicalTest && !OtherActorPhysicalTest->IsA(AArtifacts::StaticClass()) || !OtherActorPhysicalTest->IsA(AS_PickupShield::StaticClass()))
 	{
 
 			/// UE_LOG(LogTemp, Warning, TEXT("Overlapped with PhysicalActor %s"), *OtherActorPhysicalTest->GetActorLabel())
@@ -141,7 +141,7 @@ bool AWorldSwitchingGameModeBase::TestWorldChangeOverlaps()
 
 				UE_LOG(LogTemp, Warning, TEXT("GAME MODE: DETECTED SPIRIT OVERLAP"))
 
-				//Stuck in Physical World
+				//Stuck in physical world
 				bIsSpiritWorld = false;
 				ToggleSpiritWorldActors();
 				PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
@@ -150,14 +150,12 @@ bool AWorldSwitchingGameModeBase::TestWorldChangeOverlaps()
 			else
 			{
 				UE_LOG(LogTemp, Warning, TEXT("GAME MODE: DETECTED PHYSICAL OVERLAP"))
-
-				//Stuck in Spirit World
 				bIsSpiritWorld = true;
 				TogglePhysicalWorldActors();
 				PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
 			}
 
-			LightUpCollidingActor();
+			LightUpCollidingActor(OtherActorPhysicalTest);
 			return true;
 		}
 	UE_LOG(LogTemp, Warning, TEXT("Did NOT Overlap with PhysicalActor"));
@@ -168,6 +166,57 @@ bool AWorldSwitchingGameModeBase::TestWorldChangeOverlaps()
 	return false;
 }
 
+void AWorldSwitchingGameModeBase::LightUpCollidingActor(AActor* CollidingActor)
+{
+	if (bIsLightUpEffectRunning) return;
+	bIsLightUpEffectRunning = true;
+
+	m_CollidingActor = CollidingActor;
+
+	MeshComp = m_CollidingActor->FindComponentByClass<UStaticMeshComponent>();
+
+	NumberOfMaterials = MeshComp->GetNumMaterials();
+
+	//Extract original materials
+	for (int i = 0; i < NumberOfMaterials; ++i)
+		OriginalMaterials.Add(MeshComp->GetMaterial(i));
+
+	//Apply temporary light up material
+	for (int i = 0; i < NumberOfMaterials; ++i)
+		MeshComp->SetMaterial(i, RedLightupMaterial);
+
+	//CreateDynamicMaterials
+	for (int i = 0; i < NumberOfMaterials; ++i)
+		DynamicMaterials.Add(MeshComp->CreateDynamicMaterialInstance(i));
+
+	m_CollidingActor->SetActorEnableCollision(false);
+	m_CollidingActor->SetActorHiddenInGame(false);
+	
+
+	TL_TriggerActorLightup();
+
+}
+
+void AWorldSwitchingGameModeBase::FadeInOut(float TimeLine)
+{
+
+	for (int i = 0; i < NumberOfMaterials; ++i)
+		DynamicMaterials[i]->SetScalarParameterValue("Opacity", TimeLine);
+}
+
+void AWorldSwitchingGameModeBase::CleanUp()
+{
+	for (int i = 0; i < NumberOfMaterials; ++i)
+		MeshComp->SetMaterial(i, OriginalMaterials[i]);
+
+	m_CollidingActor->SetActorHiddenInGame(true);
+	NumberOfMaterials = 0;
+	DynamicMaterials.Empty();
+	OriginalMaterials.Empty();
+	MeshComp = nullptr;
+	m_CollidingActor = nullptr;
+	bIsLightUpEffectRunning = false;
+}
 
 void AWorldSwitchingGameModeBase::GatherLevelCameras()
 {
@@ -558,6 +607,8 @@ void AWorldSwitchingGameModeBase::ToggleFoliageMaterialProperties()
 	}
 
 
+	//This is the previous stuff I did, before I discovered that Unreal doesnt like me trying to
+	//Change materials on UStaticMeshes at runtime.
 	/*
 		int MeshIndexAccumulator = 0;
 
