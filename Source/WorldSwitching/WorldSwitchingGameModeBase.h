@@ -90,12 +90,39 @@ public:
 		return CameraComponent;
 	}
 
-	//Gir ut actoren man kolliderte med når 
+	//Gir ut actoren man kolliderte med  
 	UFUNCTION(BlueprintCallable)
-		AActor* GetOtherActorPhysicalTest();
+	AActor* GetOtherActorPhysicalTest();
+
+	//Start | Collision while changing world
+	
+	UPROPERTY(EditAnywhere)
+	UMaterialInterface* RedLightupMaterial = nullptr;
+
+	bool bIsLightUpEffectRunning = false;
+	int NumberOfMaterials = 0;
+
+	TArray<UMaterialInterface*> OriginalMaterials;
+	TArray<UMaterialInstanceDynamic*> DynamicMaterials;
+	AActor* m_CollidingActor = nullptr;
+	UStaticMeshComponent* MeshComp = nullptr;
+
+	void LightUpCollidingActor(AActor* CollidingActor);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void LightUpCollidingActor(ASWorldActor* SWordActor = nullptr, APWorldActor* PWorldActor = nullptr);
+	void TL_TriggerActorLightup();
+
+	UFUNCTION(BlueprintCallable)
+	void FadeInOut(float TimeLine);
+
+	UFUNCTION(BlueprintCallable)
+	void CleanUp();
+
+
+	
+
+
+	//End | Collision while changing world
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void WorldTransitionEffects();
