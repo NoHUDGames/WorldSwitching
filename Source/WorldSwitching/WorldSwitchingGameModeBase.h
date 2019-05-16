@@ -181,6 +181,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = EnemyMaterials)
 	TArray<UMaterialInterface*> SpiritEnemySpiritWorldMaterials;
 
+	UPROPERTY(EditAnywhere, Category = EnemyMaterials)
+		TArray<UMaterialInterface*> ShamanEnemyPhysicalWorldMaterials;
+	UPROPERTY(EditAnywhere, Category = EnemyMaterials)
+		TArray<UMaterialInterface*> ShamanEnemySpiritWorldMaterials;
+
 };
 
 

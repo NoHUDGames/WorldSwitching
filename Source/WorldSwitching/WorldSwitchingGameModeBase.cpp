@@ -208,8 +208,12 @@ void AWorldSwitchingGameModeBase::TogglePhysicalWorldActors()
 		for (TActorIterator<APWorldCharacter> PCharItr(GetWorld()); PCharItr; ++PCharItr)
 		{
 			APWorldCharacter* PWorldChar = *PCharItr;
-			PCharItr->SetActorEnableCollision(false);
-			PCharItr->SetActorHiddenInGame(true);
+			PWorldChar->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+
+			for (int MaterialIndex{ 0 }; MaterialIndex < ShamanEnemySpiritWorldMaterials.Num(); ++MaterialIndex)
+			{
+				PWorldChar->GetMesh()->SetMaterial(MaterialIndex, ShamanEnemySpiritWorldMaterials[MaterialIndex]);
+			}
 		}
 	}
 	else
@@ -229,8 +233,12 @@ void AWorldSwitchingGameModeBase::TogglePhysicalWorldActors()
 		for (TActorIterator<APWorldCharacter> PCharItr(GetWorld()); PCharItr; ++PCharItr)
 		{
 			APWorldCharacter* PWorldChar = *PCharItr;
-			PCharItr->SetActorEnableCollision(true);
-			PCharItr->SetActorHiddenInGame(false);
+			PWorldChar->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+
+			for (int MaterialIndex{ 0 }; MaterialIndex < ShamanEnemyPhysicalWorldMaterials.Num(); ++MaterialIndex)
+			{
+				PWorldChar->GetMesh()->SetMaterial(MaterialIndex, ShamanEnemyPhysicalWorldMaterials[MaterialIndex]);
+			}
 		}
 	}
 }
@@ -259,7 +267,6 @@ void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
 		{
 			ASpiritTest *SpiritTest = *SpiritItr;
 			SpiritItr->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
-			///SpiritItr->SetActorHiddenInGame(false);
 
 			SpiritItr->FireFlies->Deactivate();
 
@@ -292,8 +299,6 @@ void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
 		{
 			ASpiritTest *SpiritTest = *SpiritItr;
 			SpiritItr->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-			///SpiritItr->SetActorEnableCollision(false);
-			///SpiritItr->SetActorHiddenInGame(true);
 
 			SpiritItr->FireFlies->Activate();
 
