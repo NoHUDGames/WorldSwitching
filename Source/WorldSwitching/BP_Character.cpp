@@ -255,7 +255,6 @@ void ABP_Character::PlayingAnimations()
 	
 	if (AnimationStarted[1] == false && RunningAnimations == EAnimations::ATTACKING)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Spiller av kicking"))
 		GetMesh()->PlayAnimation(KickingAnim, false);
 
 		ChangingAnimationStarted(1);
@@ -263,23 +262,18 @@ void ABP_Character::PlayingAnimations()
 	
 	else if (AnimationStarted[0] == false && RunningAnimations == EAnimations::MOVEMENT)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Spiller av walking forward"))
-
 		GetMesh()->PlayAnimation(MovementAnimBlendSpace, true);
 
 		ChangingAnimationStarted(0);
 	}
 	else if (AnimationStarted[2] == false && RunningAnimations == EAnimations::DASHING)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Spiller av dashing"))
 			GetMesh()->PlayAnimation(DashingAnim, false);
 
 		ChangingAnimationStarted(2);
 	}
 	else if (AnimationStarted[3] == false && RunningAnimations == EAnimations::DYING)
 	{
-
-		UE_LOG(LogTemp, Warning, TEXT("Spiller av dying"))
 			GetMesh()->PlayAnimation(DyingAnim, false);
 
 		ChangingAnimationStarted(3);
@@ -386,7 +380,6 @@ void ABP_Character::Kicking()
 		if (NumberOfKicks <= 2)
 		{
 			++NumberOfKicks;
-			UE_LOG(LogTemp, Warning, TEXT("Number of kicks: %i"), NumberOfKicks)
 			/// Resets the kick after 1.5 seconds
 			GetWorldTimerManager().SetTimer(ComboDurationTimer, this, &ABP_Character::ResetKickingCombo, 1.5f, false);
 		}
@@ -397,8 +390,15 @@ void ABP_Character::Kicking()
 
 		/// Turns on overlapping with other pawns for the kick box collider
 		BoxCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
-		BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Overlap);
+		if (bIsSpiritWorld)
+		{
+			BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
+			UE_LOG(LogTemp, Warning, TEXT("Kicking in spirit world"))
+		}
+		else
+		{
+			BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Overlap);
+		}
 
 		GetWorldTimerManager().SetTimer(KickingDurationTimer, this, &ABP_Character::KickingFinished, 0.6f, false);
 	}
@@ -409,7 +409,6 @@ void ABP_Character::ResetKickingCombo()
 {
 	if (NumberOfKicks != 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Resetting kicking combo."))
 		NumberOfKicks = 0;
 	}	
 }
@@ -428,6 +427,12 @@ void ABP_Character::TakingHitAnimationOver()
 
 	RunningAnimations = EAnimations::MOVEMENT;
 	EnableInput(GetWorld()->GetFirstPlayerController());
+	
+	/// Had some issues where this value kept on staying true if the player tried to kick and got hit at the same time
+	if (CurrentlyKicking)
+	{
+		CurrentlyKicking = false;
+	}
 }
 
 void ABP_Character::Interact()
@@ -464,8 +469,11 @@ void ABP_Character::DecrementingLives()
 		}
 		else
 		{
+
 			RunningAnimations = EAnimations::TAKINGDAMAGE;
 			GetWorldTimerManager().SetTimer(KickingDurationTimer, this, &ABP_Character::TakingHitAnimationOver, 0.45f, false);
+
+			
 		}
 	}
 }
