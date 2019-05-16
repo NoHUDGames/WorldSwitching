@@ -190,6 +190,7 @@ void AWorldSwitchingGameModeBase::TogglePhysicalWorldActors()
 {
 	if (bIsSpiritWorld)
 	{
+		
 		//Alle PWorldActor settes som usynlig uten collision
 		for (TActorIterator<APWorldActor> PActorItr(GetWorld()); PActorItr; ++PActorItr)
 		{
@@ -215,12 +216,12 @@ void AWorldSwitchingGameModeBase::TogglePhysicalWorldActors()
 				PWorldChar->GetMesh()->SetMaterial(MaterialIndex, ShamanEnemySpiritWorldMaterials[MaterialIndex]);
 			}
 		}
+		
 	}
 	else
 	{
 		for (TActorIterator<APWorldActor> PActorItr(GetWorld()); PActorItr; ++PActorItr)
 		{
-
 			APWorldActor *PWorldActor = *PActorItr;
 
 			if (!PActorItr->bOptOutOfCollisionChange)
@@ -258,8 +259,6 @@ void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
 
 				if (!SActorItr->bOptOutOfVisibilityChange)
 					SActorItr->SetActorHiddenInGame(false);
-			
-
 		}
 
 		//EnemySpirits synlig m/collision
@@ -275,7 +274,6 @@ void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
 				SpiritItr->GetMesh()->SetMaterial(MaterialIndex, SpiritEnemySpiritWorldMaterials[MaterialIndex]);
 			}
 		}
-
 	}
 
 	else
@@ -306,7 +304,6 @@ void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
 			{
 				SpiritItr->GetMesh()->SetMaterial(MaterialIndex, SpiritEnemyPhysicalWorldMaterials[MaterialIndex]);
 			}
-			
 		}
 	}
 }
@@ -329,9 +326,7 @@ void AWorldSwitchingGameModeBase::ToggleParticleEffects()
 			{
 				if (!ParticleItr->bOptOutOfWorldChangeEffect)
 				{
-					ParticleItr->PhysicalWorldParticles->Deactivate();
 					ParticleItr->PhysicalWorldParticles->SetHiddenInGame(true);
-					ParticleItr->SpiritWorldParticles->Activate();
 					ParticleItr->SpiritWorldParticles->SetHiddenInGame(false);
 				}
 			}
