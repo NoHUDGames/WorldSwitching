@@ -32,11 +32,11 @@ APShamanEnemy::APShamanEnemy()
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponCollider"));
 	BoxCollider->SetupAttachment(WeaponVisual);
 
-	
 	static ConstructorHelpers::FObjectFinder<UClass> SpiritBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_SpiritTest.BP_SpiritTest_C'"));
 	if (SpiritBlueprint.Object) {
 		SpiritOfShaman = SpiritBlueprint.Object;
 	}
+	
 	
 	/// Setting up animation variables
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> idle_Anim
@@ -167,8 +167,9 @@ void APShamanEnemy::KillingEnemy()
 		UE_LOG(LogTemp, Warning, TEXT("Enemy is dying!"))
 		
 		ASpiritTest* NewSpiritEnemy = GetWorld()->SpawnActor<ASpiritTest>(SpiritOfShaman, DeathLocation, DeathRotation);
-		NewSpiritEnemy->SetActorHiddenInGame(true);
 		NewSpiritEnemy->SpawnDefaultController();
+
+		NewSpiritEnemy->bIsPuzzleEnemy = true;
 		
 		Destroy();
 		

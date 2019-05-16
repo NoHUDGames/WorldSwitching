@@ -103,6 +103,10 @@ public:
 
 	/// end of functions and variables for knockback timeline
 
+	///This variable is used if it should trigger some effect of some sort after it has died
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Puzzles")
+	bool bIsPuzzleEnemy = false;
+
 private:
 	/// Variables that are related to animations
 	UAnimationAsset* IdleAnim;

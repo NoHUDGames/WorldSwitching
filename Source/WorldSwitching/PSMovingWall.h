@@ -28,7 +28,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FVector StartLocation;
 
 	UPROPERTY(VisibleAnywhere)
@@ -40,7 +40,7 @@ public:
 	UPROPERTY(EditAnywhere)
 		float PauseDuration;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FVector MovementDirection;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
