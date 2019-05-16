@@ -32,10 +32,10 @@ APShamanEnemy::APShamanEnemy()
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponCollider"));
 	BoxCollider->SetupAttachment(WeaponVisual);
 
-	static ConstructorHelpers::FObjectFinder<UClass> SpiritBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_SpiritTest.BP_SpiritTest_C'"));
+	/*static ConstructorHelpers::FObjectFinder<UClass> SpiritBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_SpiritTest.BP_SpiritTest_C'"));
 	if (SpiritBlueprint.Object) {
 		SpiritOfShaman = SpiritBlueprint.Object;
-	}
+	}*/
 	
 	
 	/// Setting up animation variables
@@ -165,13 +165,15 @@ void APShamanEnemy::KillingEnemy()
 		FVector DeathLocation = GetActorLocation() + FVector(70.f, 70.f, 0.f);
 		FRotator DeathRotation = GetActorRotation();
 		UE_LOG(LogTemp, Warning, TEXT("Enemy is dying!"))
-		
-		ASpiritTest* NewSpiritEnemy = GetWorld()->SpawnActor<ASpiritTest>(SpiritOfShaman, DeathLocation, DeathRotation);
-		NewSpiritEnemy->SpawnDefaultController();
 
-		NewSpiritEnemy->bIsPuzzleEnemy = true;
+			/*ASpiritTest* NewSpiritEnemy = GetWorld()->SpawnActor<ASpiritTest>(SpiritOfShaman, DeathLocation, DeathRotation);
+			NewSpiritEnemy->SpawnDefaultController();
+
+			NewSpiritEnemy->bIsPuzzleEnemy = true;*/
+
+			bTimeToSpawnSpirit = true;
 		
-		Destroy();
+		GetWorldTimerManager().SetTimer(DestroyingShamanTimer, this, &APShamanEnemy::DestroyingEnemyProxy, 0.2f, false);
 		
 	}
 }
@@ -199,6 +201,11 @@ void APShamanEnemy::KnockbackEffect(FVector KnockbackDirection)
 	StartKnockbackLocation = GetActorLocation();
 	EndKnockbackLocation = StartKnockbackLocation + KnockbackDirection;
 	KnockbackTimeline->PlayFromStart();
+}
+
+void APShamanEnemy::DestroyingEnemyProxy()
+{
+	Destroy();
 }
 
 void APShamanEnemy::KnockbackTimelineFloatReturn(float value)
