@@ -15,6 +15,7 @@
 #include "OurEnums.h"
 #include "Engine/StaticMesh.h"
 #include "WorldSwitchingGameInstance.h"
+#include "Materials/MaterialParameterCollection.h"
 #include "WorldSwitchingGameModeBase.generated.h"
 
 /**
@@ -142,20 +143,38 @@ public:
 	//SensingSphereStuff
 
 
-	//FoliageMeshes
-	UPROPERTY(EditAnywhere, Category = Foliage)
-	TArray<UStaticMesh*> Meshes;
+	//Start FoliageMeshes
 
-	UPROPERTY(EditAnywhere, Category = Foliage)
-	TArray<int> NumberOfMaterials;
+	UMaterialInstanceDynamic* Tree1Bark = nullptr;
+	UMaterialInstanceDynamic* Tree1Leaves = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = Foliage)
-	TArray<UMaterialInterface*> PhysicalMaterials;
+	UMaterialInstanceDynamic* Tree2Bark = nullptr;
+	UMaterialInstanceDynamic* Tree2Leaves = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = Foliage)
-	TArray<UMaterialInterface*> SpiritMaterials;
 
-	void ToggleInstanceMeshes();
+	UMaterialParameterCollection* FoliageTrunk1Parameters = nullptr;
+	UMaterialParameterCollection* FoliageTrunk2Parameters = nullptr;
+	UMaterialParameterCollection* FoliageLeaves1Parameters = nullptr;
+	UMaterialParameterCollection* FoliageLeaves2Parameters = nullptr;
+	
+	void SetFoliageMaterialParameterCollectionReferences();
+
+	void ToggleFoliageMaterialProperties();
+
+	float PhysicalTrunk[3]{ 1,0,0 };
+	float SpiritTrunk1[3]{ 0,1,0 };
+	float SpiritTrunk2[3]{ 0,0,1 };
+
+	float PhysicalLeaves[4]{ 1,0,0,0 };
+	float SpiritLeaves1[4]{ 0,1,0,0 };
+	float SpiritLeaves2[4]{ 0,0,1,0 };
+	float SpiritLeaves3[4]{ 0,0,0,1 };
+
+
+	//End FoliageMeshes
+
+
+
 
 	UPROPERTY(EditAnywhere, Category = EnemyMaterials)
 	TArray<UMaterialInterface*> SpiritEnemyPhysicalWorldMaterials;

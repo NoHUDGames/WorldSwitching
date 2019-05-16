@@ -9,6 +9,8 @@
 #include "ParticleEffectActor.h"
 #include "Artifacts.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMaterialLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "WorldSwitchingGameInstance.h"
 
 //class ASpiritTest;
@@ -33,6 +35,7 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 	CurrentWorld = GetWorld();
 	CurrentMapName = CurrentWorld->GetMapName();
 	SetLandscapesReferences();
+	SetFoliageMaterialParameterCollectionReferences();
 
 	EAutoReceiveInput::Player0;
 
@@ -105,7 +108,7 @@ void AWorldSwitchingGameModeBase::ToggleAll()
 	TogglePhysicalSpiritActors();
 	ToggleParticleEffects();
 	ToggleLastingCameraEffects();
-	ToggleInstanceMeshes();
+	ToggleFoliageMaterialProperties();
 	
 	if (!CurrentMapName.Contains("2"))	ToggleLandscapes();
 }
@@ -428,10 +431,134 @@ void AWorldSwitchingGameModeBase::TogglePhysicalSpiritActors()
 	}
 }
 
-//Siden det er begrenset hvor mange meshes vi skal instantiate, setter jeg en if(bIsSpiritWorld) for hvert element
-//i motsetning til de andre actorene som det kan bli mange flere av. Vil ikke teste midt i der.
-void AWorldSwitchingGameModeBase::ToggleInstanceMeshes()
+void AWorldSwitchingGameModeBase::SetFoliageMaterialParameterCollectionReferences()
 {
+	FoliageTrunk1Parameters = LoadObject<UMaterialParameterCollection>(NULL, TEXT("MaterialParameterCollection'/Game/Meshes/Scenery/Materials/Foliage_Trunk1_Parameters.Foliage_Trunk1_Parameters'"),
+		NULL, LOAD_None, NULL);
+	FoliageTrunk2Parameters = LoadObject<UMaterialParameterCollection>(NULL, TEXT("MaterialParameterCollection'/Game/Meshes/Scenery/Materials/Foliage_Trunk2_Parameters.Foliage_Trunk2_Parameters'"),
+		NULL, LOAD_None, NULL);
+	FoliageLeaves1Parameters = LoadObject<UMaterialParameterCollection>(NULL, TEXT("MaterialParameterCollection'/Game/Meshes/Scenery/Materials/Foliage_Leaves1_Parameters.Foliage_Leaves1_Parameters'"),
+		NULL, LOAD_None, NULL);
+	FoliageLeaves2Parameters = LoadObject<UMaterialParameterCollection>(NULL, TEXT("MaterialParameterCollection'/Game/Meshes/Scenery/Materials/Foliage_Leaves2_Parameters.Foliage_Leaves2_Parameters'"),
+		NULL, LOAD_None, NULL);
+
+
+	if (FoliageTrunk1Parameters && FoliageTrunk2Parameters) UE_LOG(LogTemp, Warning, TEXT("GameMode: Got FoliageParameters"))
+	else UE_LOG(LogTemp, Warning, TEXT("GameMode: DID NOT GET FoliageParameters"))
+
+
+}
+
+//This toggles visibility of different textures in materials applied to UStaticMeshes instanced out in the scene with foliage
+void AWorldSwitchingGameModeBase::ToggleFoliageMaterialProperties()
+{	
+	if (!FoliageTrunk1Parameters || !FoliageTrunk1Parameters || !FoliageLeaves1Parameters || !FoliageLeaves2Parameters) return;
+
+	if (bIsSpiritWorld)
+	{	//Trunk1
+		if (UKismetMathLibrary::RandomIntegerInRange(0, 1) < 1)
+		{
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageTrunk1Parameters, "Trunk_P_Opacity", SpiritTrunk1[0]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageTrunk1Parameters, "Trunk_S1_Opacity", SpiritTrunk1[1]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageTrunk1Parameters, "Trunk_S2_Opacity", SpiritTrunk1[2]);
+		}
+		else
+		{
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageTrunk1Parameters, "Trunk_P_Opacity", SpiritTrunk2[0]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageTrunk1Parameters, "Trunk_S1_Opacity", SpiritTrunk2[1]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageTrunk1Parameters, "Trunk_S2_Opacity", SpiritTrunk2[2]);
+		}
+
+		//Trunk2
+		if (UKismetMathLibrary::RandomIntegerInRange(0, 1) < 1)
+		{
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageTrunk2Parameters, "Trunk_P_Opacity", SpiritTrunk1[0]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageTrunk2Parameters, "Trunk_S1_Opacity", SpiritTrunk1[1]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageTrunk2Parameters, "Trunk_S2_Opacity", SpiritTrunk1[2]);
+		}
+		else
+		{
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageTrunk2Parameters, "Trunk_P_Opacity", SpiritTrunk2[0]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageTrunk2Parameters, "Trunk_S1_Opacity", SpiritTrunk2[1]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageTrunk2Parameters, "Trunk_S2_Opacity", SpiritTrunk2[2]);
+		}
+
+		//Leaves 1 //FoliageLeaves1Parameters
+		switch (UKismetMathLibrary::RandomIntegerInRange(0, 2))
+		{
+		case 0:
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves1Parameters, "Leaves_P_Opacity", SpiritLeaves1[0]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves1Parameters, "Leaves_S1_Opacity", SpiritLeaves1[1]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves1Parameters, "Leaves_S2_Opacity", SpiritLeaves1[2]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves1Parameters, "Leaves_S3_Opacity", SpiritLeaves1[3]);
+			break;
+		case 1:
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves1Parameters, "Leaves_P_Opacity", SpiritLeaves2[0]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves1Parameters, "Leaves_S1_Opacity", SpiritLeaves2[1]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves1Parameters, "Leaves_S2_Opacity", SpiritLeaves2[2]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves1Parameters, "Leaves_S3_Opacity", SpiritLeaves2[3]);
+			break;
+		case 2:
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves1Parameters, "Leaves_P_Opacity", SpiritLeaves3[0]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves1Parameters, "Leaves_S1_Opacity", SpiritLeaves3[1]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves1Parameters, "Leaves_S2_Opacity", SpiritLeaves3[2]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves1Parameters, "Leaves_S3_Opacity", SpiritLeaves3[3]);
+			break;
+		default:
+			break;
+		}
+
+		//Leaves 2 //FoliageLeaves2Parameters
+		switch (UKismetMathLibrary::RandomIntegerInRange(0, 2))
+		{
+		case 0:
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves2Parameters, "Leaves_P_Opacity", SpiritLeaves1[0]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves2Parameters, "Leaves_S1_Opacity", SpiritLeaves1[1]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves2Parameters, "Leaves_S2_Opacity", SpiritLeaves1[2]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves2Parameters, "Leaves_S3_Opacity", SpiritLeaves1[3]);
+			break;
+		case 1:
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves2Parameters, "Leaves_P_Opacity", SpiritLeaves2[0]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves2Parameters, "Leaves_S1_Opacity", SpiritLeaves2[1]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves2Parameters, "Leaves_S2_Opacity", SpiritLeaves2[2]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves2Parameters, "Leaves_S3_Opacity", SpiritLeaves2[3]);
+			break;
+		case 2:
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves2Parameters, "Leaves_P_Opacity", SpiritLeaves3[0]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves2Parameters, "Leaves_S1_Opacity", SpiritLeaves3[1]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves2Parameters, "Leaves_S2_Opacity", SpiritLeaves3[2]);
+			UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves2Parameters, "Leaves_S3_Opacity", SpiritLeaves3[3]);
+			break;
+		default:
+			break;
+		}
+
+	}
+
+	else
+	{
+		//Trunk1
+		UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageTrunk1Parameters, "Trunk_P_Opacity", PhysicalTrunk[0]);
+		UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageTrunk1Parameters, "Trunk_S1_Opacity", PhysicalTrunk[1]);
+		UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageTrunk1Parameters, "Trunk_S2_Opacity", PhysicalTrunk[2]);
+		//Trunk2
+		UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageTrunk2Parameters, "Trunk_P_Opacity", PhysicalTrunk[0]);
+		UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageTrunk2Parameters, "Trunk_S1_Opacity", PhysicalTrunk[1]);
+		UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageTrunk2Parameters, "Trunk_S2_Opacity", PhysicalTrunk[2]);
+		//Leaves1
+		UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves1Parameters, "Leaves_P_Opacity", PhysicalLeaves[0]);
+		UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves1Parameters, "Leaves_S1_Opacity", PhysicalLeaves[1]);
+		UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves1Parameters, "Leaves_S2_Opacity", PhysicalLeaves[2]);
+		UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves1Parameters, "Leaves_S3_Opacity", PhysicalLeaves[3]);
+		//Leaves2
+		UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves2Parameters, "Leaves_P_Opacity", PhysicalLeaves[0]);
+		UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves2Parameters, "Leaves_S1_Opacity", PhysicalLeaves[1]);
+		UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves2Parameters, "Leaves_S2_Opacity", PhysicalLeaves[2]);
+		UKismetMaterialLibrary::SetScalarParameterValue(CurrentWorld, FoliageLeaves2Parameters, "Leaves_S3_Opacity", PhysicalLeaves[3]);
+	}
+
+
+	/*
 		int MeshIndexAccumulator = 0;
 
 		for (int i = 0; i < Meshes.Num(); ++i)
@@ -442,15 +569,15 @@ void AWorldSwitchingGameModeBase::ToggleInstanceMeshes()
 			int MaterialElementIterator = 0;
 			for (int j = MeshIndexAccumulator - NumberOfMaterials[i]; j < MeshIndexAccumulator; ++j)
 			{
-				/// builden ville ikke tillate disse linjene så kommenterte det ut
-				/*if (Meshes[i])
+				if (Meshes[i])
 				{
 					if (bIsSpiritWorld) Meshes[i]->SetMaterial(MaterialElementIterator, SpiritMaterials[j]);
 					else Meshes[i]->SetMaterial(MaterialElementIterator, PhysicalMaterials[j]);
-				}*/
+				}
 
 				MaterialElementIterator++;
 				UE_LOG(LogTemp, Warning, TEXT("ToggleInstanceMeshes: Assigning material index %i"), j)
 			}
 		}
+		*/
 }
