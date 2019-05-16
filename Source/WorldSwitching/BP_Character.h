@@ -114,6 +114,8 @@ public:
 
 	void KickingFinished();
 
+	void TakingHitAnimationOver();
+
 	/// end of functions and variables for combat
 
 
@@ -278,11 +280,12 @@ private:
 	UAnimationAsset* DashingAnim;
 	UAnimationAsset* DyingAnim;
 	UAnimationAsset* IdleAnim;
+	UAnimationAsset* BeingHitAnim;
 
 	UBlendSpace* MovementAnimBlendSpace;
 
-	/// 0 = MovementAnimBlendSpace, 1 = KickingAnim, 2 = DashingAnim, 3 = DyingAnim, 4 = IdleAnim
-	bool AnimationStarted[5] = { false };
+	/// 0 = MovementAnimBlendSpace, 1 = KickingAnim, 2 = DashingAnim, 3 = DyingAnim, 4 = IdleAnim, 5 = TakingDamage
+	bool AnimationStarted[6] = { false };
 	
 	/// end of variable and enums that are related to animations
 
