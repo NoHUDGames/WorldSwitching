@@ -130,7 +130,7 @@ bool AWorldSwitchingGameModeBase::TestWorldChangeOverlaps()
 
 	OtherActorPhysicalTest = PlayerPawn->GetOtherActorForPhysicalTest();
 
-	if (OtherActorPhysicalTest && !OtherActorPhysicalTest->IsA(AArtifacts::StaticClass()) || !OtherActorPhysicalTest->IsA(AS_PickupShield::StaticClass()))
+	if (OtherActorPhysicalTest && !OtherActorPhysicalTest->IsA(AArtifacts::StaticClass()) && !OtherActorPhysicalTest->IsA(AS_PickupShield::StaticClass()))
 	{
 
 			/// UE_LOG(LogTemp, Warning, TEXT("Overlapped with PhysicalActor %s"), *OtherActorPhysicalTest->GetActorLabel())

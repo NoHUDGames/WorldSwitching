@@ -849,7 +849,7 @@ void ABP_Character::OnDashingTimelineFinished()
 
 void ABP_Character::SenseWorld()
 {
-	if (!GameModeRef->GetSphereIsRunning() && GameModeRef->GetLitUpBySensing() == 0)
+	if (!GameModeRef->GetSphereIsRunning() && GameModeRef->GetLitUpBySensing() == 0 && !GameModeRef->bIsLightUpEffectRunning)
 	{
 
 		GetWorld()->SpawnActor<ASensingSphere>(SensingSphereToSpawn, GetActorLocation() + FVector(0.f, 0.f,85.f), FRotator(0, 0, 0));
