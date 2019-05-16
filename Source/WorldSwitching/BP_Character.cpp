@@ -76,6 +76,10 @@ ABP_Character::ABP_Character()
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> idle_Anim
 	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Player_Idle.Player_Idle'"));
 	IdleAnim = idle_Anim.Object;
+
+	static ConstructorHelpers::FObjectFinder<UAnimationAsset> BeingHitAnim_Anim
+	(TEXT("AnimSequence'/Game/Meshes/Characters/PlayerCharacter/Animations/Main_BeingHit.Main_BeingHit'"));
+	BeingHitAnim = BeingHitAnim_Anim.Object;
 	
 	/// finished setting up animation variables
 
@@ -288,13 +292,19 @@ void ABP_Character::PlayingAnimations()
 
 		ChangingAnimationStarted(4);
 	}
+	else if (AnimationStarted[5] == false && RunningAnimations == EAnimations::TAKINGDAMAGE)
+	{
+		GetMesh()->PlayAnimation(BeingHitAnim, false);
+
+		ChangingAnimationStarted(5);
+	}
 	
 }
 
 void ABP_Character::ChangingAnimationStarted(int index)
 {
 	AnimationStarted[index] = true;
-	for (int i{ 0 }; i < 5; ++i)
+	for (int i{ 0 }; i < 6; ++i)
 	{
 		if (i != index)
 		{
@@ -413,6 +423,13 @@ void ABP_Character::KickingFinished()
 	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Ignore);
 }
 
+void ABP_Character::TakingHitAnimationOver()
+{
+
+	RunningAnimations = EAnimations::MOVEMENT;
+	EnableInput(GetWorld()->GetFirstPlayerController());
+}
+
 void ABP_Character::Interact()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Trying to interact with something"))
@@ -429,6 +446,8 @@ void ABP_Character::StopInteracting()
 void ABP_Character::DecrementingLives()
 {
 	UGameplayStatics::PlayWorldCameraShake(GetWorld(), TakingDamageCameraShake, GetActorLocation(), 10.f, 1500.f);
+	DisableInput(GetWorld()->GetFirstPlayerController());
+
 	if (GetShields() > 0)
 	{
 		--NumberOfShields;
@@ -439,11 +458,14 @@ void ABP_Character::DecrementingLives()
 
 		if (Lives <= 0)
 		{
-			DisableInput(GetWorld()->GetFirstPlayerController());
-			
 			RunningAnimations = EAnimations::DYING;
 			GetWorldTimerManager().SetTimer(ActivatingDeathSmokeTimer, this, &ABP_Character::ActivateDeathSmoke, 1.f, false);
 			GetWorldTimerManager().SetTimer(DeathAnimationTimer, this, &ABP_Character::DeathSequenceProxy, 2.f, false);
+		}
+		else
+		{
+			RunningAnimations = EAnimations::TAKINGDAMAGE;
+			GetWorldTimerManager().SetTimer(KickingDurationTimer, this, &ABP_Character::TakingHitAnimationOver, 0.45f, false);
 		}
 	}
 }
