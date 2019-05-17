@@ -25,7 +25,7 @@ void APS_SavePoint::SetPlayerRespawnLocation(UPrimitiveComponent * OverlappedCom
 	{
 		ABP_Character* Player = Cast<ABP_Character>(OtherActor);
 		Player->SetRespawnLocation(GetActorLocation());
-		Player->bLastCheckpointWasOnSpiritGround = bIsLocatedOnSpiritGround;
+		Player->WorldRequiredOnRespawn = WorldRequiredOnRespawn;
 
 		UE_LOG(LogTemp, Warning, TEXT("New save Location is %s"), *Player->GetRespawnLocation().ToString())
 	}

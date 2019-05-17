@@ -169,6 +169,9 @@ public:
 	bool bIsSpiritWorld{ false };
 
 	bool bLastCheckpointWasOnSpiritGround{ false };
+
+	EWorld WorldRequiredOnRespawn = EWorld::None;
+
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	int Lives{ 3 };

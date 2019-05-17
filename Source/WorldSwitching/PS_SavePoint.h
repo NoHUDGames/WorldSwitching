@@ -26,6 +26,9 @@ public:
 
 		UPROPERTY(EditAnywhere)
 		bool bIsLocatedOnSpiritGround = false;
+
+		UPROPERTY(EditAnywhere)
+		EWorld WorldRequiredOnRespawn = EWorld::None;
 	
 		UFUNCTION()
 		void SetPlayerRespawnLocation(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,

@@ -91,6 +91,14 @@ enum class EWorldChangeType : uint8
 	None
 };
 
+UENUM(BlueprintType)
+enum class EWorld : uint8
+{
+	Physical		UMETA(DisplayName = "Physical"),
+	Spirit			UMETA(DisplayName = "Spirit"),
+	None
+};
+
 UCLASS()
 class WORLDSWITCHING_API UOurEnums : public UUserDefinedEnum
 {

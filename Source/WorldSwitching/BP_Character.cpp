@@ -648,8 +648,8 @@ void ABP_Character::DeathSequence(bool bWithArtifactLoss)
 		PickedUpArtifactsIndexes.Empty();
 
 	}
-		if ((bLastCheckpointWasOnSpiritGround && !bIsSpiritWorld) ||
-		(!bLastCheckpointWasOnSpiritGround && bIsSpiritWorld))
+		if ((WorldRequiredOnRespawn == EWorld::Physical && bIsSpiritWorld) ||
+		(WorldRequiredOnRespawn == EWorld::Spirit && !bIsSpiritWorld))
 	{
 			GameModeRef->ChangeWorlds(false);
 	}	
