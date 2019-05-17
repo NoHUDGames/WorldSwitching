@@ -116,6 +116,8 @@ void ABP_Character::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CurrentWorld = GetWorld();
+
 	BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &ABP_Character::HittingEnemy);
 
 	/// Tests if the player overlaps with an artifact
@@ -853,5 +855,6 @@ void ABP_Character::SenseWorld()
 	{
 
 		GetWorld()->SpawnActor<ASensingSphere>(SensingSphereToSpawn, GetActorLocation() + FVector(0.f, 0.f,85.f), FRotator(0, 0, 0));
+		UGameplayStatics::PlaySound2D(CurrentWorld, SensingSound);
 	}
 }

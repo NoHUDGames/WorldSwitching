@@ -63,6 +63,8 @@ public:
 
 	FVector ActorLocation;
 	FVector GoalLocation;
+
+	UWorld* CurrentWorld = nullptr;
 	
 	UPROPERTY(EditAnywhere, Category = "Movement")
 		class UCurveFloat* fDashingCurve;
@@ -126,6 +128,9 @@ public:
 	/// end of functions for interacting
 
 	void DecrementingLives();
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* SensingSound = nullptr;
 
 	void SenseWorld();
 
