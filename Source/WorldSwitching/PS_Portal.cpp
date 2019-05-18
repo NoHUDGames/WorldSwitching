@@ -114,7 +114,7 @@ void APS_Portal::TL_MovePlayerIntoPortal(float MovePlayer, float MoveCamera)
 
 }
 
-void APS_Portal::Activate(bool WithOpeningSequence)
+void APS_Portal::Activate(bool bWithOpeningSound)
 {
 
 	FVector SpawnLocation = GetActorLocation();
@@ -127,6 +127,7 @@ void APS_Portal::Activate(bool WithOpeningSequence)
 	bIsActive = true;
 	PortalLight->SetIntensity(20000);
 	PortalMesh->PlayAnimation(OpenPortal, false);
+	if (bWithOpeningSound) UGameplayStatics::PlaySound2D(GetWorld(), OpeningSound);
 }
 void APS_Portal::TL_EnterLevelSequence(float CameraTimeLine, float PlayerTimel, float FadeCamera)
 {

@@ -88,6 +88,9 @@ public:
 	/// All these functions and variables deal with the players combat
 	void Kicking();
 	void ResetKickingCombo();
+
+	UPROPERTY(EditAnywhere, Category = Sound)
+	USoundBase* KickingSoundDefault = nullptr;
 	
 	int NumberOfKicks{ 0 };
 

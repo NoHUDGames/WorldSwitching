@@ -374,6 +374,8 @@ void ABP_Character::Kicking()
 {
 	RunningAnimations = EAnimations::ATTACKING;
 
+	UGameplayStatics::PlaySound2D(CurrentWorld, KickingSoundDefault);
+
 	if (!CurrentlyKicking)
 	{
 		/// Makes it impossible for the player to kick while it's already kicking

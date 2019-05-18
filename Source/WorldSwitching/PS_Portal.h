@@ -177,7 +177,10 @@ public:
 		void TL_MovePlayerIntoPortal(float MovePlayer, float MoveCamera);
 	
 		UFUNCTION(BlueprintCallable)
-		void Activate(bool WithOpeningSequence = false);
+		void Activate(bool bWithOpeningSound = false);
+
+		UPROPERTY(EditAnywhere, Category = Sound)
+		USoundBase* OpeningSound = nullptr;
 
 		void ExitLevel();
 
