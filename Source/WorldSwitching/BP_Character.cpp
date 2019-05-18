@@ -681,6 +681,14 @@ void ABP_Character::RespawnSequence()
 	isTargetingEnemy = false;
 	EnableInput(GetWorld()->GetFirstPlayerController());
 	RunningAnimations = EAnimations::MOVEMENT;
+	if (bIsSpiritWorld)
+	{
+		Mask->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false), FName("HeadSocket"));
+	}
+	else
+	{
+		Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false), FName("HeadSocket"));
+	}
 	
 }
 
