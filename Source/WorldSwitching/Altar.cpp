@@ -86,9 +86,9 @@ void AAltar::PortalActivationSequence()
 
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetViewTargetWithBlend(m_FreeLevelCamera, 1.f);
 
-	LerpCamera(m_FreeLevelCamera, PortalToOpen, ActivationSequenceCameraPoint + FVector(0, 0, -400.f), ActivationSequenceCameraPoint + FVector(0, 230, 400));
+	LerpCamera(m_FreeLevelCamera, PortalToOpen, ActivationSequenceCameraPoint + FVector(-300, 0, -400.f), ActivationSequenceCameraPoint + FVector(0, -500, 400));
 
-	
+	UGameplayStatics::PlaySound2D(GetWorld(), ActivationSequenceSound);
 
 	GetWorldTimerManager().SetTimer(ActivateBeamHandle, this, &AAltar::ActivateBeam, 1.5, false);
 	GetWorldTimerManager().SetTimer(ActivatePortalHandle, this, &AAltar::ActivatePortal, 2.5f, false);
@@ -105,7 +105,7 @@ void AAltar::ActivateBeam()
 
 void AAltar::ActivatePortal()
 {
-	PortalToOpen->Activate();
+	PortalToOpen->Activate(true);
 }
 
 void AAltar::EndSequence()

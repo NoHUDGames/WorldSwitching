@@ -86,8 +86,12 @@ public:
 	void SetFreeLevelCamera(ACameraActor* FreeLevelCamera) { m_FreeLevelCamera = FreeLevelCamera; }
 
 	void OpenNewPortals();
+	
 
 	void PortalActivationSequence();
+
+	UPROPERTY(EditAnywhere, Category = Sound)
+	USoundBase* ActivationSequenceSound = nullptr;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void SpawnBeam(FVector Target);
