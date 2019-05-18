@@ -16,6 +16,7 @@
 #include "Engine/StaticMesh.h"
 #include "WorldSwitchingGameInstance.h"
 #include "Materials/MaterialParameterCollection.h"
+#include "Kismet/GameplayStatics.h"
 #include "WorldSwitchingGameModeBase.generated.h"
 
 /**
@@ -149,11 +150,21 @@ public:
 	
 
 	//SensingSphereStuff
+
+	UPROPERTY(EditAnywhere, Category = Sound)
+	USoundBase* SensingLightUpSound = nullptr;
+
 	int LitUpBySensing = 0;
 	int GetLitUpBySensing() { return LitUpBySensing; }
 	void IncrementLitUpBySensing() 
 	{ 
 		++LitUpBySensing;
+
+		if (LitUpBySensing == 1)
+		{
+			UGameplayStatics::PlaySound2D(CurrentWorld, SensingLightUpSound);
+		}
+
 		UE_LOG(LogTemp, Warning, TEXT("GAME MODE: Objects Lit up: %i"), LitUpBySensing)
 	}
 

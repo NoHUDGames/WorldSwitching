@@ -8,7 +8,6 @@
 #include "PWorldCharacter.h"
 #include "ParticleEffectActor.h"
 #include "Artifacts.h"
-#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "WorldSwitchingGameInstance.h"
@@ -278,6 +277,9 @@ void AWorldSwitchingGameModeBase::TogglePhysicalWorldActors()
 
 			if (!PActorItr->bOptOutOfVisibilityChange)
 			PActorItr->SetActorHiddenInGame(false);
+
+			if (Cast<AArtifacts>(PWorldActor))
+				Cast<AArtifacts>(PWorldActor)->SphereCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 		}
 
 		for (TActorIterator<APWorldCharacter> PCharItr(GetWorld()); PCharItr; ++PCharItr)
