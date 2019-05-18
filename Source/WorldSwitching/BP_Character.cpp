@@ -734,6 +734,7 @@ void ABP_Character::SetRespawnLocation(FVector NewSaveLocation)
 void ABP_Character::ActivateDeathSmoke()
 {
 	DeathSmoke->Activate();
+	UGameplayStatics::PlaySound2D(CurrentWorld, DeathSmokeSound);
 }
 
 void ABP_Character::SetLives(int NewHealth)

@@ -136,6 +136,9 @@ public:
 	USoundBase* DeathSound = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = Sound)
+	USoundBase* DeathSmokeSound = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = Sound)
 	USoundBase* TakeDamageSound = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = Sound)

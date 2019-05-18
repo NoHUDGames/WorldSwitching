@@ -162,6 +162,8 @@ void ASpiritTest::KillingEnemy()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Enemy is dying!"))
 
+		UGameplayStatics::PlaySound2D(GetWorld(), DeathSound);
+
 		GetMesh()->SetHiddenInGame(true);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		BoxCollider->DestroyComponent(true);
