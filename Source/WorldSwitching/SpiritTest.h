@@ -52,6 +52,9 @@ public:
 	
 	void CallingPlayerDecrementLivesFunction();
 
+	UPROPERTY(EditAnywhere, Category = Sound)
+	USoundBase* TakeDamageSound = nullptr;
+
 	UFUNCTION()
 		void HittingPlayer(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
 			UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);

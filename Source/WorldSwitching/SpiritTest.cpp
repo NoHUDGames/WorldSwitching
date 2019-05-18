@@ -231,6 +231,8 @@ void ASpiritTest::KnockbackTimelineFloatReturn(float value)
 
 void ASpiritTest::DecrementingLives(FVector KnockbackDirection)
 {
+	UGameplayStatics::PlaySound2D(GetWorld(), TakeDamageSound);
+
 	if (Lives > 0)
 	{
 		--Lives;

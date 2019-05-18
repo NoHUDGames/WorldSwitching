@@ -132,7 +132,13 @@ public:
 
 	void DecrementingLives();
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = Sound)
+	USoundBase* DeathSound = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = Sound)
+	USoundBase* TakeDamageSound = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = Sound)
 	USoundBase* SensingSound = nullptr;
 
 	void SenseWorld();
