@@ -154,7 +154,9 @@ bool AWorldSwitchingGameModeBase::TestWorldChangeOverlaps()
 				PlayerCapsuleCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
 			}
 
-			LightUpCollidingActor(OtherActorPhysicalTest);
+			if (LitUpBySensing < 1) LightUpCollidingActor(OtherActorPhysicalTest);
+			
+
 			return true;
 		}
 	UE_LOG(LogTemp, Warning, TEXT("Did NOT Overlap with PhysicalActor"));

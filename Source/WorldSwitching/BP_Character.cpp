@@ -455,6 +455,7 @@ void ABP_Character::StopInteracting()
 void ABP_Character::DecrementingLives()
 {
 	UGameplayStatics::PlayWorldCameraShake(GetWorld(), TakingDamageCameraShake, GetActorLocation(), 10.f, 1500.f);
+	UGameplayStatics::PlaySound2D(CurrentWorld, TakeDamageSound);
 	DisableInput(GetWorld()->GetFirstPlayerController());
 
 	if (GetShields() > 0)
@@ -470,6 +471,7 @@ void ABP_Character::DecrementingLives()
 			RunningAnimations = EAnimations::DYING;
 			GetWorldTimerManager().SetTimer(ActivatingDeathSmokeTimer, this, &ABP_Character::ActivateDeathSmoke, 1.f, false);
 			GetWorldTimerManager().SetTimer(DeathAnimationTimer, this, &ABP_Character::DeathSequenceProxy, 2.f, false);
+			UGameplayStatics::PlaySound2D(CurrentWorld, DeathSound);
 		}
 		else
 		{
@@ -658,6 +660,8 @@ void ABP_Character::DeathSequence(bool bWithArtifactLoss)
 			GameModeRef->ChangeWorlds(false);
 	}	
 
+
+		
 	GetWorldTimerManager().SetTimer(DeathSequenceTimer, this, &ABP_Character::RespawnSequence, 3.f, false);
 }
 
