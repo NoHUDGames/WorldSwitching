@@ -240,7 +240,7 @@ void ABP_Character::CalculateFallDuration()
 	if (TimeFalled > FallDurationForDeath)
 	{
 
-		DeathSequence(false);
+		CurrentlyDying();
 	}
 }
 
@@ -496,6 +496,7 @@ void ABP_Character::DecrementingLives()
 /// it starts the dying animation and queues a couple of other functions that are about to happen
 void ABP_Character::CurrentlyDying()
 {
+	bFellToDeath = true;
 	RunningAnimations = EAnimations::DYING;
 	GetWorldTimerManager().SetTimer(ActivatingDeathSmokeTimer, this, &ABP_Character::ActivateDeathSmoke, 1.f, false);
 	GetWorldTimerManager().SetTimer(DeathAnimationTimer, this, &ABP_Character::DeathSequenceProxy, 2.f, false);
@@ -644,7 +645,7 @@ void ABP_Character::DeathSequence(bool bWithArtifactLoss)
 	SetActorEnableCollision(false);
 	DeathSmoke->Deactivate();
 
-	if (bWithArtifactLoss)
+	if (bWithArtifactLoss && bFellToDeath == false)
 	{
 		UWorld* World = GetWorld();
 
@@ -709,6 +710,7 @@ void ABP_Character::RespawnSequence()
 	isTargetingEnemy = false;
 	EnableInput(GetWorld()->GetFirstPlayerController());
 	RunningAnimations = EAnimations::MOVEMENT;
+	bFellToDeath = false;
 	if (bIsSpiritWorld)
 	{
 		Mask->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false), FName("HeadSocket"));

@@ -380,5 +380,9 @@ private:
 
 	///The head socket location
 	FVector HeadSocketLocation = FVector(0.f, 0.f, 0.f);
+
+	///The location of the trailing head
 	FVector TrailingHeadLocation = FVector(0.f, -43.f, 120.f);
+
+	bool bFellToDeath{ false };
 };
