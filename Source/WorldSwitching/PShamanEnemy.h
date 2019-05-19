@@ -9,6 +9,8 @@
 #include "SpiritTest.h"
 #include "BP_Character.h"
 #include "OurEnums.h"
+#include "Animation/BlendSpace1D.h"
+#include "Animation/AnimSequence.h"
 #include "PShamanEnemy.generated.h"
 
 
@@ -86,12 +88,15 @@ public:
 	void ChangingAnimationStarted(int index);
 
 	
-	/// 0 = IdleAnim, 1 = AttackAnim, 2 = WalkingAnim, 3 = DeathAnim
-	bool AnimationStarted[5] = { false };
+	/// 0 = AttackAnim, 1 = MovementBlendSpace
+	bool AnimationStarted[2] = { false };
+
+	UFUNCTION(BlueprintCallable)
+		UAnimSequence* GetAttackAnim() { return AttackAnim; };
 
 	///The enum that makes sure that the right animation is queued to start playing
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-		EAnimations RunningAnimations = EAnimations::IDLE;
+		EAnimations RunningAnimations = EAnimations::MOVEMENT;
 
 	/// functions and variables for knockback timeline
 	UPROPERTY(EditAnywhere, Category = "Combat")
@@ -108,11 +113,17 @@ public:
 private:
 	/// Variables and enums that are related to animations
 	UAnimationAsset* IdleAnim;
-	UAnimationAsset* AttackAnim;
+	UAnimSequence* AttackAnim;
 	UAnimationAsset* WalkingAnim;
 	UAnimationAsset* DeathAnim;
+	
+	UBlendSpace1D* MovementAnimBlendSpace;
 
-	/// end of variable and enums that are related to animations
+	void MovementAnimationTesting();
+
+	/// end of variable and functions that are related to animations
+
+	
 
 	///The function to run the knockback effect
 	void KnockbackEffect(FVector KnockbackDirection);

@@ -5,6 +5,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Animation/AnimInstance.h"
+#include "Runtime/Engine/Classes/Animation/AnimSingleNodeInstance.h"
 
 APShamanEnemy::APShamanEnemy()
 {
@@ -34,29 +36,23 @@ APShamanEnemy::APShamanEnemy()
 
 	/// Weapon collider, the collision sphere that damages the player when using the weapon
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponCollider"));
-	BoxCollider->SetupAttachment(WeaponVisual);
+	BoxCollider->SetupAttachment(GetMesh());
 	
 	/// Setting up animation variables
-	static ConstructorHelpers::FObjectFinder<UAnimationAsset> idle_Anim
-	(TEXT("AnimSequence'/Game/Meshes/Characters/SpiritEnemy/Animations/Lil_Blub_Idle_V2.Lil_Blub_Idle_V2'"));
-	if (idle_Anim.Object)
+	static ConstructorHelpers::FObjectFinder<UBlendSpace1D> movementAnim_BlendSpace
+	(TEXT("BlendSpace1D'/Game/Meshes/Characters/ShamanEnemy/Animations/ShamanMovementBlendSpace.ShamanMovementBlendSpace'"));
+	if (movementAnim_BlendSpace.Object)
 	{
-		IdleAnim = idle_Anim.Object;
+		MovementAnimBlendSpace = movementAnim_BlendSpace.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimationAsset> attack_Anim
-	(TEXT("AnimSequence'/Game/Meshes/Characters/SpiritEnemy/Animations/Lil_Blub_Idle.Lil_Blub_Idle'"));
+	static ConstructorHelpers::FObjectFinder<UAnimSequence> attack_Anim
+	(TEXT("AnimSequence'/Game/Meshes/Characters/ShamanEnemy/Animations/ShamanAttackAnim.ShamanAttackAnim'"));
 	if (attack_Anim.Object)
 	{
 		AttackAnim = attack_Anim.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimationAsset> walking_Anim
-	(TEXT("AnimSequence'/Game/Meshes/Characters/SpiritEnemy/Animations/Lil_Blub_Walk.Lil_Blub_Walk'"));
-	if (walking_Anim.Object)
-	{
-		WalkingAnim = walking_Anim.Object;
-	}
 	/// finished setting up animation variables
 
 	/// Sets up the timeline for knockback effect
@@ -71,11 +67,20 @@ void APShamanEnemy::BeginPlay()
 	Super::BeginPlay();
 
 	///Attaches the spear to the right socket
+	Spear->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+	
 	Spear->AttachToComponent(GetMesh(), 
-		FAttachmentTransformRules(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepRelative, true),
+		FAttachmentTransformRules(EAttachmentRule::KeepRelative, EAttachmentRule::KeepWorld, EAttachmentRule::KeepRelative, true),
 		FName("WeaponRotation"));
 
+
 	BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &APShamanEnemy::HittingPlayer);
+	
+	///Attaches the weapon collider to the right socket
+	BoxCollider->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+	BoxCollider->AttachToComponent(GetMesh(),
+		FAttachmentTransformRules(EAttachmentRule::KeepRelative, EAttachmentRule::KeepWorld, EAttachmentRule::KeepRelative, true),
+		FName("WeaponRotation"));
 
 	/// Sets up the BeginPlay values for the knockback timeline
 	if (fKnockbackCurve)
@@ -95,6 +100,7 @@ void APShamanEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	MovementAnimationTesting();
 	PlayingAnimations();
 
 	
@@ -104,34 +110,17 @@ void APShamanEnemy::Tick(float DeltaTime)
 /// it is called every tick
 void APShamanEnemy::PlayingAnimations()
 {
-	
-	if (AnimationStarted[0] == false && RunningAnimations == EAnimations::IDLE && GetVelocity() == FVector(0.f, 0.f, 0.f))
+	if (AnimationStarted[0] == false && RunningAnimations == EAnimations::ATTACKING)
 	{
-		
-		GetMesh()->PlayAnimation(IdleAnim, true);
-
-		ChangingAnimationStarted(0);
-
-	}
-	else if (AnimationStarted[1] == false && RunningAnimations == EAnimations::ATTACKING)
-	{
-
 		GetMesh()->PlayAnimation(AttackAnim, false);
 
+		ChangingAnimationStarted(0);
+	}
+	else if (AnimationStarted[1] == false && RunningAnimations == EAnimations::MOVEMENT)
+	{
+		GetMesh()->PlayAnimation(MovementAnimBlendSpace, true);
+
 		ChangingAnimationStarted(1);
-	}
-	else if (AnimationStarted[2] == false && RunningAnimations == EAnimations::WALKINGFORWARD)
-	{
-		GetMesh()->PlayAnimation(WalkingAnim, true);
-
-		ChangingAnimationStarted(2);
-	}
-	else if (AnimationStarted[3] == false && RunningAnimations == EAnimations::DYING)
-	{
-		GetMesh()->PlayAnimation(WalkingAnim, true);
-
-		ChangingAnimationStarted(3);
-
 	}
 }
 
@@ -139,7 +128,7 @@ void APShamanEnemy::PlayingAnimations()
 void APShamanEnemy::ChangingAnimationStarted(int index)
 {
 	AnimationStarted[index] = true;
-	for (int i{ 0 }; i < 4; ++i)
+	for (int i{ 0 }; i < 2; ++i)
 	{
 		if (i != index)
 		{
@@ -148,6 +137,19 @@ void APShamanEnemy::ChangingAnimationStarted(int index)
 	}
 }
 
+///Just like the MovementAnimationTesting in BP_Character class, this function determines what animation should be run in the BlendSpace
+/// It is called in tick
+void APShamanEnemy::MovementAnimationTesting()
+{
+	/// SetBlendSpaceInput faar spillet til aa krasje av en eller annen fucka grunn. 
+	/// Gjor akkurat det samme i spillerklassen og der funekr det
+	if (RunningAnimations == EAnimations::MOVEMENT)
+	{
+		FVector BlendParam(GetVelocity().Size(), 0.f, 0.f);
+		if (GetMesh() != nullptr && GetMesh()->GetSingleNodeInstance() != nullptr)
+			GetMesh()->GetSingleNodeInstance()->SetBlendSpaceInput(BlendParam);
+	}
+}
 
 void APShamanEnemy::SetupPlayerInputComponent(UInputComponent * PlayerInputComponent)
 {
