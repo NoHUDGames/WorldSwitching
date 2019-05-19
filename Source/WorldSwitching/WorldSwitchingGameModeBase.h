@@ -120,7 +120,7 @@ public:
 	void CleanUp();
 
 
-	
+	void UnlockAllAbilities();
 
 
 	//End | Collision while changing world
