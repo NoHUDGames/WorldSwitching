@@ -93,17 +93,6 @@ ABP_Character::ABP_Character()
 	HeadFloatOffset = 20.f;
 	/// finished setting up the timeline for floating head
 
-	/// Sets up the timeline for switching head
-	SwitchingHeadTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineForHeadSwitching"));
-
-	InterpHeadSwitchingFunction.BindUFunction(this, FName("SwitchingHeadTimelineFloatReturn"));
-	HeadSwitchingTimelineFinished.BindUFunction(this, FName("OnHeadSwitchingTimelineFinished"));
-
-	HeadSwitchingOffset = 50.f;
-
-	
-	/// finished setting up the timeline for switching head
-
 	DeathSmoke = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("BlueSmokeOnDeath"));
 	DeathSmoke->SetupAttachment(RootComponent);
 	
@@ -171,21 +160,10 @@ void ABP_Character::BeginPlay()
 	}
 	///Finished setting up the BeginPlay values for the floating head timeline
 
-	/// Sets up the BeginPlay values for the switching head timeline
-	if (fHeadSwitchingCurve)
-	{
-		/// Add the float curve to the timeline and connect it to the interpfunctions delegate
-		SwitchingHeadTimeline->AddInterpFloat(fHeadSwitchingCurve, InterpHeadSwitchingFunction, FName("Alpha"));
-		//Add our timeline finished function
-		SwitchingHeadTimeline->SetTimelineFinishedFunc(HeadSwitchingTimelineFinished);
 
-		/// Setting our timeline settings before we start it
-		SwitchingHeadTimeline->SetLooping(false);
-		SwitchingHeadTimeline->SetIgnoreTimeDilation(true);
-	}
-	///Finished setting up the BeginPlay values for the switching head timeline
-
-
+	/// Makes sure that the right object is placed at the location of the head socket
+	/// If the player is currently in the spiritworld when it is created, the mask is at the head socket location
+	/// if the player is currently in the physical world when the actor is created, the head is at the head socket location
 	if (bIsSpiritWorld)
 	{
 		Mask->SetRelativeLocation(HeadSocketLocation);
@@ -199,19 +177,26 @@ void ABP_Character::BeginPlay()
 
 	/// Finished setting up the BeginPlay values for world switching
 	
-
+	/// Gets the Game instance. We use this class to store game-wide information that is only reset when the player starts a new game
 	GameInstance = Cast<UWorldSwitchingGameInstance>(GetWorld()->GetGameInstance());
+
+	/// Gets the first player controller
 	PlayerController = Cast<AOurPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 
-
+	/// We are manipulating the player speed through the spirit enemy special ability. 
+	/// Therefore, we make sure that the MaxWalkSpeed is always 600.f when the character is spawned in the game
 	if (GetCharacterMovement()->GetMaxSpeed() != NormalSpeed)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	}
 
+	/// Adds the artifact widget to the Viewport. This displays the amount of artifacts the player has
+	/// It is hidden for the player at all times, except for when the lpayer picks up an artifact
+	/// The actual class has a function that moves out to the visible area of the player screen when an artifact is picked up
 	ArtifactDisplay = CreateWidget<UUserWidget>(GameInstance, ArtifactWidget);
 	ArtifactDisplay->AddToViewport();
 
+	/// Makes sure that the DeathSmoke particle effect is deactivated when the character is spawned into the game
 	DeathSmoke->Deactivate();
 }
 
@@ -225,9 +210,14 @@ void ABP_Character::Tick(float DeltaTime)
 	FloatingHeadTimeline->Play();
 }
 
+/// A virtual function inherited from the character class
+/// it is called each time the character changes movement mode
 void ABP_Character::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
 {
 	
+	///Checks if the new movement mode is falling. If it is, we find the time where the player started to fall
+	/// When the player starts to walk again, we get the time again and calculate the fall duration
+	/// The fall duration function determines whether or not the player should die from the fall
 	if (GetCharacterMovement()->GetMovementName() == "Falling")
 	{
 		startedFalling = UGameplayStatics::GetRealTimeSeconds(GetWorld());
@@ -244,6 +234,9 @@ void ABP_Character::CalculateFallDuration()
 {
 	float TimeFalled = endedFalling - startedFalling;
 
+	/// If the player falls longer than the allowed time, it will die
+	/// it is only calculated after the player is done falling.
+	/// If the player somehow falls through the ground or something, they can kill themselves in the pause menu instead
 	if (TimeFalled > FallDurationForDeath)
 	{
 
@@ -251,17 +244,20 @@ void ABP_Character::CalculateFallDuration()
 	}
 }
 
+/// Function that starts any appropriate animations
+/// it is called every tick
 void ABP_Character::PlayingAnimations()
 {
-	
-	
+	/// The animation started array is a set of bool variables that checks whether or not an animation is started
+	/// It is implemented to ensure that an animation isn't started when it is already running
+	/// the RunningAnimations enum is checking what animation is allowed to run. 
+	/// This variable is given different values based on actions the player make
 	if (AnimationStarted[1] == false && RunningAnimations == EAnimations::ATTACKING)
 	{
 		GetMesh()->PlayAnimation(KickingAnim, false);
 
 		ChangingAnimationStarted(1);
 	}
-	
 	else if (AnimationStarted[0] == false && RunningAnimations == EAnimations::MOVEMENT)
 	{
 		GetMesh()->PlayAnimation(MovementAnimBlendSpace, true);
@@ -297,6 +293,7 @@ void ABP_Character::PlayingAnimations()
 	
 }
 
+///This function changes the AnimationStarted array. Only one index should be true at all times, which is the index parameters value
 void ABP_Character::ChangingAnimationStarted(int index)
 {
 	AnimationStarted[index] = true;
@@ -324,21 +321,22 @@ void ABP_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 }
 
+///The move up and down function (always along the x axis with our current camera settings)
 void ABP_Character::MoveUp(float AxisValue)
-{//50.f, 0.f, 0.f
+{
 	AddMovementInput(FVector(50.f, 0.f, 0.f), AxisValue);
 	
 	MovementAnimationTesting(AxisValue);
 }
 
+///The sideways function (always along the y axis with our current camera settings)
 void ABP_Character::MoveRight(float AxisValue)
-{//0.f, 50.f, 0.f
+{
 	AddMovementInput(FVector(0.f, 50.f, 0.f), AxisValue);
-
-	
 
 	MovementAnimationTesting(AxisValue);
 }
+
 
 void ABP_Character::ResetArtifactDisplayValues()
 {
@@ -346,6 +344,8 @@ void ABP_Character::ResetArtifactDisplayValues()
 	PickedUpArtifact = false;
 }
 
+/// This function makes sure that the right animation is running in the movement blend space
+/// it is called in both movement functions
 void ABP_Character::MovementAnimationTesting(float AxisValue)
 {
 
@@ -360,35 +360,37 @@ void ABP_Character::MovementAnimationTesting(float AxisValue)
 	/// Parameters that determines the blend properties for the Movement animation
 	/// X-parameter defines the direction you move, so if the character should strafe or walk forward
 	/// Y-Parameter defines the speed of the character, so whether or not the idle animation should run
-	
-	
-
 	FVector BlendParams(rotationDegreeAngle, GetVelocity().Size(), 0.f);
 
 	GetMesh()->GetSingleNodeInstance()->SetBlendSpaceInput(BlendParams);
 
 }
 
-
+/// This is the main function for kicking
+/// We have implemented a kicking combo functionality here (through the use of the NumberOfKicks variable), 
+/// but since we didn't get any animation that gave the player enough feedback, we decided to leave it commented out in the game
+/// It is bound to the left mouse button
 void ABP_Character::Kicking()
 {
 	RunningAnimations = EAnimations::ATTACKING;
 
-	UGameplayStatics::PlaySound2D(CurrentWorld, KickingSoundDefault);
-
 	if (!CurrentlyKicking)
 	{
+		/// Plays the kicking sound
+		UGameplayStatics::PlaySound2D(CurrentWorld, KickingSoundDefault);
+
 		/// Makes it impossible for the player to kick while it's already kicking
 		CurrentlyKicking = true;
 
 		if (NumberOfKicks <= 2)
 		{
 			++NumberOfKicks;
-			/// Resets the kick after 1.5 seconds
+			/// Resets the kick combo after 1.5 seconds
 			GetWorldTimerManager().SetTimer(ComboDurationTimer, this, &ABP_Character::ResetKickingCombo, 1.5f, false);
 		}
 		else
 		{
+			/// Resets the kick combo if the player has reached 3 kicks
 			ResetKickingCombo();
 		}
 
@@ -397,13 +399,14 @@ void ABP_Character::Kicking()
 		if (bIsSpiritWorld)
 		{
 			BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
-			UE_LOG(LogTemp, Warning, TEXT("Kicking in spirit world"))
 		}
 		else
 		{
 			BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Overlap);
 		}
 
+		///This determines the kicking cooldown, which is on 0.6f seconds
+		///It is also the function that finished off the kick and turns the collision settings off for the BoxCollider
 		GetWorldTimerManager().SetTimer(KickingDurationTimer, this, &ABP_Character::KickingFinished, 0.6f, false);
 	}
 	
@@ -417,6 +420,7 @@ void ABP_Character::ResetKickingCombo()
 	}	
 }
 
+/// The function that resets the kicking, turns it off and allows the player to kick again
 void ABP_Character::KickingFinished()
 {
 	CurrentlyKicking = false;
@@ -426,6 +430,7 @@ void ABP_Character::KickingFinished()
 	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Ignore);
 }
 
+/// This is the function that allows the player to control the character again after being hit by an enemy
 void ABP_Character::TakingHitAnimationOver()
 {
 
@@ -433,25 +438,31 @@ void ABP_Character::TakingHitAnimationOver()
 	EnableInput(GetWorld()->GetFirstPlayerController());
 	
 	/// Had some issues where this value kept on staying true if the player tried to kick and got hit at the same time
+	/// This somehow fixed the issue
 	if (CurrentlyKicking)
 	{
 		CurrentlyKicking = false;
 	}
 }
 
+/// The interact function. This is used to drop off artifacts and turn on torches
+/// it could also be used to perform other similar actions if we were to expand the game (Like open a door etc.)
+/// it is bound to the E key
 void ABP_Character::Interact()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Trying to interact with something"))
-
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel4, ECollisionResponse::ECR_Overlap);
 }
 
+/// Stops the interacting
+/// it is bound to releasing the the E key
 void ABP_Character::StopInteracting()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Stops trying to interact with something"))
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel4, ECollisionResponse::ECR_Ignore);
 }
 
+///This decrement the health of the player. 
+/// It also runs a test for how much life the player has
+/// if the player has less than or equal to 0 lives, it will run the function that makes sure the player dies
 void ABP_Character::DecrementingLives()
 {
 	UGameplayStatics::PlayWorldCameraShake(GetWorld(), TakingDamageCameraShake, GetActorLocation(), 10.f, 1500.f);
@@ -468,10 +479,7 @@ void ABP_Character::DecrementingLives()
 
 		if (Lives <= 0)
 		{
-			RunningAnimations = EAnimations::DYING;
-			GetWorldTimerManager().SetTimer(ActivatingDeathSmokeTimer, this, &ABP_Character::ActivateDeathSmoke, 1.f, false);
-			GetWorldTimerManager().SetTimer(DeathAnimationTimer, this, &ABP_Character::DeathSequenceProxy, 2.f, false);
-			UGameplayStatics::PlaySound2D(CurrentWorld, DeathSound);
+			CurrentlyDying();
 		}
 		else
 		{
@@ -484,6 +492,17 @@ void ABP_Character::DecrementingLives()
 	}
 }
 
+/// This function is the first step in the player death sequence of functions
+/// it starts the dying animation and queues a couple of other functions that are about to happen
+void ABP_Character::CurrentlyDying()
+{
+	RunningAnimations = EAnimations::DYING;
+	GetWorldTimerManager().SetTimer(ActivatingDeathSmokeTimer, this, &ABP_Character::ActivateDeathSmoke, 1.f, false);
+	GetWorldTimerManager().SetTimer(DeathAnimationTimer, this, &ABP_Character::DeathSequenceProxy, 2.f, false);
+	UGameplayStatics::PlaySound2D(CurrentWorld, DeathSound);
+}
+
+/// This is a collision test to check if the player is colliding with an artifact or a shield
 void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
 	UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
@@ -494,12 +513,11 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 		OtherActorForPhysicalTest = OtherActor;
 	}
 
+	/// This is the part of the collision test that checks if it is an artifact that the player is colliding with
 	if (Cast<AArtifacts>(OtherActor))
 	{
 		OtherActor->SetActorEnableCollision(false);
 		AArtifacts* PickedUpActor = Cast<AArtifacts>(OtherActor);
-		
-		UE_LOG(LogTemp, Warning, TEXT("You're colliding with an artifact."))
 
 		++NumberOfHoldingArtifacts;
 
@@ -509,18 +527,19 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 		GameInstance->RegisterPickedUp(PickedUpActor->GetArrayIndex(), OtherActor);
 
 		PickedUpActor->PickupFeedback();
-		
-		UE_LOG(LogTemp, Warning, TEXT("We have %i artifacts"), NumberOfHoldingArtifacts)
 
+		/// This helps the artifact display move smoothly out from the side
 		if (PickedUpArtifact == false)
 		{
 			LastTimePickedUpArtifact = UGameplayStatics::GetRealTimeSeconds(GetWorld());
 			PickedUpArtifact = true;
 		}
 		
+		/// after the pickedUpArtifact boolean has been true for 3 seconds, it will be reset and the artifact display moves back out of the screen
 		GetWorldTimerManager().SetTimer(ArtifactDisplayResetTimer, this, &ABP_Character::ResetArtifactDisplayValues, 3.f, false);
 	}
 
+	/// This is the part of the collision test that checks if it is a shield that the player is colliding with
 	else if (Cast<AS_PickupShield>(OtherActor) && GetShields() < 3)
 	{
 		OtherActor->SetActorEnableCollision(false);
@@ -531,19 +550,16 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 
 		PickedUpActor->PickupFeedback();
 		++NumberOfShields;
-		UE_LOG(LogTemp, Warning, TEXT("You're picking up a SHIELD!"))
 	}
-	else UE_LOG(LogTemp, Warning, TEXT("ALL CASTS FAILED / NOT PICKUP ACTOR"))
 }
 
+///Collision test for kicking an enemy
 void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, 
 	UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
-	
+	///This checks if it is colliding with a spirit enemy
 	if (OtherActor->IsA(ASpiritTest::StaticClass()))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("You are hitting a Spirit Enemy"))
-
 		ASpiritTest* Spirit = Cast<ASpiritTest>(OtherActor);
 
 		if (NumberOfKicks <= 2)
@@ -567,17 +583,17 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 			*/
 			
 		}
-			
+		
+		/// This resets the targeting of the enemy if it dies
 		if (Spirit->Lives <= 0 && isTargetingEnemy == true)
 		{
 			isTargetingEnemy = false;
 		}
 	}
 
+	/// The same code is applied to a shaman
 	else if (OtherActor->IsA(APShamanEnemy::StaticClass()))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("You are hitting a Shaman Enemy"))
-
 			APShamanEnemy* Shaman = Cast<APShamanEnemy>(OtherActor);
 		if (NumberOfKicks <= 2)
 		{
@@ -607,12 +623,19 @@ void ABP_Character::HittingEnemy(UPrimitiveComponent * OverlappedComp, AActor * 
 			isTargetingEnemy = false;
 		}
 	}
+
+	/// This turns off the kicking collider after the collision has started one time.
+	/// This makes sure that the player doesn't take more than one damage from an enemy
 	BoxCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Ignore);
 }
 
 
+/// This is the second stage after the player dies
+/// It is called from CurrentlyDying function and resets the artifacts if the player is killed by an enemy and drops them of next to the death location
+/// Since we don't actually kill the instance of BP_Character when it is killed, we just hide it and teleport it to the last known checkpoint
+/// Therefore we hide the actor instead
 void ABP_Character::DeathSequence(bool bWithArtifactLoss)
 {
 	GetMesh()->SetHiddenInGame(true);
@@ -671,6 +694,7 @@ void ABP_Character::DeathSequenceProxy()
 	DeathSequence();
 }
 
+///This resets the variables for the player to default and respwns the player at the last known checkpoint
 void ABP_Character::RespawnSequence()
 {
 
@@ -697,21 +721,17 @@ void ABP_Character::RespawnSequence()
 }
 
 
-
+/// This function is bound to the interact button E
+/// This drops off artifacts at the altar
 void ABP_Character::DeliveringArtifacts(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, 
 	UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	if (OtherActor->IsA(AAltar::StaticClass()) && NumberOfHoldingArtifacts > 0 && bIsSpiritWorld == true)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ARTIFACTS DELIVERED"))
 
 		Cast<AAltar>(OtherActor)->ReceivingArtifacts(NumberOfHoldingArtifacts);
 
 		NumberOfHoldingArtifacts = 0;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("ARTIFACTS NOT DELIVERED"))
 	}
 }
 
@@ -725,12 +745,13 @@ AActor* ABP_Character::GetOtherActorForPhysicalTest()
 	return temp;
 }
 
+///This is a function that sets the new last known checkpoint for the player
 void ABP_Character::SetRespawnLocation(FVector NewSaveLocation)
 {
 	RespawnLocation = NewSaveLocation;
-
 }
 
+/// This activates the deathsmoke particle effect for the player right before it is hidden by the DeathSequence function
 void ABP_Character::ActivateDeathSmoke()
 {
 	DeathSmoke->Activate();
@@ -751,6 +772,7 @@ void ABP_Character::SetbIsSpiritWorld(bool state)
 	bIsSpiritWorld = state;
 }
 
+/// A function determining the location of the currently floating head
 void ABP_Character::FloatingHeadTimelineFloatReturn(float value)
 {
 	if (bIsSpiritWorld)
@@ -763,16 +785,14 @@ void ABP_Character::FloatingHeadTimelineFloatReturn(float value)
 	}
 }
 
+/// THis function switches the heads when the player changes worlds
 void ABP_Character::SwitchingHead()
 {
 	
 
 	if (bIsSpiritWorld)
 	{
-		
-
 		Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true)); // resets the head and makes it not snap to the socket
-		///SwitchingHeadTimeline->Play();
 
 		Head->SetRelativeLocation(TrailingHeadLocation);
 
@@ -783,54 +803,21 @@ void ABP_Character::SwitchingHead()
 	}
 	else
 	{
-		
-
 		Mask->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true)); // resets the mask and makes it not snap to the socket
-		///SwitchingHeadTimeline->Reverse();
 
 		Mask->SetRelativeLocation(TrailingHeadLocation);
 		Head->SetRelativeLocation(HeadSocketLocation);
 
 		Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, true), FName("HeadSocket"));
-
-		
 	}
 
 	
 }
 
-
-/// There's something wrong with this function
-void ABP_Character::SwitchingHeadTimelineFloatReturn(float value)
-{
-	Head->SetRelativeLocation(FMath::Lerp(HeadSocketLocation, TrailingHeadLocation, value));
-	Mask->SetRelativeLocation(FMath::Lerp(TrailingHeadLocation, HeadSocketLocation, value));
-	
-}
-
-void ABP_Character::OnHeadSwitchingTimelineFinished()
-{
-	if (bIsSpiritWorld)
-	{
-		///Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true)); // resets the head and makes it not snap to the socket
-
-		Mask->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, true), FName("HeadSocket"));
-
-
-	}
-	else
-	{
-		///Mask->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true)); // resets the mask and makes it not snap to the socket
-
-		Head->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, true), FName("HeadSocket"));
-
-
-	}
-}
-
+/// The function that triggers the dashing ability
+/// it is bound to Left Shift
 void ABP_Character::Dashing()
 {
-	
 	/// This if statement makes sure that the player is allowed to dash.
 	/// The Currently Dashing variable is making sure that the player waits until the dashing cooldown is finished
 	/// the bIsDashingLocked variable is making sure that the player isn't dashing before they have unlocked the ability
@@ -853,12 +840,14 @@ void ABP_Character::Dashing()
 	
 }
 
+/// A function that determines the players current location during the dash
 void ABP_Character::DashingTimelineFloatReturn(float value)
 {
 	SetActorLocation(FMath::Lerp(ActorLocation, GoalLocation, value), true);
 
 }
 
+/// What happens after the dashing timeline is over
 void ABP_Character::OnDashingTimelineFinished()
 {
 	RunningAnimations = EAnimations::MOVEMENT;
@@ -866,6 +855,7 @@ void ABP_Character::OnDashingTimelineFinished()
 
 }
 
+/// The function that sends out the sensing sphere that lights up all objects in the parallell world
 void ABP_Character::SenseWorld()
 {
 	if (GameInstance->bIsSensingLocked) return;
