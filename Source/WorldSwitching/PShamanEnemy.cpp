@@ -8,10 +8,11 @@
 
 APShamanEnemy::APShamanEnemy()
 {
+	///This code is very temporary
+	///After the right animation is created, this will not be in use
 	WeaponRotation = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponRotation"));
 	WeaponRotation->SetupAttachment(RootComponent);
 	WeaponRotation->Mobility = EComponentMobility::Movable;
-
 
 	WeaponVisual = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TempWeapon"));
 	WeaponVisual->SetupAttachment(WeaponRotation);
@@ -24,19 +25,16 @@ APShamanEnemy::APShamanEnemy()
 		WeaponVisual->Mobility = EComponentMobility::Movable;
 		WeaponVisual->SetWorldScale3D(FVector(0.2f));
 	}
+	///End of temporary attack components
 
+	///Setting up the spear component
 	Spear = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SpearWeapon"));
 	Spear->SetupAttachment(GetMesh());
+	///Finished setting up the spear component
 
 	/// Weapon collider, the collision sphere that damages the player when using the weapon
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponCollider"));
 	BoxCollider->SetupAttachment(WeaponVisual);
-
-	/*static ConstructorHelpers::FObjectFinder<UClass> SpiritBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_SpiritTest.BP_SpiritTest_C'"));
-	if (SpiritBlueprint.Object) {
-		SpiritOfShaman = SpiritBlueprint.Object;
-	}*/
-	
 	
 	/// Setting up animation variables
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> idle_Anim
@@ -48,11 +46,17 @@ APShamanEnemy::APShamanEnemy()
 
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> attack_Anim
 	(TEXT("AnimSequence'/Game/Meshes/Characters/SpiritEnemy/Animations/Lil_Blub_Idle.Lil_Blub_Idle'"));
-	AttackAnim = attack_Anim.Object;
+	if (attack_Anim.Object)
+	{
+		AttackAnim = attack_Anim.Object;
+	}
 
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> walking_Anim
 	(TEXT("AnimSequence'/Game/Meshes/Characters/SpiritEnemy/Animations/Lil_Blub_Walk.Lil_Blub_Walk'"));
-	WalkingAnim = walking_Anim.Object;
+	if (walking_Anim.Object)
+	{
+		WalkingAnim = walking_Anim.Object;
+	}
 	/// finished setting up animation variables
 
 	/// Sets up the timeline for knockback effect
@@ -66,6 +70,7 @@ void APShamanEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
+	///Attaches the spear to the right socket
 	Spear->AttachToComponent(GetMesh(), 
 		FAttachmentTransformRules(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepRelative, true),
 		FName("WeaponRotation"));
@@ -95,6 +100,8 @@ void APShamanEnemy::Tick(float DeltaTime)
 	
 }
 
+/// Function that starts any appropriate animations
+/// it is called every tick
 void APShamanEnemy::PlayingAnimations()
 {
 	
@@ -128,6 +135,7 @@ void APShamanEnemy::PlayingAnimations()
 	}
 }
 
+///This function changes the AnimationStarted array. Only one index should be true at all times, which is the index parameters value
 void APShamanEnemy::ChangingAnimationStarted(int index)
 {
 	AnimationStarted[index] = true;
@@ -146,6 +154,8 @@ void APShamanEnemy::SetupPlayerInputComponent(UInputComponent * PlayerInputCompo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+
+///decrements the health of the enemy when the player hits it
 void APShamanEnemy::DecrementingLives(FVector KnockbackDirection)
 {
 	if (Lives > 0)
@@ -158,6 +168,9 @@ void APShamanEnemy::DecrementingLives(FVector KnockbackDirection)
 	KillingEnemy();
 }
 
+///This tests whether or not the enemy is ready to be killed
+/// it first sets the enemy to be hidden and then start a timer that spawns the enemy head
+/// after a while i destroys the entire actor
 void APShamanEnemy::KillingEnemy()
 {
 	if (Lives <= 0)
@@ -178,14 +191,12 @@ void APShamanEnemy::KillingEnemy()
 	}
 }
 
-
+///The function for collision testing, checking whether or not the enemy has been able to hit the player
 void APShamanEnemy::HittingPlayer(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, 
 	UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	if (OtherActor->IsA(ABP_Character::StaticClass()))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("The enemy are hitting you"))
-
 		ABP_Character* PlayerCharacter = Cast<ABP_Character>(OtherActor);
 
 		PlayerCharacter->DecrementingLives();
@@ -196,6 +207,8 @@ void APShamanEnemy::HittingPlayer(UPrimitiveComponent * OverlappedComp, AActor *
 
 }
 
+///Runs the knockback effect. it is called through the DecrementingLives function
+///The parameter is a result of the angle that the player is hitting the enemy from and the knockbackForce variable in the BP_Character class
 void APShamanEnemy::KnockbackEffect(FVector KnockbackDirection)
 {
 	StartKnockbackLocation = GetActorLocation();
@@ -208,6 +221,7 @@ void APShamanEnemy::DestroyingEnemyProxy()
 	Destroy();
 }
 
+///Determines the location of the enemy while it is being knocked back
 void APShamanEnemy::KnockbackTimelineFloatReturn(float value)
 {
 	SetActorLocation(FMath::Lerp(StartKnockbackLocation, EndKnockbackLocation, value));

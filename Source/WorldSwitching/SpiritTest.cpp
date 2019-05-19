@@ -28,8 +28,10 @@ ASpiritTest::ASpiritTest()
 
 	static ConstructorHelpers::FObjectFinder<UBlendSpace1D> movementAnim_BlendSpace
 	(TEXT("BlendSpace1D'/Game/Meshes/Characters/SpiritEnemy/Animations/SpiritMovementBlendSpace.SpiritMovementBlendSpace'"));
-	MovementAnimBlendSpace = movementAnim_BlendSpace.Object;
-
+	if (movementAnim_BlendSpace.Object)
+	{
+		MovementAnimBlendSpace = movementAnim_BlendSpace.Object;
+	}
 
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> idle_Anim
 	(TEXT("AnimSequence'/Game/Meshes/Characters/SpiritEnemy/Animations/Lil_Blub_Idle_V2.Lil_Blub_Idle_V2'"));
@@ -40,27 +42,40 @@ ASpiritTest::ASpiritTest()
 
 	static ConstructorHelpers::FObjectFinder<UAnimSequence> attack_Anim
 	(TEXT("AnimSequence'/Game/Meshes/Characters/SpiritEnemy/Animations/Lil_Blub_Attack.Lil_Blub_Attack'"));
-	AttackAnim = attack_Anim.Object;
+	if (attack_Anim.Object)
+	{
+		AttackAnim = attack_Anim.Object;
+	}
 
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> walking_Anim
 	(TEXT("AnimSequence'/Game/Meshes/Characters/SpiritEnemy/Animations/Lil_Blub_Walk.Lil_Blub_Walk'"));
-	WalkingAnim = walking_Anim.Object;
+	if (walking_Anim.Object)
+	{
+		WalkingAnim = walking_Anim.Object;
+	}
 
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> takingDamage_Anim
 	(TEXT("AnimSequence'/Game/Meshes/Characters/SpiritEnemy/Animations/Lil_Blub_Damage.Lil_Blub_Damage'"));
-	TakingDamageAnim = takingDamage_Anim.Object;
+	if (takingDamage_Anim.Object)
+	{
+		TakingDamageAnim = takingDamage_Anim.Object;
+	}
 	/// finished setting up animation variables
 
 
+	/// Creates and sets up the necessary settings for the enemy head that shows up after the enemy dies
 	HeadAfterDeath = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("EnemyHead"));
 	HeadAfterDeath->SetupAttachment(RootComponent);
 	HeadAfterDeath->Mobility = EComponentMobility::Movable;
 	HeadAfterDeath->SetHiddenInGame(true);
 	HeadAfterDeath->SetSimulatePhysics(false);
+	/// Finished setting up settings for enemy head that shows up after the enemy dies
 	
+	/// creates and sets up the settings for the blue smoke that starts playing on enemy death
 	BlueSmoke = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("BlueSmokeOnDeath"));
 	BlueSmoke->SetupAttachment(RootComponent);
 
+	/// creates and sets up the settings for the fireflies particle system that plays when the player is in the physical world
 	FireFlies = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("FireFliesInPhysicalWorld"));
 	FireFlies->SetupAttachment(RootComponent);
 
@@ -78,6 +93,7 @@ void ASpiritTest::BeginPlay()
 
 	BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &ASpiritTest::HittingPlayer);
 
+	///Attaches the weapon collider to the right socket
 	FName SocketName = TEXT("WeaponRotation");
 	BoxCollider->AttachToComponent(GetMesh(), 
 		FAttachmentTransformRules(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepRelative, true),
@@ -107,10 +123,15 @@ void ASpiritTest::Tick(float DeltaTime)
 	PlayingAnimations();
 }
 
+/// Function that starts any appropriate animations
+/// it is called every tick
 void ASpiritTest::PlayingAnimations()
 {
 
-	
+	/// The animation started array is a set of bool variables that checks whether or not an animation is started
+	/// It is implemented to ensure that an animation isn't started when it is already running
+	/// the RunningAnimations enum is checking what animation is allowed to run. 
+	/// This variable is given different values based on actions the player make
 	if (AnimationStarted[0] == false && RunningAnimations == EAnimations::TAKINGDAMAGE)
 	{
 		GetMesh()->PlayAnimation(TakingDamageAnim, false);
@@ -122,7 +143,6 @@ void ASpiritTest::PlayingAnimations()
 	}
 	else if (AnimationStarted[1] == false && RunningAnimations == EAnimations::ATTACKING)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("AttackAnim"));
 		GetMesh()->PlayAnimation(AttackAnim, false);
 
 		ChangingAnimationStarted(1);
@@ -135,6 +155,7 @@ void ASpiritTest::PlayingAnimations()
 	}
 }
 
+///This function changes the AnimationStarted array. Only one index should be true at all times, which is the index parameters value
 void ASpiritTest::ChangingAnimationStarted(int index)
 {
 	AnimationStarted[index] = true;
@@ -155,13 +176,13 @@ void ASpiritTest::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 }
 
 
-
+///This tests whether or not the enemy is ready to be killed
+/// it first sets the enemy to be hidden and then start a timer that spawns the enemy head
+/// after a while i destroys the entire actor
 void ASpiritTest::KillingEnemy()
 {
 	if (Lives <= 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Enemy is dying!"))
-
 		UGameplayStatics::PlaySound2D(GetWorld(), DeathSound);
 
 		GetMesh()->SetHiddenInGame(true);
@@ -179,6 +200,7 @@ void ASpiritTest::KillingEnemy()
 	}
 }
 
+///This function sets the enemy head to be visible in the game, makes it drop to the ground and allows the player to kick it around
 void ASpiritTest::SpawnHead()
 {	
 	HeadAfterDeath->SetHiddenInGame(false);
@@ -188,6 +210,8 @@ void ASpiritTest::SpawnHead()
 	BlueSmoke->Deactivate();
 }
 
+///This function kills the actor. 
+///Since we can't call the Destroy() directly through the SetTimer function, we ahd to create our own and call that function instead
 void ASpiritTest::DestroyActor()
 {
 	if (APawn::Controller == nullptr)
@@ -198,6 +222,7 @@ void ASpiritTest::DestroyActor()
 
 }
 
+/// The function that turns off the takingDamage anim and allows the player to move again
 void ASpiritTest::TurnOffTakingDamageAnim()
 {
 	RunningAnimations = EAnimations::MOVEMENT;
@@ -205,6 +230,8 @@ void ASpiritTest::TurnOffTakingDamageAnim()
 	AnimationStarted[4] = false;
 }
 
+///Runs the knockback effect. it is called through the DecrementingLives function
+///The parameter is a result of the angle that the player is hitting the enemy from and the knockbackForce variable in the BP_Character class
 void ASpiritTest::KnockbackEffect(FVector KnockbackDirection)
 {
 	StartKnockbackLocation = GetActorLocation();
@@ -212,6 +239,8 @@ void ASpiritTest::KnockbackEffect(FVector KnockbackDirection)
 	KnockbackTimeline->PlayFromStart();
 }
 
+///Just like the MovementAnimationTesting in BP_Character class, this function determines what animation should be run in the BlendSpace
+/// It is called in tick
 void ASpiritTest::MovementAnimationTesting()
 {
 	/// SetBlendSpaceInput faar spillet til aa krasje av en eller annen fucka grunn. 
@@ -226,11 +255,14 @@ void ASpiritTest::MovementAnimationTesting()
 
 }
 
+///The function that determines where the player is during the knockback effect
 void ASpiritTest::KnockbackTimelineFloatReturn(float value)
 {
 	SetActorLocation(FMath::Lerp(StartKnockbackLocation, EndKnockbackLocation, value));
 }
 
+
+///decrements the health of the enemy when the player hits it
 void ASpiritTest::DecrementingLives(FVector KnockbackDirection)
 {
 	UGameplayStatics::PlaySound2D(GetWorld(), TakeDamageSound);
@@ -238,7 +270,6 @@ void ASpiritTest::DecrementingLives(FVector KnockbackDirection)
 	if (Lives > 0)
 	{
 		--Lives;
-		UE_LOG(LogTemp, Warning, TEXT("Enemy has %i lives left"), Lives)
 
 		RunningAnimations = EAnimations::TAKINGDAMAGE;
 		KnockbackEffect(KnockbackDirection);
@@ -247,6 +278,9 @@ void ASpiritTest::DecrementingLives(FVector KnockbackDirection)
 	
 }
 
+///This is a part of the special ability for the spirit enemy
+///It is called through the AI system for the spirit enemy
+///The function slowly decrements the health of the player
 void ASpiritTest::DamageOverTimeAttack()
 {
 	if (bCanPerformNextDamageOverTime == true)
@@ -256,6 +290,8 @@ void ASpiritTest::DamageOverTimeAttack()
 	}
 }
 
+///Since the SetTimer can't be stopped based on things that happen after the timer starts, we can't directly call the DecrementingLives function
+///This function therefore tests whether or not the player has been able to break the special ability. If not, the function decrements the players health
 void ASpiritTest::CallingPlayerDecrementLivesFunction()
 {
 	ABP_Character * PlayerCharacter = Cast<ABP_Character>(GetWorld()->GetFirstPlayerController()->GetPawn());
@@ -269,16 +305,16 @@ void ASpiritTest::CallingPlayerDecrementLivesFunction()
 	
 }
 
+///The function for collision testing, checking whether or not the enemy has been able to hit the player
 void ASpiritTest::HittingPlayer(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	if (OtherActor->IsA(ABP_Character::StaticClass()))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("The enemy are hitting you"))
-
-			ABP_Character* PlayerCharacter = Cast<ABP_Character>(OtherActor);
+		ABP_Character* PlayerCharacter = Cast<ABP_Character>(OtherActor);
 
 		PlayerCharacter->DecrementingLives();
 
+		///Turns off  the weaponCollider if the enemy hits the player one time
 		BoxCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 }
