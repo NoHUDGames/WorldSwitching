@@ -55,6 +55,7 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 	if (PlayerController)
 	{
 			PlayerController->InputComponent->BindAction("ChangeWorlds", IE_Pressed, this, &AWorldSwitchingGameModeBase::ChangeWorldsProxy);
+			PlayerController->InputComponent->BindAction("UnlockAllAbilities", IE_Pressed, this, &AWorldSwitchingGameModeBase::UnlockAllAbilities);
 	}
 	
 	if (GameInstance)
@@ -645,4 +646,11 @@ void AWorldSwitchingGameModeBase::ToggleFoliageMaterialProperties()
 			}
 		}
 		*/
+}
+
+void AWorldSwitchingGameModeBase::UnlockAllAbilities()
+{
+	GameInstance->bIsDashingLocked = false;
+	GameInstance->bIsSensingLocked = false;
+	GameInstance->bIsWorldChangingLocked = false;
 }
