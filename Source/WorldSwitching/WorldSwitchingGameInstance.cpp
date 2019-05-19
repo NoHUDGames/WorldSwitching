@@ -16,6 +16,19 @@ UWorldSwitchingGameInstance::UWorldSwitchingGameInstance()
 void UWorldSwitchingGameInstance::BeginGame()
 {
 	LevelPickupParameters.Init(nullptr, NumberOfLevelsWithSpawnHelpers);
+
+	//ensures level 1 entrance portal is inactive during first playthrough,
+	//else player would be able to go straight to hub
+	for (TActorIterator<APS_Portal> PortalItr(GetWorld()); PortalItr; ++PortalItr)
+	{
+		APS_Portal *Portal = *PortalItr;
+
+		if (Portal->PortalIndex == EPortalIndex::Level_1Entrance)
+		{
+			Portal->BoxTrigger->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+			break;
+		}
+	}
 }
 
 void UWorldSwitchingGameInstance::GetCurrentLevel()
