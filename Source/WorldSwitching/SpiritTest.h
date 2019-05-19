@@ -19,6 +19,7 @@ class WORLDSWITCHING_API ASpiritTest : public ACharacter
 {
 	GENERATED_BODY()
 
+	///Timeline component for handling the knockback effect that is triggered when the enemy is hit by the player
 	class UTimelineComponent* KnockbackTimeline;
 public:
 	// Sets default values for this character's properties
@@ -34,15 +35,17 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-
-	/// Start of variables and functions that BP_Character uses to kill the enemy
+	
+	///Holds the health for the enemy
 	int Lives{ 3 };
 
+	///This tests whether or not the enemy is ready to be killed
 	void KillingEnemy();
 
+	///Decrements the enemy health
 	void DecrementingLives(FVector KnockbackDirection = FVector(0.f, 0.f, 0.f));
 
+	///Start of variables and functions related to the spirit enemy special attack
 	FTimerHandle DamageOverTimeHandler;
 	bool bCanPerformNextDamageOverTime{ true };
 	float DamageOverTimeCooldown{ 3.f };
@@ -51,6 +54,7 @@ public:
 		void DamageOverTimeAttack();
 	
 	void CallingPlayerDecrementLivesFunction();
+	///End of variables and functions related to the spirit enemy special attack
 
 	UPROPERTY(EditAnywhere, Category = Sound)
 	USoundBase* TakeDamageSound = nullptr;
@@ -58,31 +62,36 @@ public:
 	UPROPERTY(EditAnywhere, Category = Sound)
 	USoundBase* DeathSound = nullptr;
 
-
+	///The collision testing to check whether or not the enemy is hitting the player
 	UFUNCTION()
 		void HittingPlayer(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
 			UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
-	/// End of variables and functions that BP_Character uses to kill the enemy
 
-	/// Start of variables and functions for the enemy attack
+	///The weaponCollider
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UBoxComponent* BoxCollider { nullptr };
 
-
-	/// End of variables and functions for the enemy attack
-
+	///Plays the right animation
 	void PlayingAnimations();
+
+	///Changes the array that makes sure that the right animation is running only once
 	void ChangingAnimationStarted(int index);
 
 	/// 0 = TakingDamageAnim, 1 = AttackAnim, 2 = MovementAnim,
 	bool AnimationStarted[3] = { false };
 
+	///The enum that makes sure that the right animation is queued to start playing
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 		EAnimations RunningAnimations = EAnimations::MOVEMENT;
 
+	///The head that spawns after the enemy is killed
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UStaticMeshComponent* HeadAfterDeath {nullptr};
+	
+	///Spawns the head
 	void SpawnHead();
+
+	///Destroys the actor after it died
 	void DestroyActor();
 	FTimerHandle SpawningHeadTimerHandler;
 	FTimerHandle DestroyingActorTimerHandler;
@@ -127,10 +136,13 @@ private:
 	void TurnOffTakingDamageAnim();
 	/// end of variables that are related to animations
 
+	///The function to run the knockback effect
 	void KnockbackEffect(FVector KnockbackDirection);
 
+	///Makes sure the right animation inside the movementblendspace is running
 	void MovementAnimationTesting();
 
+	///Locations for knockback handling
 	FVector StartKnockbackLocation;
 	FVector EndKnockbackLocation;
 	

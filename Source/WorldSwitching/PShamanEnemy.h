@@ -20,6 +20,7 @@ class WORLDSWITCHING_API APShamanEnemy : public APWorldCharacter
 {
 	GENERATED_BODY()
 
+	///Timeline component for handling the knockback effect that is triggered when the enemy is hit by the player
 	class UTimelineComponent* KnockbackTimeline;
 
 public:
@@ -38,6 +39,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	/// Start of variables and functions for the enemy attack
+	
+	///The weapon collider
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UBoxComponent* BoxCollider {
 		nullptr
@@ -58,28 +61,35 @@ public:
 
 	/// End of variables and functions for the enemy attack
 
+	///Holds the health for the enemy
 	int Lives{ 3 };
 
+	///Decrements the enemy lives
 	void DecrementingLives(FVector KnockbackDirection = FVector(0.f, 0.f, 0.f));
 
+	///This tests whether or not the enemy is ready to be killed
 	void KillingEnemy();
 
+	///Collision testing to check whether or not the enemy is hitting the player
 	UFUNCTION()
 		void HittingPlayer(UPrimitiveComponent * OverlappedComp, AActor * OtherActor,
 			UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<ASpiritTest> SpiritOfShaman;*/
-
+	///Checks if it is time to spawn the spirit of the shaman
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bTimeToSpawnSpirit = false;
 
+	///Plays the right animation
 	void PlayingAnimations();
+
+	///Changes the array that makes sure that the right animation is running only once
 	void ChangingAnimationStarted(int index);
 
+	
 	/// 0 = IdleAnim, 1 = AttackAnim, 2 = WalkingAnim, 3 = DeathAnim
 	bool AnimationStarted[5] = { false };
 
+	///The enum that makes sure that the right animation is queued to start playing
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 		EAnimations RunningAnimations = EAnimations::IDLE;
 
@@ -104,8 +114,10 @@ private:
 
 	/// end of variable and enums that are related to animations
 
+	///The function to run the knockback effect
 	void KnockbackEffect(FVector KnockbackDirection);
 
+	///Locations for knockback handling
 	FVector StartKnockbackLocation;
 	FVector EndKnockbackLocation;
 
