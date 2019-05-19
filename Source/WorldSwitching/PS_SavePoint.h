@@ -25,9 +25,6 @@ public:
 		UBoxComponent* BoxCollision = nullptr;
 
 		UPROPERTY(EditAnywhere)
-		bool bIsLocatedOnSpiritGround = false;
-
-		UPROPERTY(EditAnywhere)
 		EWorld WorldRequiredOnRespawn = EWorld::None;
 	
 		UFUNCTION()

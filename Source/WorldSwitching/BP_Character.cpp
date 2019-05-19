@@ -866,6 +866,8 @@ void ABP_Character::OnDashingTimelineFinished()
 
 void ABP_Character::SenseWorld()
 {
+	if (GameInstance->bIsSensingLocked) return;
+
 	if (!GameModeRef->GetSphereIsRunning() && GameModeRef->GetLitUpBySensing() == 0 && !GameModeRef->bIsLightUpEffectRunning)
 	{
 
