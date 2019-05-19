@@ -77,12 +77,16 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 
 }
 
+//CalledfromInput
 void AWorldSwitchingGameModeBase::ChangeWorldsProxy()
 {
-	ChangeWorlds();
+	if (!GameInstance->bIsWorldChangingLocked)
+	{
+		ChangeWorlds();
 
-	/// Switches between the head and the mask
-	PlayerPawn->SwitchingHead();
+		/// Switches between the head and the mask
+		PlayerPawn->SwitchingHead();
+	}
 }
 
 void AWorldSwitchingGameModeBase::ChangeWorlds(bool bShowTransitionEffects)

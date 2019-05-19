@@ -284,4 +284,7 @@ void UWorldSwitchingGameInstance::ResetGameVariables()
 	GI_PlayerArtifacts = 0;
 	GI_PlayerHealth = 3;
 
+	bIsSensingLocked = true;
+	bIsWorldChangingLocked = true;
+	bIsDashingLocked = true;
 }

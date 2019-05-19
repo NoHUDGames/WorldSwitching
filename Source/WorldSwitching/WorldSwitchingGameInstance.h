@@ -77,6 +77,16 @@ public:
 	void RegisterPickedUp(int index, AActor* OtherActor);
 	//------ END of system that keeps track of which pickups have been picked up between levels-------//
 
+	//Locking of abilities until player has reached correct place in tutorial
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsSensingLocked = true;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsWorldChangingLocked = true;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsDashingLocked = true;
+
 
 private:
 
