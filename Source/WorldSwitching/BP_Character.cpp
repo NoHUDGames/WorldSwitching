@@ -831,8 +831,10 @@ void ABP_Character::OnHeadSwitchingTimelineFinished()
 void ABP_Character::Dashing()
 {
 	
-
-	if (CurrentlyDashing == false)
+	/// This if statement makes sure that the player is allowed to dash.
+	/// The Currently Dashing variable is making sure that the player waits until the dashing cooldown is finished
+	/// the bIsDashingLocked variable is making sure that the player isn't dashing before they have unlocked the ability
+	if (CurrentlyDashing == false && GameInstance->bIsDashingLocked == false)
 	{
 		RunningAnimations = EAnimations::DASHING;
 		/// Setting vectors
