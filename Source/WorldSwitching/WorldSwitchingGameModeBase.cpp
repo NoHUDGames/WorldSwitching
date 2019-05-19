@@ -63,6 +63,13 @@ void AWorldSwitchingGameModeBase::BeginPlay()
 		{
 			GameInstance->SetbIsFirstTimeStartingGame(false);
 
+			if (CurrentMapName.Contains("2") || CurrentMapName.Contains("Hub"))
+			{
+				GameInstance->bIsDashingLocked = false;
+				GameInstance->bIsWorldChangingLocked = false;
+				GameInstance->bIsSensingLocked = false;
+			}
+
 			GameInstance->BeginGame();
 			GameInstance->ManageLevelPickups();
 			ChangeWorlds(false);
@@ -112,8 +119,7 @@ void AWorldSwitchingGameModeBase::ToggleAll()
 	ToggleParticleEffects();
 	ToggleLastingCameraEffects();
 	ToggleFoliageMaterialProperties();
-	
-	if (!CurrentMapName.Contains("2"))	ToggleLandscapes();
+	ToggleLandscapes();
 }
 
 bool AWorldSwitchingGameModeBase::TestWorldChangeOverlaps()
