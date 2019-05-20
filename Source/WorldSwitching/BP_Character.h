@@ -229,6 +229,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	int Lives{ 3 };
 
+	UPROPERTY(EditAnywhere)
+	TArray<UMaterialInterface*> CapeHP;
+
 
 	UPROPERTY(EditAnywhere, Category = "Collecting")
 	TSubclassOf<AArtifacts> ArtifactsToSpawn;

@@ -44,7 +44,6 @@ ABP_Character::ABP_Character()
 	RespawnLocation = { 0.f, 0.f, 0.f };
 	NumberOfHoldingArtifacts = 0;
 
-
 	/// Sets up the timeline for dashing
 	DashingTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineForDashing"));
 
@@ -469,27 +468,19 @@ void ABP_Character::DecrementingLives()
 	UGameplayStatics::PlaySound2D(CurrentWorld, TakeDamageSound);
 	DisableInput(GetWorld()->GetFirstPlayerController());
 
-	if (GetShields() > 0)
+	--Lives;
+
+	if (Lives <= 0)
 	{
-		--NumberOfShields;
+		CurrentlyDying();
 	}
 	else
 	{
-		--Lives;
-
-		if (Lives <= 0)
-		{
-			CurrentlyDying();
-		}
-		else
-		{
-
-			RunningAnimations = EAnimations::TAKINGDAMAGE;
-			GetWorldTimerManager().SetTimer(KickingDurationTimer, this, &ABP_Character::TakingHitAnimationOver, 0.45f, false);
-
-			
-		}
+		RunningAnimations = EAnimations::TAKINGDAMAGE;
+		GetMesh()->SetMaterial(2, CapeHP[Lives - 1]);
+		GetWorldTimerManager().SetTimer(KickingDurationTimer, this, &ABP_Character::TakingHitAnimationOver, 0.45f, false);		
 	}
+
 }
 
 /// This function is the first step in the player death sequence of functions
@@ -541,8 +532,9 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 	}
 
 	/// This is the part of the collision test that checks if it is a shield that the player is colliding with
-	else if (Cast<AS_PickupShield>(OtherActor) && GetShields() < 3)
+	else if (Cast<AS_PickupShield>(OtherActor) && Lives < 6)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("PICING UP SHIELD"));
 		OtherActor->SetActorEnableCollision(false);
 		AS_PickupShield* PickedUpActor = Cast<AS_PickupShield>(OtherActor);
 
@@ -550,7 +542,10 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 		GameInstance->RegisterPickedUp(PickedUpActor->GetArrayIndex(), OtherActor);;
 
 		PickedUpActor->PickupFeedback();
-		++NumberOfShields;
+		++Lives;
+
+		GetMesh()->SetMaterial(2, CapeHP[Lives - 1]);
+
 	}
 }
 
@@ -702,6 +697,7 @@ void ABP_Character::RespawnSequence()
 	Lives = 3;
 	SetShields(0);
 	GetMesh()->SetHiddenInGame(false);
+	GetMesh()->SetMaterial(2, CapeHP[2]);
 	Head->SetHiddenInGame(false);
 	Mask->SetHiddenInGame(false);
 	SetActorEnableCollision(true);
