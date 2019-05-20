@@ -53,6 +53,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool FinishedLevel2{ false };
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool ReceivedHUDMessage{ false };
+
 	TArray<FLevelPickupParameters*> LevelPickupParameters;
 	FLevelPickupParameters Level_1_PickupParameters;
 	FLevelPickupParameters Level_2_PickupParameters;
