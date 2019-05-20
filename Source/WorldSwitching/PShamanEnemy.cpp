@@ -12,7 +12,7 @@ APShamanEnemy::APShamanEnemy()
 {
 	///This code is very temporary
 	///After the right animation is created, this will not be in use
-	WeaponRotation = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponRotation"));
+	/*WeaponRotation = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponRotation"));
 	WeaponRotation->SetupAttachment(RootComponent);
 	WeaponRotation->Mobility = EComponentMobility::Movable;
 
@@ -26,7 +26,7 @@ APShamanEnemy::APShamanEnemy()
 		WeaponVisual->SetRelativeLocation(FVector(0.0f, 0.0f, 50.0f));
 		WeaponVisual->Mobility = EComponentMobility::Movable;
 		WeaponVisual->SetWorldScale3D(FVector(0.2f));
-	}
+	}*/
 	///End of temporary attack components
 
 	///Setting up the spear component

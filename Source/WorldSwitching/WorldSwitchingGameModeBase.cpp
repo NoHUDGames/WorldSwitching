@@ -274,7 +274,18 @@ void AWorldSwitchingGameModeBase::TogglePhysicalWorldActors()
 
 			for (int MaterialIndex{ 0 }; MaterialIndex < ShamanEnemySpiritWorldMaterials.Num(); ++MaterialIndex)
 			{
-				PWorldChar->GetMesh()->SetMaterial(MaterialIndex, ShamanEnemySpiritWorldMaterials[MaterialIndex]);
+				if (MaterialIndex == 1)
+				{
+					///Sets the spirit world material version for the shaman spear
+					UStaticMeshComponent* ShamanSpearMesh = Cast<UStaticMeshComponent>(PWorldChar->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+					ShamanSpearMesh->SetMaterial(MaterialIndex-1, ShamanEnemySpiritWorldMaterials[MaterialIndex]);
+					UE_LOG(LogTemp, Warning, TEXT("StaticMeshComponentName: %s"), *ShamanSpearMesh->GetMaterial(0)->GetName())
+
+				}
+				else
+				{
+					PWorldChar->GetMesh()->SetMaterial(MaterialIndex, ShamanEnemySpiritWorldMaterials[MaterialIndex]);
+				}
 			}
 		}
 		
@@ -302,7 +313,18 @@ void AWorldSwitchingGameModeBase::TogglePhysicalWorldActors()
 
 			for (int MaterialIndex{ 0 }; MaterialIndex < ShamanEnemyPhysicalWorldMaterials.Num(); ++MaterialIndex)
 			{
-				PWorldChar->GetMesh()->SetMaterial(MaterialIndex, ShamanEnemyPhysicalWorldMaterials[MaterialIndex]);
+				if (MaterialIndex == 1)
+				{
+					///Sets the physical world material version for the shaman spear
+					UStaticMeshComponent* ShamanSpearMesh = Cast<UStaticMeshComponent>(PWorldChar->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+					ShamanSpearMesh->SetMaterial(MaterialIndex-1, ShamanEnemyPhysicalWorldMaterials[MaterialIndex]);
+
+				}
+				else
+				{
+					PWorldChar->GetMesh()->SetMaterial(MaterialIndex, ShamanEnemyPhysicalWorldMaterials[MaterialIndex]);
+				}
+				
 			}
 		}
 	}
