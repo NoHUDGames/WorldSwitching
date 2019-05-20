@@ -49,16 +49,6 @@ public:
 	};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		USceneComponent* WeaponRotation {
-		nullptr
-	};
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		UStaticMeshComponent* WeaponVisual {
-		nullptr
-	};
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UStaticMeshComponent* Spear { nullptr };
 
 	/// End of variables and functions for the enemy attack

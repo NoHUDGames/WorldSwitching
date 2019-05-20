@@ -10,25 +10,6 @@
 
 APShamanEnemy::APShamanEnemy()
 {
-	///This code is very temporary
-	///After the right animation is created, this will not be in use
-	/*WeaponRotation = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponRotation"));
-	WeaponRotation->SetupAttachment(RootComponent);
-	WeaponRotation->Mobility = EComponentMobility::Movable;
-
-	WeaponVisual = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TempWeapon"));
-	WeaponVisual->SetupAttachment(WeaponRotation);
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> WeaponVisualAsset(TEXT("/Engine/BasicShapes/Cube.Cube"));
-	if (WeaponVisualAsset.Succeeded())
-	{
-		/// WeaponVisual->bVisualizeComponent = true;
-		WeaponVisual->SetStaticMesh(WeaponVisualAsset.Object);
-		WeaponVisual->SetRelativeLocation(FVector(0.0f, 0.0f, 50.0f));
-		WeaponVisual->Mobility = EComponentMobility::Movable;
-		WeaponVisual->SetWorldScale3D(FVector(0.2f));
-	}*/
-	///End of temporary attack components
-
 	///Setting up the spear component
 	Spear = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SpearWeapon"));
 	Spear->SetupAttachment(GetMesh());
@@ -102,6 +83,14 @@ void APShamanEnemy::Tick(float DeltaTime)
 
 	MovementAnimationTesting();
 	PlayingAnimations();
+	if (/*AnimationStarted[1] == true && */RunningAnimations == EAnimations::MOVEMENT)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Hello"))
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Goodbye"))
+	}
 
 	
 }
@@ -113,13 +102,11 @@ void APShamanEnemy::PlayingAnimations()
 	if (AnimationStarted[0] == false && RunningAnimations == EAnimations::ATTACKING)
 	{
 		GetMesh()->PlayAnimation(AttackAnim, false);
-
 		ChangingAnimationStarted(0);
 	}
 	else if (AnimationStarted[1] == false && RunningAnimations == EAnimations::MOVEMENT)
 	{
 		GetMesh()->PlayAnimation(MovementAnimBlendSpace, true);
-
 		ChangingAnimationStarted(1);
 	}
 }
