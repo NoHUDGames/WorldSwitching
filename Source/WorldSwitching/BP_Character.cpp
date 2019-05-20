@@ -472,12 +472,19 @@ void ABP_Character::DecrementingLives()
 
 	if (Lives <= 0)
 	{
+		if (CapeHP.IsValidIndex(Lives))
+			GetMesh()->SetMaterial(2, CapeHP[Lives]);
+
 		CurrentlyDying();
 	}
 	else
 	{
 		RunningAnimations = EAnimations::TAKINGDAMAGE;
-		GetMesh()->SetMaterial(2, CapeHP[Lives - 1]);
+
+		if (CapeHP.IsValidIndex(Lives))
+		GetMesh()->SetMaterial(2, CapeHP[Lives]);
+
+
 		GetWorldTimerManager().SetTimer(KickingDurationTimer, this, &ABP_Character::TakingHitAnimationOver, 0.45f, false);		
 	}
 
@@ -544,7 +551,8 @@ void ABP_Character::PickingUpArtifacts(UPrimitiveComponent * OverlappedComp, AAc
 		PickedUpActor->PickupFeedback();
 		++Lives;
 
-		GetMesh()->SetMaterial(2, CapeHP[Lives - 1]);
+		if (CapeHP.IsValidIndex(Lives))
+		GetMesh()->SetMaterial(2, CapeHP[Lives]);
 
 	}
 }
@@ -697,7 +705,7 @@ void ABP_Character::RespawnSequence()
 	Lives = 3;
 	SetShields(0);
 	GetMesh()->SetHiddenInGame(false);
-	GetMesh()->SetMaterial(2, CapeHP[2]);
+	GetMesh()->SetMaterial(2, CapeHP[3]);
 	Head->SetHiddenInGame(false);
 	Mask->SetHiddenInGame(false);
 	SetActorEnableCollision(true);
