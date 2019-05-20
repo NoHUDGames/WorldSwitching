@@ -40,20 +40,19 @@ class WORLDSWITCHING_API AWorldSwitchingGameModeBase : public AGameModeBase
 		
 public:
 
+	//Main function to change worlds
 	UFUNCTION(BlueprintCallable)
 	void ChangeWorlds(bool bShowTransitionEffects = true);
 
 	void ToggleAll();
 
-	//Because input cannot trigger functions with parameters?
+	//Because input cannot trigger functions with parameters. Calls ChangeWorlds(bool bShowTransitionEffects = true)
 	void ChangeWorldsProxy();
 
-	//Returns true if collision occurred
+	//Tests collisions, triggers "no-return" effect and returns true if collision occurred
 	bool TestWorldChangeOverlaps();
 
-	//Not going to deny reentry if colliding with Spirit Objects.
-	//void TestSpiritOverlaps();
-
+	//Used to test against in all toggle functions
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsSpiritWorld;
 	
@@ -96,6 +95,7 @@ public:
 	AActor* GetOtherActorPhysicalTest();
 
 	//Start | Collision while changing world
+	//The proper object-oriented way would be that objects light up themselves. Next time I would do that
 	
 	UPROPERTY(EditAnywhere)
 	UMaterialInterface* RedLightupMaterial = nullptr;
@@ -116,20 +116,24 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void FadeInOut(float TimeLine);
 
+	//Reapplies original materials and resets a bunch of variables used in the process
 	UFUNCTION(BlueprintCallable)
 	void CleanUp();
 
-
-	void UnlockAllAbilities();
-
-
 	//End | Collision while changing world
 
+	//For debugging. Press O to unlock all abilities in tutorial level
+	void UnlockAllAbilities();
+	
+	//Camera focal effect during world change
 	UFUNCTION(BlueprintImplementableEvent)
 	void WorldTransitionEffects();
 
+	//Camera shake and sound
 	UFUNCTION(BlueprintImplementableEvent)
 	void DeniedPhysicalReentryEffects();
+
+	//All toggle functions related to world change
 
 	void TogglePhysicalWorldActors();
 	void ToggleSpiritWorldActors();
@@ -143,7 +147,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ToggleLandscapes();
 
-	//Landscape variables are in the blueprint. Unreal wound not allow BlueprintReadWriteable ALandscape*
+	//Landscape variables are in the blueprint. Unreal would not allow BlueprintReadWriteable ALandscape*
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetLandscapesReferences();
 
@@ -154,6 +158,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = Sound)
 	USoundBase* SensingLightUpSound = nullptr;
 
+	//Player only allowed to Sense again if all objects are done lighting up from last sensing
 	int LitUpBySensing = 0;
 	int GetLitUpBySensing() { return LitUpBySensing; }
 	void IncrementLitUpBySensing() 
@@ -213,7 +218,7 @@ public:
 
 
 
-
+	//Toggled on spirit enemies to give different looks in different worlds
 	UPROPERTY(EditAnywhere, Category = EnemyMaterials)
 	TArray<UMaterialInterface*> SpiritEnemyPhysicalWorldMaterials;
 	UPROPERTY(EditAnywhere, Category = EnemyMaterials)

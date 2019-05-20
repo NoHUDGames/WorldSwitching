@@ -9,6 +9,9 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "PWorldActor.generated.h"
 
+
+//Basis for all objects only visible in physical world 
+
 UCLASS()
 class WORLDSWITCHING_API APWorldActor : public AActor
 {
@@ -18,17 +21,20 @@ public:
 	// Sets default values for this actor's properties
 	APWorldActor();
 
+	//Is tested agains in Toggle-functions in game mode. Good for allowing behaviour outside of normal toggling
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WorldChange)
 		bool bOptOutOfCollisionChange;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WorldChange)
 		bool bOptOutOfVisibilityChange;
-
+	
+	//Must be true for sensingsphere to trigger light up
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WorldChange)
 		bool bCanBeSensed = false;
 
 	class AWorldSwitchingGameModeBase* GameModeRef = nullptr;
 
+	//Because we started out adding meshcomponents in blueprints (D'oh!), we get the reference here
 	UStaticMeshComponent* MeshRef = nullptr;
 
 	UFUNCTION(BlueprintCallable)
@@ -41,6 +47,7 @@ public:
 
 	int NumberOfMaterials = 0;
 
+	//Used to light up actor when sensed
 	UFUNCTION(BlueprintImplementableEvent)
 		void TimeLineLightUpTrigger();
 
@@ -50,18 +57,20 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void ReapplyOriginalMaterials();
 
+	//Manage materials while lighting up. Set for objects with several material elements, but in the end
+	//only used with objects with one element
 	TArray<UMaterialInterface*> OriginalMaterial;
 	TArray<UMaterialInstanceDynamic*> DynamicMaterials;
 
 
 	//Must ble blend mode translucent
 	UPROPERTY(EditAnywhere)
-		UMaterialInterface* DummyLightUpMaterial = nullptr;
+	UMaterialInterface* DummyLightUpMaterial = nullptr;
 
 
 	bool bCurrentIsSpiritWorld = false;
 
-	//MAIN FUNCTION
+	//Called from sensing sphere. AArtifact has a slightly different implementation, hence I used polymorphy
 	virtual void LightUpActorWhenSensed();
 
 	void ApplyDynamicMaterials();

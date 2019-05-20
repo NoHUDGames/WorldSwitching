@@ -8,7 +8,8 @@
 #include "LevelCamera.generated.h"
 
 /**
- * 
+ *  This is an actor with a camera component (in the blueprint), called BP_LevelCamera, that is used for 
+ doing all the portal effects, and in cases where we switch between cameras in a level
  */
 UCLASS()
 class WORLDSWITCHING_API ALevelCamera : public ACameraActor

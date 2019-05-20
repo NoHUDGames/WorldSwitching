@@ -80,15 +80,11 @@ public:
 	bool bIsLitUpBySensing = false;
 
 	
-
-
-
 	virtual void Tick(float DeltaTime) override;
 
 	void SetArrayIndex(int index);
 	int GetArrayIndex();
 
-	ASpawnHelper* SpawnedBy = nullptr;
 	
 private:
 	

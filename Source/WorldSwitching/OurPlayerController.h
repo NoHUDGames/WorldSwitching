@@ -7,7 +7,10 @@
 #include "OurPlayerController.generated.h"
 
 /**
- * 
+ * NOTE! Before we learned about GameInstance, we thought the player controller class persisted between 
+ levels, hence this was created, but is never used. We were not allowed by unreal to delete it. We planned
+ to use it for keeping player state variables between levels
+
  */
 UCLASS()
 class WORLDSWITCHING_API AOurPlayerController : public APlayerController

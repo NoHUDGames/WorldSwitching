@@ -34,10 +34,13 @@ public:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* MeshBoth = nullptr;
 
-
+	//The below is used if WorldChangeType is set to EWorldChange::SetMaterial. It was used in the beginning,
+	//to make trees change appearances between levels, but it isn't used anymore, after we learned about
+	//foliage. Now we have one material with many textures assigned to UStaticMesh trees that are foliaged out, 
+	//where we toggle the visibility of each texture with a MaterialParameterCollection object. See 
+	//AWorldSwitchingGameModeBase::ToggleFoliageMaterialProperties()
 
 	UMaterialInstanceDynamic* DynamicMaterial = nullptr;
-
 
 	UPROPERTY(EditAnywhere, Category = "Dynamic Material Settings")
 	bool bCanChangeMaterial;
@@ -51,7 +54,6 @@ public:
 	TArray<UMaterialInterface*> SpiritMaterials;
 
 	int NumberOfMaterials;
-
 
 	FLinearColor PhysicalColor;
 	float PhysicalGlow;

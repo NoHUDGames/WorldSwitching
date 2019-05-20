@@ -55,6 +55,7 @@ public:
 
 };
 
+	//Start | Toggle appearance of goddess between worlds
 	UPROPERTY(EditAnywhere, Category = Goddess)
 	UMaterialInterface* SpiritMaterial = nullptr;
 
@@ -71,7 +72,10 @@ public:
 	void ActivateSpiritGoddess();
 
 	UWorldSwitchingGameInstance* GameInstance = nullptr;
+	//End | Toggle appearance of goddess between worlds
 
+
+	//Start | Sequence for opening new portals after artifact delivery
 	UPROPERTY(BlueprintReadWrite)
 	ACameraActor* m_FreeLevelCamera;
 
@@ -87,11 +91,11 @@ public:
 
 	void OpenNewPortals();
 	
-
 	void PortalActivationSequence();
 
 	UPROPERTY(EditAnywhere, Category = Sound)
 	USoundBase* ActivationSequenceSound = nullptr;
+
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void SpawnBeam(FVector Target);
@@ -110,6 +114,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void LerpCamera(ACameraActor* FreeCamera, class APS_Portal* Portal, FVector Start, FVector End);
+	//End | Sequence for opening new portals after artifact delivery
 
 	UPROPERTY(BlueprintReadWrite)
 	int DroppedOffArtifacts = 0;

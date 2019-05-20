@@ -10,6 +10,9 @@
 #include "WorldSwitchingGameModeBase.h"
 #include "Sphere_WorldChange.generated.h"
 
+//This is purely a VFX object. A sphere with flipped normals and an animated material,
+//that expands or contracts depending on worlds 
+
 UCLASS()
 class WORLDSWITCHING_API ASphere_WorldChange : public AActor
 {
@@ -34,7 +37,7 @@ public:
 	FVector StartScale;
 	FVector EndScale;
 
-
+	//Triggers timeline in blueprint that drives values into Morph();
 	UFUNCTION(BlueprintImplementableEvent)
 		void TriggerMorph(bool bIsSpiritWorld);
 	UFUNCTION(BlueprintCallable)

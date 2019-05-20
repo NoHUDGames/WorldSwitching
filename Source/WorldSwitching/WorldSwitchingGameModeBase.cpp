@@ -345,6 +345,9 @@ void AWorldSwitchingGameModeBase::ToggleSpiritWorldActors()
 
 				if (!SActorItr->bOptOutOfVisibilityChange)
 					SActorItr->SetActorHiddenInGame(false);
+
+				if (Cast<AS_PickupShield>(SWorldActor))
+					Cast<AS_PickupShield>(SWorldActor)->SphereCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 		}
 
 		//EnemySpirits synlig m/collision

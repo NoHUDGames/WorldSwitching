@@ -80,6 +80,7 @@ public:
 		UPROPERTY(EditAnywhere, Category = "ParticleEffectToSpawn")
 		TSubclassOf<AParticleEffectActor> ParticleEffectToSpawn;
 
+		//Used to determine which level to open
 		UPROPERTY(EditAnywhere, Category = Travel)
 		EDestinationLevel DestinationLevel;
 
@@ -92,6 +93,7 @@ public:
 		ALevelCamera* LevelCamera = nullptr;
 		UCameraComponent* PlayerCamera = nullptr;
 
+		//Used to determine location points to lerp player and camera between during travel sequence
 		static EComingOrGoing ComingOrGoing;
 
 		FTimerHandle ExitHandle;
@@ -118,11 +120,6 @@ public:
 		bool bIsActive = false;
 		float LightIntensity = 15000;
 
-		//True for In, False for out
-		bool bCameraFadeInOut = false;
-
-		bool ComingIn = false;
-		bool GoingOut = false;
 
 		UPROPERTY(EditAnywhere)
 		bool bIsMainMenuPortal = false;
@@ -132,26 +129,28 @@ public:
 		UPROPERTY(EditAnywhere)
 		EPortalIndex PortalIndex;
 
+		//used to determine which portal to enter hub level from
 		static EPortalIndex PlayerCameFrom;
 
+		//The portal that has valid pointer gets to run the enter level sequence
 		APS_Portal* PortalToEnterFrom;
 
 		FString CurrentMapName;
 
+		//Starts the sequence when player overlaps collider
 		UFUNCTION()
 			void ExitLevelSequence(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor,
 				UPrimitiveComponent *OtherComponent, int32 OtherBodyIndex,
 				bool bFromSweep, const FHitResult &SweepResult);
 
 
+		//We use this alot for quick use of timeline function in blueprint. C++ version is a big headache,
+		//but we have done that also elsewhere
 		UFUNCTION(BlueprintImplementableEvent)
 		void TL_TriggerEnterLevelSequence();
 
 		UFUNCTION(BlueprintCallable)
 		void TL_EnterLevelSequence(float MoveCamera, float MovePlayer, float FadeCamera );
-
-
-
 
 
 		//InOrOut = True: In, False: Out
@@ -176,6 +175,7 @@ public:
 		UFUNCTION(BlueprintCallable)
 		void TL_MovePlayerIntoPortal(float MovePlayer, float MoveCamera);
 	
+		//Opens portal doors, turns on lights and smoke and sets collider to overlap player
 		UFUNCTION(BlueprintCallable)
 		void Activate(bool bWithOpeningSound = false);
 
@@ -194,7 +194,4 @@ public:
 
 		void ActivatePlayerAfterEntry();
 		
-
-
-
 };

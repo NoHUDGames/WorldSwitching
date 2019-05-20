@@ -21,15 +21,18 @@ public:
 
 	class AWorldSwitchingGameModeBase* GameModeRef = nullptr;
 	
+	//Is tested agains in Toggle-functions in game mode. Good for allowing behaviour outside of normal toggling
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WorldChange)
 		bool bOptOutOfCollisionChange;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WorldChange)
 		bool bOptOutOfVisibilityChange;
 
+	//Must be true for sensingsphere to trigger light up
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WorldChange)
 		bool bCanBeSensed = false;
 
+	//Because we started out adding meshcomponents in blueprints (D'oh!), we get the reference here
 	UStaticMeshComponent* MeshRef = nullptr;
 
 	UFUNCTION(BlueprintCallable)
@@ -62,7 +65,7 @@ public:
 		UMaterialInterface* DummyLightUpMaterial = nullptr;
 	
 
-	//MAIN FUNCTION
+	//Used to light up actor when sensed
 	virtual void LightUpActorWhenSensed();
 
 	void ApplyDynamicMaterials();

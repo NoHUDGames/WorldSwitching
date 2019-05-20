@@ -8,7 +8,8 @@
 #include "PS_SavePoint.generated.h"
 
 /**
- * 
+ *  Sets the RespawnLocation variable in the character class, and wether or not worldchange is needed
+ * when respawning, in case savepoint is on either spirit or physical-only ground
  */
 UCLASS()
 class WORLDSWITCHING_API APS_SavePoint : public APSWorldActor
@@ -24,6 +25,7 @@ public:
 		UPROPERTY(EditAnywhere)
 		UBoxComponent* BoxCollision = nullptr;
 
+		//If savepoint is on spirit ground
 		UPROPERTY(EditAnywhere)
 		EWorld WorldRequiredOnRespawn = EWorld::None;
 	

@@ -36,16 +36,9 @@ public:
 
 	UWorldSwitchingGameInstance();
 
-	//------ START of system that keeps track of which pickups have been picked up between levels-------//
-	//Its essentially an Array (LevelPickupParameters), of structs (Level_#_PickupParameters), 
-	//containing 4 arrays (Location and bool PickedUpStates for each pickup type and level).
-	//SpawnHelpers only provide location for where to spawn PickUps, otherwise there is no relationship between them. 
-	//Pickups are matched to bool PickedUp arrays based on index given to them at spawn time. 
-	//Enter a level, get some pickups, exit and reenter level, and only pickups that have not already been taken are allowed to spawn again. 
-	//Only Pickups spawned in this way can be kept track of.
+	
 
-	UPROPERTY(EditAnywhere)
-	int NumberOfLevelsWithSpawnHelpers;
+	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool FinishedTutorial{false};
@@ -55,6 +48,16 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool ReceivedHUDMessage{ false };
+
+	//------ START of system that keeps track of which pickups have been picked up between levels-------//
+	//Its essentially an Array (LevelPickupParameters), of structs (Level_#_PickupParameters), 
+	//containing 4 arrays (Location and bool PickedUpStates for each pickup type and level).
+	//SpawnHelpers only provide location for where to spawn PickUps, otherwise there is no relationship between them. 
+	//Pickups are matched to bool PickedUp arrays based on index given to them at spawn time. 
+	//Enter a level, get some pickups, exit and reenter level, and only pickups that have not already been taken are allowed to spawn again. 
+	//Only Pickups spawned in this way can be kept track of.
+	UPROPERTY(EditAnywhere)
+		int NumberOfLevelsWithSpawnHelpers;
 
 	TArray<FLevelPickupParameters*> LevelPickupParameters;
 	FLevelPickupParameters Level_1_PickupParameters;
@@ -98,12 +101,13 @@ private:
 	FString CurrentMapName;
 
 
-	//GameInstance_
+	//Holds player and Goddess/Altar state between levels
 
 	int GI_PlayerHealth = 3;
 	int GI_PlayerArtifacts = 0;
 	int GI_AltarArtifacts = 0;
 
+	//also used to keep track of between levels. 
 	bool bIsFirsTimeLoadingLevelOne = true;
 	bool bIsFirsTimeLoadingLevelTwo = true;
 
