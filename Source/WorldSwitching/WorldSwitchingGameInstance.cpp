@@ -25,6 +25,7 @@ void UWorldSwitchingGameInstance::BeginGame()
 
 		if (Portal->PortalIndex == EPortalIndex::Level_1Entrance)
 		{
+			Portal->Activate();
 			Portal->BoxTrigger->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 			break;
 		}
